@@ -1,0 +1,48 @@
+<div class="pokedex-container">
+    <div class="pokedex-header">
+        <div class="pokedex-logo">
+            <div class="pokeball-icon"></div>
+            <h1>POKÉDEX</h1>
+        </div>
+        <div class="pokedex-leds">
+            <div class="led red"></div>
+            <div class="led blue"></div>
+            <div class="led green"></div>
+        </div>
+    </div>
+
+    <!-- Barra de búsqueda estilo Pokédex -->
+    <div class="search-container">
+        <div class="search-label">BÚSQUEDA DE ESPECIES</div>
+        <div class="search-wrapper">
+            <div class="search-decoration"></div>
+            <input type="text" class="search-input" placeholder="NOMBRE / NÚMERO..." />
+            <button class="search-button">🔍</button>
+        </div>
+    </div>
+
+    <!-- Panel de estadísticas y grid -->
+    <div class="pokedex-main">
+        <!-- Grid de cartas de Pokémon -->
+        <div class="pokemon-grid">
+            <div class="pokemon-card" *ngFor="let pokemon of pokemons" [ngStyle]="getCardStyle(pokemon)">
+                <div class="card-inner">
+                    <div class="card-header">
+                        <div class="pokemon-id">#{{ pokemon.id | number:'3.0-0' }}</div>
+                        
+                    </div>
+                    <div class="pokemon-image-container">
+                        <img class="pokemon-image" [src]="pokemon.imagen" [alt]="pokemon.nombre" />
+                    </div>
+                    <h3 class="pokemon-name">{{ pokemon.nombre | titlecase }}</h3>
+                    <div class="pokemon-types">
+                        <span class="type-badge" *ngFor="let tipo of obtenerTipos(pokemon.tipo)"
+                            [style.backgroundColor]="getTypeColor(tipo)">
+                            {{ tipo }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
