@@ -207,7 +207,15 @@ export class VistaMain {
       ],
     };
   }
-
+  flipPokemon(selectedPokemon: Pokemon): void {
+    this.pokemons.forEach(pokemon => {
+      if (pokemon === selectedPokemon) {
+        pokemon.isFlipped = !pokemon.isFlipped; // el actual se alterna
+      } else {
+        pokemon.isFlipped = false; // todos los demás se apagan
+      }
+    });
+  }
   // Obtener color de un tipo específico
   getTypeColor(tipo: string): string {
     return this.typeColors[tipo.toLowerCase()] || '#A8A878';

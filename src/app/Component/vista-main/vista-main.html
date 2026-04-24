@@ -1,82 +1,71 @@
 <div class="pokedex-container">
-  <div class="pokedex-header">
-    <div class="pokedex-logo">
-      <div class="pokeball-icon"></div>
-      <h1>POKÉDEX</h1>
-    </div>
-    <div class="pokedex-leds">
-      <div class="led red"></div>
-      <div class="led blue"></div>
-      <div class="led green"></div>
-    </div>
-  </div>
-
-  <!-- Barra de búsqueda estilo Pokédex -->
-  <div class="search-container">
-    <div class="search-label">BÚSQUEDA DE ESPECIES</div>
-    <div class="search-wrapper">
-      <div class="search-decoration"></div>
-      <input type="text" class="search-input" placeholder="NOMBRE / NÚMERO..." />
-      <button class="search-button">🔍</button>
-    </div>
-  </div>
-
-  <!-- Panel de estadísticas y grid -->
-  <div class="pokedex-main">
-    <div class="pokemon-grid">
-      <div
-        class="pokemon-card-container"
-        *ngFor="let pokemon of pokemons"
-        [class.flipped]="pokemon.isFlipped"
-        (click)="pokemon.isFlipped = !pokemon.isFlipped"
-      >
-        <div class="card-flipper">
-          <div class="pokemon-card front" [ngStyle]="getCardStyle(pokemon)">
-            <div class="card-inner">
-              <div class="card-header">
-                <div class="pokemon-id">#{{ pokemon.id | number: '3.0-0' }}</div>
-              </div>
-              <div class="pokemon-image-container">
-                <img class="pokemon-image" [src]="pokemon.imagen" [alt]="pokemon.nombre" />
-              </div>
-              <h3 class="pokemon-name">{{ pokemon.nombre | titlecase }}</h3>
-              <div class="pokemon-types">
-                <span
-                  class="type-badge"
-                  *ngFor="let tipo of obtenerTipos(pokemon.tipo)"
-                  [style.backgroundColor]="getTypeColor(tipo)"
-                >
-                  {{ tipo }}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div class="pokemon-card-back back" [ngStyle]="getCardStyle(pokemon)">
-            <div class="card-inner">
-              <div class="card-header">
-                <div class="pokemon-id">#{{ pokemon.id | number: '3.0-0' }}</div>
-                <h3 class="pokemon-name-back">{{ pokemon.nombre | titlecase }}</h3>
-              </div>
-              <div class="chart-container">
-                <canvas
-                  baseChart
-                  [data]="getRadarData(pokemon)"
-                  [options]="radarChartOptions"
-                  [type]="radarChartType"
-                >
-                </canvas>
-              </div>
-              <div class="stats-total">
-                <span>Total: {{ getTotalStats(pokemon) }}</span>
-              </div>
-              <div class="stats-bests">
-                <span>Mejor estadística: {{ getBestStat(pokemon) }}</span>
-              </div>
-            </div>
-          </div>
+    <div class="pokedex-header">
+        <div class="pokedex-logo">
+            <div class="pokeball-icon"></div>
+            <h1>POKÉDEX</h1>
         </div>
-      </div>
+        <div class="pokedex-leds">
+            <div class="led red"></div>
+            <div class="led blue"></div>
+            <div class="led green"></div>
+        </div>
     </div>
-  </div>
+
+    <!-- Barra de búsqueda estilo Pokédex -->
+    <div class="search-container">
+        <div class="search-label">BÚSQUEDA DE ESPECIES</div>
+        <div class="search-wrapper">
+            <div class="search-decoration"></div>
+            <input type="text" class="search-input" placeholder="NOMBRE / NÚMERO..." />
+            <button class="search-button">🔍</button>
+        </div>
+    </div>
+
+    <!-- Panel de estadísticas y grid -->
+    <div class="pokedex-main">
+        <div class="pokemon-grid">
+            <div class="pokemon-card-container" *ngFor="let pokemon of pokemons" [class.flipped]="pokemon.isFlipped"
+                (click)="flipPokemon(pokemon)">
+                <div class="card-flipper">
+                    <div class="pokemon-card front" [ngStyle]="getCardStyle(pokemon)">
+                        <div class="card-inner">
+                            <div class="card-header">
+                                <div class="pokemon-id">#{{ pokemon.id | number: '3.0-0' }}</div>
+                            </div>
+                            <div class="pokemon-image-container">
+                                <img class="pokemon-image" [src]="pokemon.imagen" [alt]="pokemon.nombre" />
+                            </div>
+                            <h3 class="pokemon-name">{{ pokemon.nombre | titlecase }}</h3>
+                            <div class="pokemon-types">
+                                <span class="type-badge" *ngFor="let tipo of obtenerTipos(pokemon.tipo)"
+                                    [style.backgroundColor]="getTypeColor(tipo)">
+                                    {{ tipo }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pokemon-card-back back" [ngStyle]="getCardStyle(pokemon)">
+                        <div class="card-inner">
+                            <div class="card-header">
+                                <div class="pokemon-id">#{{ pokemon.id | number: '3.0-0' }}</div>
+                                <h3 class="pokemon-name-back">{{ pokemon.nombre | titlecase }}</h3>
+                            </div>
+                            <div class="chart-container">
+                                <canvas baseChart [data]="getRadarData(pokemon)" [options]="radarChartOptions"
+                                    [type]="radarChartType">
+                                </canvas>
+                            </div>
+                            <div class="stats-total">
+                                <span>Total: {{ getTotalStats(pokemon) }}</span>
+                            </div>
+                            <div class="stats-bests">
+                                <span>Mejor estadística: {{ getBestStat(pokemon) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
