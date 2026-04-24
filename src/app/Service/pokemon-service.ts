@@ -18,11 +18,8 @@ export class PokemonService {
       map((data) => ({
         id: data.id,
         nombre: data.name,
-
         tipo: data.types.map((t: any) => t.type.name).join(', '),
-
         imagen: `${this.baseRuta}${id}.png`,
-
         hp: this.getStat(data.stats, 'hp'),
         attack: this.getStat(data.stats, 'attack'),
         defense: this.getStat(data.stats, 'defense'),
@@ -33,7 +30,6 @@ export class PokemonService {
         isFlipped: false,
 
         soundUrl: data.cries?.latest,
-
         moves: data.moves.slice(0, 5).map((m: any) => m.move.name),
 
         abilities: data.abilities.map((a: any) => a.ability.name),

@@ -47,26 +47,18 @@ export class VistaMain {
   private audio: HTMLAudioElement | null = null;
   private pokemon: any;
 
-  constructor(private pokemonService: PokemonService) {
-    for (let index = 0; index < 151; index++) {
-      this.pokemonService.getPokemon(index).subscribe({
-        next: (data) => {
-          this.pokemon = data;
-          console.log(this.pokemon);
+  constructor(private pokemonService: PokemonService) {}
 
-          this.pokemons.push(this.pokemon);
+  ngOnInit(): void {
+    const stored = localStorage.getItem('pokemons');
 
-          this.pokemons.sort((a, b) => a.id - b.id);
-        },
-        error: (err) => console.error(err),
-      });
+    this.pokemons = [];
+    if (stored) {
+      this.pokemons = JSON.parse(stored);
+      return;
+    } else {
+      this.cargarPokemons();
     }
-
-    this.pokemons = this.pokemons.map((p) => ({
-      ...p,
-      imagen: `${this.baseRuta}${p.id}.png`,
-      isFlipped: false,
-    }));
   }
 
   playSound(pokemon: Pokemon, event: Event): void {
@@ -171,6 +163,21 @@ export class VistaMain {
         },
       ],
     };
+  }
+  cargarPokemons(): void {
+    this.pokemons = [];
+    for (let index = 1; index <= 1025; index++) {
+      this.pokemonService.getPokemon(index).subscribe({
+        next: (data) => {
+          this.pokemons.push(data);
+          this.pokemons.sort((a, b) => a.id - b.id);
+          console.log("hola");
+
+          localStorage.setItem('pokemons', JSON.stringify(this.pokemons));
+        },
+        error: (err) => console.error(err),
+      });
+    }
   }
 
   flipPokemon(selectedPokemon: Pokemon): void {

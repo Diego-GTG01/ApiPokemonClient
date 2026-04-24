@@ -270,34 +270,25 @@
 /* Pokémon Card Back - Versión unificada */
 .pokemon-card-back {
   position: relative;
-  min-height: 500px;
+  min-height: 380px;
   display: flex;
   flex-direction: column;
   padding: 15px;
   border-radius: 20px;
   color: white;
   overflow-y: auto;
-  max-height: 550px;
+  max-height: 500px;
 }
 
-.pokemon-card-back::-webkit-scrollbar {
-  width: 8px;
-}
 
-.pokemon-card-back::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 10px;
-}
-
-.pokemon-card-back::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #ffd700, #ffed4e);
-  border-radius: 10px;
-}
 
 .back-inner {
+  
   background: rgba(255, 255, 255, 0.6) !important;
   margin: 0 !important;
   padding: 15px !important;
+  
+
 }
 
 /* Chart Container - Versión unificada */
@@ -454,12 +445,12 @@
   
   .pokemon-card-container {
     height: auto;
-    min-height: 380px;
+    min-height: 500px;
   }
   
   .pokemon-card-back {
-    min-height: 450px;
-    max-height: 450px;
+    min-height: 380;
+    max-height: 380px;
   }
 }
 
@@ -481,7 +472,7 @@
 }
 
 .sound-button:hover {
-  transform: scale(1.1);
+
   background: rgba(0, 0, 0, 0.5);
 }
 
@@ -757,6 +748,6 @@
 
 /* Ajuste para el gráfico dentro de tabs */
 .tab-pane .chart-container {
-  height: 180px;
+  height: 160px;
   margin-bottom: 15px;
 }
