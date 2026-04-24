@@ -10,16 +10,13 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-vista-main',
   standalone: true,
-  // 3. Asegúrate de que BaseChartDirective esté aquí
   imports: [CommonModule, FormsModule, BaseChartDirective],
   templateUrl: './vista-main.html',
   styleUrl: './vista-main.css',
 })
 export class VistaMain {
-  // Datos de ejemplo
-
-  baseRuta: string =
-    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/';
+  baseRuta: string = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/';
+  baseSoundUrl: string = 'https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/legacy/';
 
   pokemons: Pokemon[] = [
     {
@@ -33,7 +30,12 @@ export class VistaMain {
       specialAttack: 65,
       specialDefense: 65,
       speed: 45,
-      isFlipped: false
+      isFlipped: false,
+      selectedTab: 0,
+      soundUrl: 'https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/legacy/1.ogg',
+      moves: ['Tackle', 'Growl', 'Leech Seed', 'Vine Whip'],
+      abilities: ['Overgrow', 'Chlorophyll'],
+      description: 'Una semilla rara fue plantada en su espalda al nacer. La planta florece y crece con el Pokémon.'
     },
     {
       id: 4,
@@ -46,7 +48,12 @@ export class VistaMain {
       specialAttack: 60,
       specialDefense: 50,
       speed: 65,
-      isFlipped: false
+      isFlipped: false,
+      selectedTab: 0,
+      soundUrl: 'https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/legacy/4.ogg',
+      moves: ['Scratch', 'Growl', 'Ember', 'Smokescreen'],
+      abilities: ['Blaze', 'Solar Power'],
+      description: 'La llama de su cola indica su estado de ánimo. Si está feliz, la llama arde más intensamente.'
     },
     {
       id: 7,
@@ -59,7 +66,12 @@ export class VistaMain {
       specialAttack: 50,
       specialDefense: 64,
       speed: 43,
-      isFlipped: false
+      isFlipped: false,
+      selectedTab: 0,
+      soundUrl: 'https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/legacy/7.ogg',
+      moves: ['Tackle', 'Tail Whip', 'Water Gun', 'Withdraw'],
+      abilities: ['Torrent', 'Rain Dish'],
+      description: 'Cuando se siente amenazado, se retrae a su caparazón. Rocía agua desde su boca con gran precisión.'
     },
     {
       id: 25,
@@ -72,7 +84,12 @@ export class VistaMain {
       specialAttack: 50,
       specialDefense: 50,
       speed: 90,
-      isFlipped: false
+      isFlipped: false,
+      selectedTab: 0,
+      soundUrl: 'https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/legacy/25.ogg',
+      moves: ['Thunder Shock', 'Growl', 'Tail Whip', 'Quick Attack'],
+      abilities: ['Static', 'Lightning Rod'],
+      description: 'Tiene pequeñas bolsas en sus mejillas donde almacena electricidad. Cuando se enfada, descarga energía.'
     },
     {
       id: 94,
@@ -85,10 +102,15 @@ export class VistaMain {
       specialAttack: 130,
       specialDefense: 75,
       speed: 110,
-      isFlipped: false
+      isFlipped: false,
+      selectedTab: 0,
+      soundUrl: 'https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/legacy/94.ogg',
+      moves: ['Shadow Ball', 'Hypnosis', 'Dream Eater', 'Dark Pulse'],
+      abilities: ['Cursed Body'],
+      description: 'Oculta en las sombras, acecha a su presa. Si sientes un escalofrío repentino, puede que Gengar esté cerca.'
     },
   ];
-  // Mapeo de colores por tipo de Pokémon
+
   private typeColors: { [key: string]: string } = {
     normal: '#A8A878',
     fuego: '#F08030',
@@ -109,6 +131,9 @@ export class VistaMain {
     lucha: '#C03028',
     volador: '#A890F0',
   };
+
+  private audio: HTMLAudioElement | null = null;
+
   constructor() {
     this.pokemons = this.pokemons.map((p) => ({
       ...p,
@@ -117,34 +142,48 @@ export class VistaMain {
     }));
   }
 
-  getTotalStats(p: Pokemon): number {
-    return +p.hp + +p.attack + +p.defense + +p.specialAttack + +p.specialDefense + +p.speed;
+  playSound(pokemon: Pokemon, event: Event): void {
+    event.stopPropagation(); // Evita que el clic del botón voltee la carta
+
+    if (pokemon.soundUrl) {
+      if (this.audio) {
+        this.audio.pause();
+        this.audio = null;
+      }
+
+      this.audio = new Audio(pokemon.soundUrl);
+      this.audio.play().catch(error => {
+        console.error('Error al reproducir el sonido:', error);
+      });
+    }
   }
+
+  getTotalStats(p: Pokemon): number {
+    return p.hp + p.attack + p.defense + p.specialAttack + p.specialDefense + p.speed;
+  }
+
   getBestStat(pokemon: Pokemon): any {
     const stats = [
-      { nombre: 'HP', valor: +pokemon.hp },
-      { nombre: 'Ataque', valor: +pokemon.attack },
-      { nombre: 'Defensa', valor: +pokemon.defense },
-      { nombre: 'At. Especial', valor: +pokemon.specialAttack },
-      { nombre: 'Def. Especial', valor: +pokemon.specialDefense },
-      { nombre: 'Velocidad', valor: +pokemon.speed },
+      { nombre: 'HP', valor: pokemon.hp },
+      { nombre: 'Ataque', valor: pokemon.attack },
+      { nombre: 'Defensa', valor: pokemon.defense },
+      { nombre: 'At. Especial', valor: pokemon.specialAttack },
+      { nombre: 'Def. Especial', valor: pokemon.specialDefense },
+      { nombre: 'Velocidad', valor: pokemon.speed },
     ];
 
     return stats.reduce((prev, current) => (prev.valor > current.valor ? prev : current)).nombre;
   }
 
-  // Obtener los colores según los tipos del Pokémon
   getCardStyle(pokemon: Pokemon): any {
     const tipos = this.obtenerTipos(pokemon.tipo);
 
     if (tipos.length === 1) {
-      // Un solo tipo - color sólido
       return {
         background: this.getTypeColor(tipos[0]),
         transition: 'all 0.3s ease',
       };
     } else if (tipos.length >= 2) {
-      // Dos tipos - degradado
       const color1 = this.getTypeColor(tipos[0]);
       const color2 = this.getTypeColor(tipos[1]);
       return {
@@ -155,6 +194,7 @@ export class VistaMain {
 
     return { background: '#A8A878' };
   }
+
   public radarChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
@@ -184,19 +224,19 @@ export class VistaMain {
         'HP: ' + pokemon.hp,
         'ATK: ' + pokemon.attack,
         'DEF: ' + pokemon.defense,
-        'SP. ATK : ' + pokemon.specialAttack,
+        'SP. ATK: ' + pokemon.specialAttack,
         'SP. DEF: ' + pokemon.specialDefense,
-        'SPD : ' + pokemon.speed,
+        'SPD: ' + pokemon.speed,
       ],
       datasets: [
         {
           data: [
-            Number(pokemon.hp),
-            Number(pokemon.attack),
-            Number(pokemon.defense),
-            Number(pokemon.specialAttack),
-            Number(pokemon.specialDefense),
-            Number(pokemon.speed),
+            pokemon.hp,
+            pokemon.attack,
+            pokemon.defense,
+            pokemon.specialAttack,
+            pokemon.specialDefense,
+            pokemon.speed,
           ],
           label: pokemon.nombre,
           borderColor: '#2e2ca0',
@@ -207,21 +247,26 @@ export class VistaMain {
       ],
     };
   }
+
   flipPokemon(selectedPokemon: Pokemon): void {
     this.pokemons.forEach(pokemon => {
       if (pokemon === selectedPokemon) {
-        pokemon.isFlipped = !pokemon.isFlipped; // el actual se alterna
+        pokemon.isFlipped = !pokemon.isFlipped;
       } else {
-        pokemon.isFlipped = false; // todos los demás se apagan
+        pokemon.isFlipped = false;
       }
     });
   }
-  // Obtener color de un tipo específico
+
+  setSelectedTab(pokemon: Pokemon, tabIndex: number, event: Event): void {
+    event.stopPropagation(); // Evita que voltee la carta
+    pokemon.selectedTab = tabIndex;
+  }
+
   getTypeColor(tipo: string): string {
     return this.typeColors[tipo.toLowerCase()] || '#A8A878';
   }
 
-  // Separar los tipos (pueden venir como "tipo1,tipo2")
   obtenerTipos(tipoString: string): string[] {
     return tipoString.split(',').map((t) => t.trim());
   }

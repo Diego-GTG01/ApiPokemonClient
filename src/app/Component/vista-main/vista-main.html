@@ -11,7 +11,6 @@
         </div>
     </div>
 
-    <!-- Barra de búsqueda estilo Pokédex -->
     <div class="search-container">
         <div class="search-label">BÚSQUEDA DE ESPECIES</div>
         <div class="search-wrapper">
@@ -21,16 +20,19 @@
         </div>
     </div>
 
-    <!-- Panel de estadísticas y grid -->
     <div class="pokedex-main">
         <div class="pokemon-grid">
             <div class="pokemon-card-container" *ngFor="let pokemon of pokemons" [class.flipped]="pokemon.isFlipped"
                 (click)="flipPokemon(pokemon)">
                 <div class="card-flipper">
+                    <!-- FRENTE DE LA CARTA -->
                     <div class="pokemon-card front" [ngStyle]="getCardStyle(pokemon)">
                         <div class="card-inner">
                             <div class="card-header">
                                 <div class="pokemon-id">#{{ pokemon.id | number: '3.0-0' }}</div>
+                                <button class="sound-button" (click)="playSound(pokemon, $event)" title="Reproducir sonido">
+                                    🔊
+                                </button>
                             </div>
                             <div class="pokemon-image-container">
                                 <img class="pokemon-image" [src]="pokemon.imagen" [alt]="pokemon.nombre" />
@@ -45,22 +47,95 @@
                         </div>
                     </div>
 
+                    <!-- DETRÁS DE LA CARTA CON TABS -->
                     <div class="pokemon-card-back back" [ngStyle]="getCardStyle(pokemon)">
-                        <div class="card-inner">
+                        <div class="card-inner back-inner">
                             <div class="card-header">
                                 <div class="pokemon-id">#{{ pokemon.id | number: '3.0-0' }}</div>
                                 <h3 class="pokemon-name-back">{{ pokemon.nombre | titlecase }}</h3>
                             </div>
-                            <div class="chart-container">
-                                <canvas baseChart [data]="getRadarData(pokemon)" [options]="radarChartOptions"
-                                    [type]="radarChartType">
-                                </canvas>
-                            </div>
-                            <div class="stats-total">
-                                <span>Total: {{ getTotalStats(pokemon) }}</span>
-                            </div>
-                            <div class="stats-bests">
-                                <span>Mejor estadística: {{ getBestStat(pokemon) }}</span>
+
+                            <!-- Sistema de Tabs -->
+                            <div class="tabs-container">
+                                <div class="tabs-header">
+                                    <button class="tab-btn" 
+                                        [class.active]="pokemon.selectedTab === 0"
+                                        (click)="setSelectedTab(pokemon, 0, $event)">
+                                         Stats
+                                    </button>
+                                    <button class="tab-btn" 
+                                        [class.active]="pokemon.selectedTab === 1"
+                                        (click)="setSelectedTab(pokemon, 1, $event)">
+                                        Movimientos
+                                    </button>
+                                    <button class="tab-btn" 
+                                        [class.active]="pokemon.selectedTab === 2"
+                                        (click)="setSelectedTab(pokemon, 2, $event)">
+                                        ✨ Habilidades
+                                    </button>
+                                    <button class="tab-btn" 
+                                        [class.active]="pokemon.selectedTab === 3"
+                                        (click)="setSelectedTab(pokemon, 3, $event)">
+                                        Info
+                                    </button>
+                                </div>
+
+                                <div class="tabs-content">
+                                    <!-- Tab 1: Estadísticas -->
+                                    <div class="tab-pane" *ngIf="pokemon.selectedTab === 0">
+                                        <div class="chart-container">
+                                            <canvas baseChart [data]="getRadarData(pokemon)" [options]="radarChartOptions"
+                                                [type]="radarChartType">
+                                            </canvas>
+                                        </div>
+                                        <div class="stats-total">
+                                            <span>Total: {{ getTotalStats(pokemon) }}</span>
+                                        </div>
+                                        <div class="stats-bests">
+                                            <span>Mejor estadística: {{ getBestStat(pokemon) }}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tab 2: Movimientos -->
+                                    <div class="tab-pane" *ngIf="pokemon.selectedTab === 1">
+                                        <div class="moves-container" *ngIf="pokemon.moves && pokemon.moves.length > 0">
+                                            <div class="moves-list">
+                                                <div class="move-item" *ngFor="let move of pokemon.moves; let i = index">
+                                                    <span class="move-number">{{ i + 1 }}</span>
+                                                    <span class="move-name">{{ move }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="empty-state" *ngIf="!pokemon.moves || pokemon.moves.length === 0">
+                                            <p>No hay movimientos disponibles</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tab 3: Habilidades -->
+                                    <div class="tab-pane" *ngIf="pokemon.selectedTab === 2">
+                                        <div class="abilities-container" *ngIf="pokemon.abilities && pokemon.abilities.length > 0">
+                                            <div class="abilities-list">
+                                                <div class="ability-card" *ngFor="let ability of pokemon.abilities">
+                                                    <div class="ability-icon">✨</div>
+                                                    <div class="ability-name">{{ ability }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="empty-state" *ngIf="!pokemon.abilities || pokemon.abilities.length === 0">
+                                            <p>No hay habilidades disponibles</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tab 4: Descripción -->
+                                    <div class="tab-pane" *ngIf="pokemon.selectedTab === 3">
+                                        <div class="description-container" *ngIf="pokemon.description">
+                                            <p class="pokemon-description">{{ pokemon.description }}</p>
+                                        </div>
+                                        <div class="empty-state" *ngIf="!pokemon.description">
+                                            <p>No hay descripción disponible</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

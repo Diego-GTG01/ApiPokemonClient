@@ -225,24 +225,16 @@
   transform: rotateX(0deg);
   -webkit-transform: rotateX(0deg);
 }
-/* Asegúrate de que las cartas tengan un tamaño relativo para contener el gráfico */
-.pokemon-card-back {
-  position: relative;
-  min-height: 300px; /* Ajusta según tu diseño */
-  display: flex;
-  flex-direction: column;
-  padding: 15px;
-  border-radius: 20px;
-  color: white;
-}
 
+/* Pokémon Card Container - Versión unificada */
 .pokemon-card-container {
-  perspective: 1000px; 
+  perspective: 1000px;
   width: 100%;
-  height: 380px; 
+  height: 380px;
   cursor: pointer;
 }
 
+/* Card Flipper - Versión unificada */
 .card-flipper {
   position: relative;
   width: 100%;
@@ -255,32 +247,64 @@
   transform: rotateY(180deg);
 }
 
+/* Front y Back - Versión unificada */
 .front,
 .back {
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden; /* OCULTA la cara de atrás cuando no se ve */
+  backface-visibility: hidden;
   top: 0;
   left: 0;
-  margin: 0; /* Reseteamos márgenes del grid */
+  margin: 0;
 }
 
-/* La parte trasera debe estar ya rotada 180 grados de base */
 .back {
   transform: rotateY(180deg);
 }
 
-/* Ajustes adicionales para que el gráfico se vea bien */
-.chart-container {
-  height: 200px;
-  width: 100%;
+.front {
+  z-index: 2;
 }
 
+/* Pokémon Card Back - Versión unificada */
+.pokemon-card-back {
+  position: relative;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  border-radius: 20px;
+  color: white;
+  overflow-y: auto;
+  max-height: 550px;
+}
+
+.pokemon-card-back::-webkit-scrollbar {
+  width: 8px;
+}
+
+.pokemon-card-back::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+.pokemon-card-back::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  border-radius: 10px;
+}
+
+.back-inner {
+  background: rgba(255, 255, 255, 0.6) !important;
+  margin: 0 !important;
+  padding: 15px !important;
+}
+
+/* Chart Container - Versión unificada */
 .chart-container {
   position: relative;
   margin: auto;
-  height: 180px; /* Tamaño del gráfico */
+  height: 180px;
   width: 100%;
 }
 
@@ -291,23 +315,23 @@
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);  
 }
 
-.stats-total {
-  text-align: center;
-  font-weight: bold;
-  font-size: 0.8rem;
-  margin-top: 10px;
-  background: rgb(7, 172, 29);
-  border-radius: 10px;
-  padding: 4px;
-}
+/* Stats Total y Bests - Versión unificada */
+.stats-total,
 .stats-bests {
   text-align: center;
   font-weight: bold;
-  font-size: 0.8rem;
+  font-size: 12px;
   margin-top: 10px;
-  background: rgba(255, 0, 0);
-  border-radius: 10px;
-  padding: 4px;
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.stats-total {
+  background: rgba(7, 172, 29, 0.8);
+}
+
+.stats-bests {
+  background: rgba(255, 0, 0, 0.8);
 }
 
 .pokemon-card:hover {
@@ -427,4 +451,312 @@
   .pokedex-logo h1 {
     font-size: 20px;
   }
+  
+  .pokemon-card-container {
+    height: auto;
+    min-height: 380px;
+  }
+  
+  .pokemon-card-back {
+    min-height: 450px;
+    max-height: 450px;
+  }
+}
+
+/* Botón de sonido */
+.sound-button {
+  background: rgba(0, 0, 0, 0.3);
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  backdrop-filter: blur(5px);
+}
+
+.sound-button:hover {
+  transform: scale(1.1);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.sound-button:active {
+  transform: scale(0.95);
+}
+
+/* Secciones del dorso */
+.back-section {
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 12px;
+  backdrop-filter: blur(5px);
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #ffd700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-left: 3px solid #ffd700;
+  padding-left: 8px;
+}
+
+/* Sistema de Tabs */
+.tabs-container {
+  margin-top: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tabs-header {
+  display: flex;
+  background: rgba(0, 0, 0, 0.5);
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px 5px;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Courier New', monospace;
+}
+
+.tab-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.1));
+  color: #ffd700;
+}
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #ffd700;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.tabs-content {
+  padding: 15px;
+  min-height: 300px;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.tabs-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tabs-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+}
+
+.tabs-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 215, 0, 0.5);
+  border-radius: 10px;
+}
+
+.tab-pane {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estilo para Movimientos */
+.moves-container {
+  width: 100%;
+}
+
+.moves-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.move-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.move-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(5px);
+}
+
+.move-number {
+  background: #ffd700;
+  color: #2c3e50;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.move-name {
+  font-size: 13px;
+  font-weight: bold;
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
+}
+
+/* Estilo para Habilidades */
+.abilities-container {
+  width: 100%;
+}
+
+.abilities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ability-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 15px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05));
+  border-radius: 10px;
+  border-left: 3px solid #ffd700;
+  transition: all 0.2s ease;
+}
+
+.ability-card:hover {
+  transform: translateX(5px);
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.25), rgba(255, 215, 0, 0.1));
+}
+
+.ability-icon {
+  font-size: 20px;
+}
+
+.ability-name {
+  font-size: 13px;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+/* Estilo para Descripción */
+.description-container {
+  padding: 10px;
+}
+
+.pokemon-description {
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: justify;
+  margin: 0;
+  color: #f0f0f0;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 15px;
+  border-radius: 10px;
+  border-left: 3px solid #ffd700;
+}
+
+/* Estado vacío */
+.empty-state {
+  text-align: center;
+  padding: 30px 20px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.empty-state p {
+  margin: 0;
+}
+
+/* Ajustes responsivos adicionales */
+@media (max-width: 768px) {
+  .tab-btn {
+    font-size: 10px;
+    padding: 8px 3px;
+  }
+  
+  .tabs-content {
+    padding: 10px;
+    min-height: 250px;
+    max-height: 300px;
+  }
+  
+  .move-name {
+    font-size: 11px;
+  }
+  
+  .ability-name {
+    font-size: 11px;
+  }
+  
+  .pokemon-description {
+    font-size: 10px;
+    line-height: 1.5;
+    padding: 10px;
+  }
+  
+  .move-number {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+  
+  .tab-pane .chart-container {
+    height: 180px;
+    margin-bottom: 15px;
+  }
+}
+
+/* Ajuste para el gráfico dentro de tabs */
+.tab-pane .chart-container {
+  height: 180px;
+  margin-bottom: 15px;
 }

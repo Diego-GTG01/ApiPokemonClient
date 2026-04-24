@@ -3,14 +3,17 @@ export interface Pokemon {
   nombre: string;
   tipo: string;
   imagen: string;
-  hp :Number;
-  attack: Number;
-  defense: Number;
-  specialAttack: Number;
-  specialDefense: Number;
-  speed: Number;
-  isFlipped: Boolean;
-
-
-
+  hp: number;
+  attack: number;
+  defense: number;
+  specialAttack: number;
+  specialDefense: number;
+  speed: number;
+  isFlipped: boolean;
+  // Nuevas propiedades
+  soundUrl?: string;
+  moves?: string[];
+  abilities?: string[];
+  description?: string;
+  selectedTab?: number;
 }
