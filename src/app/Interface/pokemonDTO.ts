@@ -10,7 +10,6 @@ export interface Pokemon {
   specialDefense: number;
   speed: number;
   isFlipped: boolean;
-  // Nuevas propiedades
   soundUrl?: string;
   moves?: string[];
   abilities?: string[];
