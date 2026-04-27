@@ -171,12 +171,11 @@ export class VistaMain {
         next: (data) => {
           this.pokemons.push(data);
           this.pokemons.sort((a, b) => a.id - b.id);
-          console.log("hola");
-
           localStorage.setItem('pokemons', JSON.stringify(this.pokemons));
         },
         error: (err) => console.error(err),
       });
+      
     }
   }
 
