@@ -28,6 +28,7 @@ export class PokemonService {
         speed: this.getStat(data.stats, 'speed'),
 
         isFlipped: false,
+        isFavorite: false,
 
         soundUrl: data.cries?.latest,
         moves: data.moves.slice(0, 5).map((m: any) => m.move.name),

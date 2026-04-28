@@ -74,6 +74,11 @@ export class VistaMain {
       });
     }
   }
+  favorite(pokemon: Pokemon, event: Event) {
+    event.stopPropagation(); 
+    pokemon.isFavorite = !pokemon.isFavorite;
+    //servicio
+  }
 
   getTotalStats(p: Pokemon): number {
     return p.hp + p.attack + p.defense + p.specialAttack + p.specialDefense + p.speed;
@@ -166,7 +171,7 @@ export class VistaMain {
   }
   cargarPokemons(): void {
     this.pokemons = [];
-    for (let index = 1; index <= 1025; index++) {
+    for (let index = 1; index <= 151; index++) {
       this.pokemonService.getPokemon(index).subscribe({
         next: (data) => {
           this.pokemons.push(data);
@@ -175,7 +180,6 @@ export class VistaMain {
         },
         error: (err) => console.error(err),
       });
-      
     }
   }
 

@@ -34,18 +34,29 @@
             <div class="card-inner">
               <div class="card-header">
                 <div class="pokemon-id">#{{ pokemon.id | number: '3.0-0' }}</div>
+
                 <button
-                  class="sound-button"
-                  (click)="playSound(pokemon, $event)"
-                  title="Reproducir sonido"
+                  class="fav-button"
+                  [class.active]="pokemon.isFavorite"
+                  (click)="favorite(pokemon, $event)"
                 >
-                  🔊
+                  {{ pokemon.isFavorite ? '★' : '☆' }}
                 </button>
               </div>
               <div class="pokemon-image-container">
                 <img class="pokemon-image" [src]="pokemon.imagen" [alt]="pokemon.nombre" />
               </div>
-              <h3 class="pokemon-name">{{ pokemon.nombre }}</h3>
+              <button
+                class="sound-button"
+                (click)="playSound(pokemon, $event)"
+                title="Reproducir sonido"
+              >
+                🔊
+              </button>
+              <h3 class="pokemon-name">
+                {{ pokemon.nombre }}
+              </h3>
+
               <div class="pokemon-types">
                 <span
                   class="type-badge"
@@ -61,8 +72,6 @@
           <!-- DETRÁS DE LA CARTA CON TABS -->
           <div class="pokemon-card-back back" [ngStyle]="getCardStyle(pokemon)">
             <div class="card-inner back-inner">
-              
-
               <div class="tabs-container">
                 <div class="tabs-header">
                   <button

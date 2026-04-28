@@ -10,6 +10,7 @@ export interface Pokemon {
   specialDefense: number;
   speed: number;
   isFlipped: boolean;
+  isFavorite: boolean;
   soundUrl?: string;
   moves?: string[];
   abilities?: string[];
