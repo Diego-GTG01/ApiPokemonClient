@@ -1,4 +1,17 @@
-<div class="pokedex-container">
+<div class="loading-screen" *ngIf="isLoading && loadingProgress < 100">
+  <div class="loading-content">
+    <div class="pokeball-loader"></div>
+    <h2 class="loading-title">POKÉDEX</h2>
+    <div class="progress-bar-container">
+      <div class="progress-bar" [style.width.%]="loadingProgress"></div>
+    </div>
+    <p class="loading-text">{{ loadingProgress }}% cargado</p>
+    <p class="loading-subtext">Cargando datos de Pokémon...</p>
+  </div>
+</div>
+
+<div class="pokedex-container" *ngIf="!isLoading || loadingProgress === 100">
+
   <div class="pokedex-header">
     <div class="pokedex-logo">
       <div class="pokeball-icon"></div>
@@ -11,51 +24,92 @@
     </div>
   </div>
 
+  <div class="generation-nav">
+    <div class="gen-nav-label">GENERACIÓN</div>
+    <div class="gen-tabs-scroll">
+      <button
+        class="gen-tab"
+        *ngFor="let gen of generations; let i = index"
+        [class.active]="selectedGenIndex === i"
+        [style.--gen-color]="gen.color"
+        (click)="selectGeneration(i)"
+      >
+        <span class="gen-numeral">{{ gen.label }}</span>
+        <span class="gen-region">{{ gen.region }}</span>
+        <span class="gen-count">{{ gen.end - gen.start + 1 }}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="generation-info-bar" [style.--gen-color]="currentGen.color">
+    <div class="gen-info-left">
+      <span class="gen-badge" [style.background]="currentGen.color">GEN {{ currentGen.label }}</span>
+      <span class="gen-region-label">Región {{ currentGen.region }}</span>
+      <span class="gen-range">#{{ currentGen.start | number:'3.0-0' }} – #{{ currentGen.end | number:'3.0-0' }}</span>
+    </div>
+    <div class="gen-info-right">
+      <span class="gen-count-label">{{ filteredPokemons.length }} pokémon</span>
+    </div>
+  </div>
+
   <div class="search-container">
     <div class="search-label">BÚSQUEDA DE ESPECIES</div>
     <div class="search-wrapper">
       <div class="search-decoration"></div>
-      <input type="text" class="search-input" placeholder="NOMBRE / NÚMERO..." />
+      <input
+        type="text"
+        class="search-input"
+        placeholder="NOMBRE / NÚMERO..."
+        [(ngModel)]="searchQuery"
+        (input)="onSearch()"
+      />
       <button class="search-button">🔍</button>
     </div>
   </div>
 
   <div class="pokedex-main">
+    <div class="gen-loading-state" *ngIf="filteredPokemons.length === 0 && isLoading">
+      <div class="mini-pokeball-loader"></div>
+      <p>Cargando {{ currentGen.region }}...</p>
+    </div>
+
+    <div class="gen-empty-search" *ngIf="filteredPokemons.length === 0 && !isLoading && searchQuery">
+      <p>🔍 Sin resultados para "<strong>{{ searchQuery }}</strong>"</p>
+      <small>Prueba con otro nombre o número</small>
+    </div>
+
     <div class="pokemon-grid">
       <div
         class="pokemon-card-container"
-        *ngFor="let pokemon of pokemons"
+        *ngFor="let pokemon of filteredPokemons"
         [class.flipped]="pokemon.isFlipped"
         (click)="flipPokemon(pokemon)"
       >
         <div class="card-flipper">
-          <!-- FRENTE DE LA CARTA -->
+
           <div class="pokemon-card front" [ngStyle]="getCardStyle(pokemon)">
             <div class="card-inner">
               <div class="card-header">
-                <div class="pokemon-id">#{{ pokemon.id | number: '3.0-0' }}</div>
-
+                <div class="pokemon-id">#{{ pokemon.id | number:'3.0-0' }}</div>
                 <button
                   class="fav-button"
                   [class.active]="pokemon.isFavorite"
                   (click)="favorite(pokemon, $event)"
+                  [title]="pokemon.isFavorite ? 'Quitar de favoritos' : 'Añadir a favoritos'"
                 >
                   {{ pokemon.isFavorite ? '★' : '☆' }}
                 </button>
               </div>
+
               <div class="pokemon-image-container">
-                <img class="pokemon-image" [src]="pokemon.imagen" [alt]="pokemon.nombre" />
+                <img class="pokemon-image" [src]="pokemon.imagen" [alt]="pokemon.nombre" loading="lazy" />
               </div>
-              <button
-                class="sound-button"
-                (click)="playSound(pokemon, $event)"
-                title="Reproducir sonido"
-              >
+
+              <button class="sound-button" (click)="playSound(pokemon, $event)" title="Reproducir sonido">
                 🔊
               </button>
-              <h3 class="pokemon-name">
-                {{ pokemon.nombre }}
-              </h3>
+
+              <h3 class="pokemon-name">{{ pokemon.nombre }}</h3>
 
               <div class="pokemon-types">
                 <span
@@ -69,60 +123,31 @@
             </div>
           </div>
 
-          <!-- DETRÁS DE LA CARTA CON TABS -->
           <div class="pokemon-card-back back" [ngStyle]="getCardStyle(pokemon)">
             <div class="card-inner back-inner">
               <div class="tabs-container">
                 <div class="tabs-header">
-                  <button
-                    class="tab-btn"
-                    [class.active]="pokemon.selectedTab === 0"
-                    (click)="setSelectedTab(pokemon, 0, $event)"
-                  >
-                    Stats
-                  </button>
-                  <button
-                    class="tab-btn"
-                    [class.active]="pokemon.selectedTab === 1"
-                    (click)="setSelectedTab(pokemon, 1, $event)"
-                  >
-                    Movimientos
-                  </button>
-                  <button
-                    class="tab-btn"
-                    [class.active]="pokemon.selectedTab === 2"
-                    (click)="setSelectedTab(pokemon, 2, $event)"
-                  >
-                    ✨ Habilidades
-                  </button>
-                  <button
-                    class="tab-btn"
-                    [class.active]="pokemon.selectedTab === 3"
-                    (click)="setSelectedTab(pokemon, 3, $event)"
-                  >
-                    Info
-                  </button>
+                  <button class="tab-btn" [class.active]="pokemon.selectedTab === 0"
+                    (click)="setSelectedTab(pokemon, 0, $event)">Stats</button>
+                  <button class="tab-btn" [class.active]="pokemon.selectedTab === 1"
+                    (click)="setSelectedTab(pokemon, 1, $event)">Movimientos</button>
+                  <button class="tab-btn" [class.active]="pokemon.selectedTab === 2"
+                    (click)="setSelectedTab(pokemon, 2, $event)">✨ Habilidades</button>
+                  <button class="tab-btn" [class.active]="pokemon.selectedTab === 3"
+                    (click)="setSelectedTab(pokemon, 3, $event)">Info</button>
                 </div>
 
                 <div class="tabs-content">
+                  <!-- Stats -->
                   <div class="tab-pane" *ngIf="pokemon.selectedTab === 0">
                     <div class="chart-container">
-                      <canvas
-                        baseChart
-                        [data]="getRadarData(pokemon)"
-                        [options]="radarChartOptions"
-                        [type]="radarChartType"
-                      >
-                      </canvas>
+                      <canvas baseChart [data]="getRadarData(pokemon)" [options]="radarChartOptions" [type]="radarChartType"></canvas>
                     </div>
-                    <div class="stats-total">
-                      <span>Total: {{ getTotalStats(pokemon) }}</span>
-                    </div>
-                    <div class="stats-bests">
-                      <span>Mejor estadística: {{ getBestStat(pokemon) }}</span>
-                    </div>
+                    <div class="stats-total"><span>Total: {{ getTotalStats(pokemon) }}</span></div>
+                    <div class="stats-bests"><span>Mejor: {{ getBestStat(pokemon) }}</span></div>
                   </div>
 
+                  <!-- Movimientos -->
                   <div class="tab-pane" *ngIf="pokemon.selectedTab === 1">
                     <div class="moves-container" *ngIf="pokemon.moves && pokemon.moves.length > 0">
                       <div class="moves-list">
@@ -137,11 +162,9 @@
                     </div>
                   </div>
 
+                  <!-- Habilidades -->
                   <div class="tab-pane" *ngIf="pokemon.selectedTab === 2">
-                    <div
-                      class="abilities-container"
-                      *ngIf="pokemon.abilities && pokemon.abilities.length > 0"
-                    >
+                    <div class="abilities-container" *ngIf="pokemon.abilities && pokemon.abilities.length > 0">
                       <div class="abilities-list">
                         <div class="ability-card" *ngFor="let ability of pokemon.abilities">
                           <div class="ability-icon">✨</div>
@@ -149,14 +172,12 @@
                         </div>
                       </div>
                     </div>
-                    <div
-                      class="empty-state"
-                      *ngIf="!pokemon.abilities || pokemon.abilities.length === 0"
-                    >
+                    <div class="empty-state" *ngIf="!pokemon.abilities || pokemon.abilities.length === 0">
                       <p>No hay habilidades disponibles</p>
                     </div>
                   </div>
 
+                  <!-- Info / Descripción -->
                   <div class="tab-pane" *ngIf="pokemon.selectedTab === 3">
                     <div class="description-container" *ngIf="pokemon.description">
                       <p class="pokemon-description">{{ pokemon.description }}</p>
@@ -169,8 +190,10 @@
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>
   </div>
+
 </div>
