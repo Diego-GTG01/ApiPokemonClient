@@ -17,8 +17,8 @@ export class PokemonFavoritoService {
       'Content-Type': 'application/json',
     }),
   };
-  getPokemonFavorite(idUsuario: Number): Observable <Result<PokemonApi[]>> {
-    return this.http.get<Result<PokemonApi[]>>(this.apiUrl+idUsuario);
+  getPokemonFavorite(idUsuario: Number): Observable <Result<any[]>> {
+    return this.http.get<Result<any[]>>(this.apiUrl+idUsuario);
   }
   addPokemonFavorite(idUsuario: Number, pokemon: PokemonApi): Observable<Result<any>> {
     this.httpOptions.headers.append(

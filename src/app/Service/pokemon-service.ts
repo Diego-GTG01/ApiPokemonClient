@@ -4,6 +4,7 @@ import { BehaviorSubject, forkJoin, map, Observable } from 'rxjs';
 import { Pokemon } from '../Interface/pokemonDTO';
 import { PokemonApi } from '../Interface/pokemonApi';
 import { PokemonFavoritoService } from './pokemon-favorito-service';
+import { Result } from '../Interface/Result';
 
 export interface FavoritePayload {
   pokemonId: number;
@@ -32,6 +33,8 @@ export class PokemonService {
   public progress$ = this.progressSubject.asObservable();
   public pokemons$ = this.pokemonsSubject.asObservable();
 
+  favoriteIds: Set<number>[] = [];
+
   constructor(
     private http: HttpClient,
     private pokemonFavoritoService: PokemonFavoritoService,
@@ -47,12 +50,19 @@ export class PokemonService {
       try {
         const pokemons: Pokemon[] = JSON.parse(stored);
         if (pokemons.length === this.TOTAL_POKEMONS) {
-          const favs = this.getStoredFavorites();
-          pokemons.forEach((p) => {
-            p.isFavorite = favs.has(p.id);
-            p.isFlipped = false;
-            p.selectedTab = 0;
+          this.getStoredFavorites().subscribe((favoriteIds) => {
+            pokemons.forEach((p) => {
+              favoriteIds.forEach((pokeFav) => {
+                if (p.id === pokeFav) {
+                  p.isFavorite = true;
+                  console.log('pokemon favorito agregado');
+                }
+              });
+              p.isFlipped = false;
+              p.selectedTab = 0;
+            });
           });
+
           this.pokemonsSubject.next(pokemons);
           this.progressSubject.next(100);
           console.log('[PokemonService] Pokémons cargados desde localStorage');
@@ -106,9 +116,17 @@ export class PokemonService {
   ): void {
     if (batchIndex >= batches.length) {
       const pokemons = Array.from(pokemonsMap.values()).sort((a, b) => a.id - b.id);
-      const favs = this.getStoredFavorites();
-      pokemons.forEach((p) => {
-        p.isFavorite = favs.has(p.id);
+      this.getStoredFavorites().subscribe((favoriteIds) => {
+        pokemons.forEach((p) => {
+          favoriteIds.forEach((pokeFav) => {
+            if (p.id === pokeFav) {
+              p.isFavorite = true;
+              console.log('pokemon favorito agregado');
+            }
+          });
+          p.isFlipped = false;
+          p.selectedTab = 0;
+        });
       });
 
       this.pokemonsSubject.next(pokemons);
@@ -181,12 +199,30 @@ export class PokemonService {
     return stats.find((s) => s.stat.name === statName)?.base_stat || 0;
   }
 
-  private  getStoredFavorites(): Set<number> {
-    try {
-      const raw = localStorage.getItem(this.FAVORITES_KEY);
-      if (raw) return new Set<number>(JSON.parse(raw));
-    } catch (_) {}
-    return new Set<number>();
+  private getStoredFavorites(): Observable<Set<number>> {
+    return this.pokemonFavoritoService.getPokemonFavorite(21).pipe(
+      map((res: Result<any>) => {
+        const favSet = new Set<number>();
+
+        if (!res?.object || !Array.isArray(res.object)) {
+          return favSet;
+        }
+
+        res.object.forEach((p) => {
+          const id = p?.idPokemon ?? p?.pokemonId ?? p?.id ?? p?.pokemon?.idPokemon;
+
+          const parsed = Number(id);
+
+          if (!Number.isNaN(parsed)) {
+            favSet.add(parsed);
+          }
+        });
+
+        console.log('FAVORITES SET:', favSet);
+
+        return favSet;
+      }),
+    );
   }
 
   private persistFavorites(favs: Set<number>): void {
@@ -194,41 +230,35 @@ export class PokemonService {
   }
 
   toggleFavorite(pokemon: Pokemon): void {
-    const favs = this.getStoredFavorites();
-    if (pokemon.isFavorite) {
-      favs.add(pokemon.id);
-    } else {
-      favs.delete(pokemon.id);
-    }
+    this.getStoredFavorites().subscribe((favoriteIds) => {
+      if (!pokemon.isFavorite) {
+        this.pokemonFavoritoService
+          .addPokemonFavorite(21, this.mapToDTO(pokemon))
+          .subscribe((resultado) => {
+            console.log(resultado);
+            if (resultado.correct) {
+              pokemon.isFavorite = !pokemon.isFavorite;
+            }
+          });
+        favoriteIds.add(pokemon.id);
+      } else {
+        this.pokemonFavoritoService
+          .deletePokemonFavorite(21, this.mapToDTO(pokemon))
+          .subscribe((response) => {
+            console.log(response);
+            if (response.status == 204) {
+              pokemon.isFavorite = !pokemon.isFavorite;
+            } else {
+              console.log('Algo malió sal');
+            }
+          });
+        favoriteIds.delete(pokemon.id);
+      }
 
-    //mandar al backend
-    
-
-    if (!pokemon.isFavorite) {
-      this.pokemonFavoritoService
-        .addPokemonFavorite(21, this.mapToDTO(pokemon))
-        .subscribe((resultado) => {
-          console.log(resultado);
-          if (resultado.correct) {
-            pokemon.isFavorite = !pokemon.isFavorite;
-          }
-        });
-    } else {
-      this.pokemonFavoritoService
-        .deletePokemonFavorite(21, this.mapToDTO(pokemon))
-        .subscribe((response) => {
-          console.log(response);
-          if (response.status == 204) {
-            pokemon.isFavorite = !pokemon.isFavorite;
-          } else {
-            console.log('Algo malió sal');
-          }
-        });
-    }
-
-    this.persistFavorites(favs);
+      this.persistFavorites(favoriteIds);
+      console.log(favoriteIds);
+    });
   }
-  
 
   forceReload(): void {
     this.clearCache();

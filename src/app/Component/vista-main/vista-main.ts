@@ -95,12 +95,6 @@ export class VistaMain implements OnInit, OnDestroy {
         },
       }),
     );
-    this.pokemonFavoritoService.getPokemonFavorite(21).subscribe((resultado) => {
-      console.log(resultado);
-      this.marcarFavoritos(resultado.object);
-      this.applyFilter();
-    });
-    
   }
 
   ngOnDestroy(): void {
@@ -151,18 +145,6 @@ export class VistaMain implements OnInit, OnDestroy {
       p.isFlipped = p === selectedPokemon ? !p.isFlipped : false;
     });
   }
-
-  marcarFavoritos(lista: PokemonApi[]) {
-    this.allPokemons.forEach(pokemon =>{
-      lista.forEach(p=>{
-        if(p.idPokemon==pokemon.id){
-          pokemon.isFavorite=true;
-          console.log("favorito encontrado")
-        }
-      })
-    });
-  }
-  
 
   setSelectedTab(pokemon: Pokemon, tabIndex: number, event: Event): void {
     event.stopPropagation();
