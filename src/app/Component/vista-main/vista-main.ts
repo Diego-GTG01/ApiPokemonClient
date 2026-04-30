@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType, Chart, registerables } from 'chart.js';
 import { Pokemon } from '../../Interface/pokemonDTO';
@@ -74,6 +75,7 @@ export class VistaMain implements OnInit, OnDestroy {
     flying: '#A890F0',
   };
   constructor(
+    private router: Router,
     private pokemonService: PokemonService,
     private pokemonFavoritoService: PokemonFavoritoService,
   ) {}
@@ -243,5 +245,9 @@ export class VistaMain implements OnInit, OnDestroy {
         },
       ],
     };
+  }
+
+  irGestionUsuarios() {
+    this.router.navigate(['/PokeUsers']);
   }
 }

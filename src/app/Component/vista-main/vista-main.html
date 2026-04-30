@@ -40,7 +40,9 @@
         <div class="action-grid">
           <button class="sys-btn" title="Ver mis favoritos">⭐ MIS FAVORITOS</button>
           <button class="sys-btn" title="Ver estadísticas de usuarios">📊 ESTADÍSTICAS</button>
-          <button class="sys-btn" title="Gestionar Usuarios">📋 GESTIÓN DE USUARIOS</button>
+          <button (click)="irGestionUsuarios()" class="sys-btn" title="Gestionar Usuarios">
+            📋 GESTIÓN DE USUARIOS
+          </button>
           <button class="sys-btn" title="Editar Perfil">🆔 FICHA ENTRENADOR</button>
           <button class="sys-btn logout-btn" title="Finalizar Sesión">
             <span class="power-icon">⏻</span> CERRAR SESIÓN POKÉDEX
