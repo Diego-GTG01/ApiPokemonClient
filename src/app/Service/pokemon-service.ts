@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, forkJoin, map, Observable } from 'rxjs';
 import { Pokemon } from '../Interface/pokemonDTO';
+import { PokemonApi } from '../Interface/pokemonApi';
+import { PokemonFavoritoService } from './pokemon-favorito-service';
 
 export interface FavoritePayload {
   pokemonId: number;
@@ -30,20 +32,23 @@ export class PokemonService {
   public progress$ = this.progressSubject.asObservable();
   public pokemons$ = this.pokemonsSubject.asObservable();
 
-  constructor(private http: HttpClient) {
-
+  constructor(
+    private http: HttpClient,
+    private pokemonFavoritoService: PokemonFavoritoService,
+  ) {
+    localStorage.clear();
     this.bootstrap();
   }
 
   private bootstrap(): void {
     const stored = localStorage.getItem(this.STORAGE_KEY);
-    
+
     if (stored) {
       try {
         const pokemons: Pokemon[] = JSON.parse(stored);
         if (pokemons.length === this.TOTAL_POKEMONS) {
           const favs = this.getStoredFavorites();
-          pokemons.forEach(p => {
+          pokemons.forEach((p) => {
             p.isFavorite = favs.has(p.id);
             p.isFlipped = false;
             p.selectedTab = 0;
@@ -58,7 +63,6 @@ export class PokemonService {
       }
     }
 
-
     this.loadAllPokemons();
   }
 
@@ -72,9 +76,9 @@ export class PokemonService {
     if (!this.fetchStarted && this.pokemonsSubject.value.length < this.TOTAL_POKEMONS) {
       this.loadAllPokemons();
     }
+
     return this.pokemonsSubject.asObservable();
   }
-
 
   private loadAllPokemons(): void {
     if (this.fetchStarted) return;
@@ -98,12 +102,14 @@ export class PokemonService {
   private processBatches(
     batches: number[][],
     batchIndex: number,
-    pokemonsMap: Map<number, Pokemon>
+    pokemonsMap: Map<number, Pokemon>,
   ): void {
     if (batchIndex >= batches.length) {
       const pokemons = Array.from(pokemonsMap.values()).sort((a, b) => a.id - b.id);
       const favs = this.getStoredFavorites();
-      pokemons.forEach(p => { p.isFavorite = favs.has(p.id); });
+      pokemons.forEach((p) => {
+        p.isFavorite = favs.has(p.id);
+      });
 
       this.pokemonsSubject.next(pokemons);
       this.loadingSubject.next(false);
@@ -115,13 +121,13 @@ export class PokemonService {
     }
 
     const batch = batches[batchIndex];
-    const requests = batch.map(id =>
-      this.http.get<any>(`${this.apiUrl}/${id}`).pipe(map(data => this.mapToPokemon(data)))
+    const requests = batch.map((id) =>
+      this.http.get<any>(`${this.apiUrl}/${id}`).pipe(map((data) => this.mapToPokemon(data))),
     );
 
     forkJoin(requests).subscribe({
       next: (pokemons) => {
-        pokemons.forEach(p => pokemonsMap.set(p.id, p));
+        pokemons.forEach((p) => pokemonsMap.set(p.id, p));
 
         const progress = Math.round((pokemonsMap.size / this.TOTAL_POKEMONS) * 100);
         this.progressSubject.next(progress);
@@ -140,10 +146,16 @@ export class PokemonService {
         this.loadingSubject.next(false);
         const partial = Array.from(pokemonsMap.values()).sort((a, b) => a.id - b.id);
         if (partial.length) this.pokemonsSubject.next(partial);
-      }
+      },
     });
   }
 
+  private mapToDTO(pokemon: Pokemon): PokemonApi {
+    return {
+      idPokemon: pokemon?.id,
+      name: pokemon?.nombre,
+    };
+  }
   private mapToPokemon(data: any): Pokemon {
     return {
       id: data.id,
@@ -169,12 +181,11 @@ export class PokemonService {
     return stats.find((s) => s.stat.name === statName)?.base_stat || 0;
   }
 
-
-  private getStoredFavorites(): Set<number> {
+  private  getStoredFavorites(): Set<number> {
     try {
       const raw = localStorage.getItem(this.FAVORITES_KEY);
       if (raw) return new Set<number>(JSON.parse(raw));
-    } catch (_) { }
+    } catch (_) {}
     return new Set<number>();
   }
 
@@ -183,21 +194,41 @@ export class PokemonService {
   }
 
   toggleFavorite(pokemon: Pokemon): void {
-    pokemon.isFavorite = !pokemon.isFavorite;
-
     const favs = this.getStoredFavorites();
     if (pokemon.isFavorite) {
       favs.add(pokemon.id);
     } else {
       favs.delete(pokemon.id);
     }
+
+    //mandar al backend
+    
+
+    if (!pokemon.isFavorite) {
+      this.pokemonFavoritoService
+        .addPokemonFavorite(21, this.mapToDTO(pokemon))
+        .subscribe((resultado) => {
+          console.log(resultado);
+          if (resultado.correct) {
+            pokemon.isFavorite = !pokemon.isFavorite;
+          }
+        });
+    } else {
+      this.pokemonFavoritoService
+        .deletePokemonFavorite(21, this.mapToDTO(pokemon))
+        .subscribe((response) => {
+          console.log(response);
+          if (response.status == 204) {
+            pokemon.isFavorite = !pokemon.isFavorite;
+          } else {
+            console.log('Algo malió sal');
+          }
+        });
+    }
+
     this.persistFavorites(favs);
-
-    //mandar al backend 
   }
-
-
-
+  
 
   forceReload(): void {
     this.clearCache();
