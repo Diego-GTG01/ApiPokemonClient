@@ -1,0 +1,106 @@
+<div class="pokedex-container">
+  <header class="pokedex-header">
+    <div class="header-content">
+      <div class="pokedex-lens"></div>
+      
+      <h1>Registro de Entrenador</h1>
+    </div>
+    <button (click)="volver()" class="btn-back">Volver</button>
+  </header>
+
+  <main class="form-wrapper">
+    <form [formGroup]="usuarioForm" (ngSubmit)="guardarUsuario()" class="pokedex-card-form">
+      <div class="card-header">
+        <span class="id-badge">NUEVO ENTRENADOR</span>
+        <div class="status-indicator">
+          <span class="label-status">{{
+            usuarioForm.valid ? '' : 'DATOS INCOMPLETOS'
+          }}</span>
+          <span class="status-light" [class.active]="usuarioForm.valid"></span>
+        </div>
+      </div>
+
+      <div class="form-body">
+        <div class="side-panel">
+          <div class="trainer-photo-frame">
+            <div class="scan-line"></div>
+            <img
+              src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png"
+              class="preview-img"
+              style="opacity: 0.3; filter: grayscale(1)"
+            />
+          </div>
+
+          <div class="input-group full-width">
+            <label class="label">Rango (Rol)</label>
+            <select formControlName="rol" [compareWith]="compareRoles" class="poke-input">
+              <option [ngValue]="null" disabled>Seleccionar Rol...</option>
+              <option *ngFor="let r of roles" [ngValue]="r">{{ r.nombre }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="fields-panel">
+          <h3 class="section-title">Credenciales de Acceso</h3>
+          <div class="grid-row three-cols">
+            <div class="input-group">
+              <label class="label">Username</label>
+              <input
+                type="text"
+                formControlName="userName"
+                class="poke-input"
+                placeholder="User123"
+              />
+            </div>
+            <div class="input-group">
+              <label class="label">Password</label>
+              <input
+                type="password"
+                formControlName="password"
+                class="poke-input"
+                placeholder="******"
+              />
+            </div>
+            <div class="input-group">
+              <label class="label">Email</label>
+              <input
+                type="email"
+                formControlName="email"
+                class="poke-input"
+                placeholder="pkmn@center.com"
+              />
+            </div>
+          </div>
+
+          <h3 class="section-title">Información Personal</h3>
+          <div class="grid-row">
+            <div class="input-group">
+              <label class="label">Nombre</label>
+              <input type="text" formControlName="nombre" class="poke-input" />
+            </div>
+            <div class="input-group">
+              <label class="label">Apellido Paterno</label>
+              <input type="text" formControlName="apellidoPaterno" class="poke-input" />
+            </div>
+            <div class="input-group">
+              <label class="label">Apellido Materno</label>
+              <input type="text" formControlName="apellidoMaterno" class="poke-input" />
+            </div>
+            <div class="input-group">
+              <label class="label">Celular</label>
+              <input type="text" formControlName="celular" class="poke-input" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="divider-line"></div>
+
+      <div class="card-footer">
+        <button (click)="guardarUsuario()" type="submit" class="sys-btn register" [disabled]="usuarioForm.invalid">
+          CONFIRMAR REGISTRO
+        </button>
+        <button type="button" class="btn-delete" (click)="usuarioForm.reset()">BORRAR FICHA</button>
+      </div>
+    </form>
+  </main>
+</div>

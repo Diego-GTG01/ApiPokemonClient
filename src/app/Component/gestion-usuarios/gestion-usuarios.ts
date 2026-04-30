@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Usuario } from '../../Interface/Usuario';
 import { UsuarioService } from '../../Service/usuario-service';
@@ -11,21 +12,26 @@ import { Result } from '../../Interface/Result';
   styleUrl: './gestion-usuarios.css',
 })
 export class GestionUsuarios {
-  constructor(private usuarioService: UsuarioService) {
+  constructor(
+    private router: Router,
+    private usuarioService: UsuarioService,
+  ) {}
+  usuarios: Usuario[] = [];
+
+  ngOnInit(): void {
     this.cargarUsuarios();
   }
-  usuarios: Usuario[] = [];
 
   cargarUsuarios(): void {
     this.usuarioService.getPokemonFavorite().subscribe({
       next: (usuarios: Result<Usuario[]>) => {
-        console.log(usuarios)
-        this.usuarios=usuarios.objects.flat()
-        
+        console.log(usuarios);
+        this.usuarios = usuarios.objects.flat();
       },
-      error: (err) => {
-        
-      },
+      error: (err) => {},
     });
+  }
+  agregarUsuario(): void {
+    this.router.navigate(['/PokeForm']);
   }
 }
