@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
   templateUrl: './vista-login.html',
   styleUrls: ['./vista-login.css'],
 })
+
 export class VistaLogin {
   username = '';
   password = '';
@@ -25,9 +26,16 @@ export class VistaLogin {
         password: this.password,
       })
       .subscribe({
-        next: () => this.router.navigate(['/']),
-        error: () => alert('Credenciales incorrectas'),
+        next: () => {
+          this.router.navigate(['/']);
+        },
+        error: (err) => {
+          if (err.status === 403) {
+            this.router.navigate(['/verify-pending']);
+          } else {
+            alert('Credenciales incorrectas');
+          }
+        },
       });
   }
 }
-

@@ -5,26 +5,25 @@ import { tap } from 'rxjs';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
-  const token = localStorage.getItem('token');
   const router = inject(Router);
 
-  let cloned = req;
-
-  if (token) {
-    cloned = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-  }
+  const cloned = req.clone({
+    withCredentials: true
+  });
 
   return next(cloned).pipe(
     tap({
       error: (err: HttpErrorResponse) => {
-        if (err.status === 401 || err.status === 403) {
-          localStorage.removeItem('token');
+
+        const currentUrl = router.url;
+
+        if ((err.status === 401 || err.status === 403) 
+            && currentUrl !== '/verify-pending'
+            && currentUrl !== '/login') {
+
           router.navigate(['/login']);
         }
+
       }
     })
   );
