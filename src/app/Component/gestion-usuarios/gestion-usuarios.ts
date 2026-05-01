@@ -23,7 +23,7 @@ export class GestionUsuarios {
   }
 
   cargarUsuarios(): void {
-    this.usuarioService.getPokemonFavorite().subscribe({
+    this.usuarioService.getAllUsers().subscribe({
       next: (usuarios: Result<Usuario[]>) => {
         console.log(usuarios);
         this.usuarios = usuarios.objects.flat();

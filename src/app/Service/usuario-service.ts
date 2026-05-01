@@ -12,7 +12,10 @@ export class UsuarioService {
   apiUrl = 'http://localhost:8080/usuario';
 
   constructor(private http: HttpClient) {}
-  getPokemonFavorite(): Observable<Result<Usuario[]>> {
+  getAllUsers(): Observable<Result<Usuario[]>> {
     return this.http.get<Result<Usuario[]>>(this.apiUrl);
+  }
+  addUser(user: Usuario): Observable<Result<Usuario[]>> {
+    return this.http.post<Result<Usuario[]>>(this.apiUrl+'/add', user);
   }
 }

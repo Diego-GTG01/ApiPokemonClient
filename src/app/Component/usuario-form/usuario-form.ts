@@ -3,6 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Rol } from '../../Interface/Rol';
 import { Router } from '@angular/router';
+import { RolService } from '../../Service/rol-service';
+import { Result } from '../../Interface/Result';
+import { UsuarioService } from '../../Service/usuario-service';
+import { Usuario } from '../../Interface/Usuario';
 
 @Component({
   selector: 'app-usuario-form',
@@ -18,6 +22,8 @@ export class UsuarioForm implements OnInit {
   constructor(
     private router: Router,
     private formBuilder: FormBuilder,
+    private rolService: RolService,
+    private usuarioService: UsuarioService,
   ) {}
 
   ngOnInit(): void {
@@ -42,11 +48,13 @@ export class UsuarioForm implements OnInit {
   }
 
   private cargarRoles(): void {
-    this.roles = [
-      { idRol: 1, nombre: 'Entrenador' },
-      { idRol: 2, nombre: 'Líder de Gimnasio' },
-      { idRol: 3, nombre: 'Investigador' },
-    ];
+    this.rolService.getAllRol().subscribe({
+      next: (result: Result<Rol[]>) => {
+        this.roles = result.objects.flat();
+        console.log('roles cargados');
+      },
+      error: (err) => {},
+    });
   }
 
   compareRoles(p1: Rol, p2: Rol): boolean {
@@ -56,6 +64,22 @@ export class UsuarioForm implements OnInit {
   guardarUsuario(): void {
     if (this.usuarioForm.valid) {
       console.log('Datos del Entrenador:', this.usuarioForm.value);
+      this.usuarioService.addUser(this.usuarioForm.value).subscribe({
+        next: (result: Result<Usuario[]>) => {
+          
+          console.log(result);
+          if(result.correct){
+            this.usuarioForm.reset();
+            alert("Usuario guardado exitosamente")
+          }else{
+            this.usuarioForm.markAllAsTouched();
+            alert("Usuario no guardado")
+          }
+        },
+        error: (err) => {
+          console.warn(err)
+        },
+      });
     } else {
       this.usuarioForm.markAllAsTouched();
     }
