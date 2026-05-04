@@ -9,7 +9,7 @@
   </header>
 
   <main class="form-wrapper">
-    <form [formGroup]="usuarioForm" (ngSubmit)="guardarUsuario()" class="pokedex-card-form">
+    <form [formGroup]="usuarioForm" (ngSubmit)="guardarUsuario($event)" class="pokedex-card-form">
       <div class="card-header">
         <span class="id-badge">NUEVO ENTRENADOR</span>
         <div class="status-indicator">
@@ -96,7 +96,7 @@
       <div class="divider-line"></div>
 
       <div class="card-footer">
-        <button (click)="guardarUsuario()" type="submit" class="sys-btn register" [disabled]="usuarioForm.invalid">
+        <button  type="submit" class="sys-btn register" [disabled]="usuarioForm.invalid">
           CONFIRMAR REGISTRO
         </button>
         <button type="button" class="btn-delete" (click)="usuarioForm.reset()">BORRAR FICHA</button>

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Result } from '../Interface/Result';
 import { Usuario } from '../Interface/Usuario';
 import { Observable } from 'rxjs';
@@ -16,6 +16,11 @@ export class UsuarioService {
     return this.http.get<Result<Usuario[]>>(this.apiUrl);
   }
   addUser(user: Usuario): Observable<Result<Usuario[]>> {
-    return this.http.post<Result<Usuario[]>>(this.apiUrl+'/add', user);
+    return this.http.post<Result<Usuario[]>>(this.apiUrl + '/add', user);
+  }
+  deleteUser(idUser: Number): Observable<HttpResponse<Result<any>>> {
+    return this.http.delete<Result<any>>(this.apiUrl + '/delete?idUsuario=' + idUser, {
+      observe: 'response',
+    });
   }
 }

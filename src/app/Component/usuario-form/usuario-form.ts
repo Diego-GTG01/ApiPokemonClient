@@ -7,6 +7,7 @@ import { RolService } from '../../Service/rol-service';
 import { Result } from '../../Interface/Result';
 import { UsuarioService } from '../../Service/usuario-service';
 import { Usuario } from '../../Interface/Usuario';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-usuario-form',
@@ -61,23 +62,40 @@ export class UsuarioForm implements OnInit {
     return p1 && p2 ? p1.idRol === p2.idRol : p1 === p2;
   }
 
-  guardarUsuario(): void {
+  guardarUsuario(event: Event): void {
+    event.preventDefault();
     if (this.usuarioForm.valid) {
       console.log('Datos del Entrenador:', this.usuarioForm.value);
       this.usuarioService.addUser(this.usuarioForm.value).subscribe({
         next: (result: Result<Usuario[]>) => {
-          
           console.log(result);
-          if(result.correct){
+          if (result.correct) {
             this.usuarioForm.reset();
-            alert("Usuario guardado exitosamente")
-          }else{
+              Swal.fire({
+                title: 'Usuario guardado exitosamente',
+                icon: 'success',
+                confirmButtonText: 'OK',
+              });
+
+            this.volver();
+          } else {
             this.usuarioForm.markAllAsTouched();
-            alert("Usuario no guardado")
+            alert('Usuario no guardado');
+             Swal.fire({
+              title: 'Error al guardar el usuario',
+              icon: 'error',
+              confirmButtonText: 'OK',
+            });
           }
         },
         error: (err) => {
-          console.warn(err)
+          console.warn(err);
+          
+             Swal.fire({
+              title: 'Error al guardar el usuario',
+              icon: 'error',
+              confirmButtonText: 'OK',
+            });
         },
       });
     } else {
