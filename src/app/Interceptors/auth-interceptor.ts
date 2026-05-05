@@ -7,14 +7,15 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   const router = inject(Router);
 
+  const isApiPropia = req.url.includes('localhost:8080');
+
   const cloned = req.clone({
-    withCredentials: true
+    withCredentials: isApiPropia
   });
 
   return next(cloned).pipe(
     tap({
       error: (err: HttpErrorResponse) => {
-
         const currentUrl = router.url;
 
         if ((err.status === 401 || err.status === 403) 
@@ -23,7 +24,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
           router.navigate(['/login']);
         }
-
       }
     })
   );

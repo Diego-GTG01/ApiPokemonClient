@@ -1,0 +1,87 @@
+<div class="pokedex-container">
+  <!-- Header estilo Pokédex -->
+  <header class="pokedex-header">
+    <div class="header-content">
+      <span class="pokedex-lens"></span>
+      <h1>EXPEDIENTE DE ENTRENADOR: {{ usuario.userName | uppercase }}</h1>
+    </div>
+    <button class="btn-add" (click)="regresar()">X SALIR</button>
+  </header>
+
+  <div class="detail-wrapper">
+    <!-- Tarjeta Expandida -->
+    <div class="trainer-card full-detail" [class.verified]="usuario.verified === 1">
+      <div class="card-header">
+        <span>REGISTRO OFICIAL #{{ usuario.idUsuario }}</span>
+        <span>{{ usuario.verified === 1 ? 'ESTADO: ACTIVO' : 'ESTADO: PENDIENTE' }}</span>
+      </div>
+
+      <div class="detail-grid">
+        <div class="avatar-section">
+          <div style="text-align: center">
+            <div class="trainer-photo" style="width: 200px; height: 200px">
+              <img
+                src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{{
+                  usuario.idUsuario
+                }}.png"
+                alt="Trainer"
+                class="trainer-image"
+                style="transform: scale(1.5)"
+              />
+            </div>
+            <h2 style="color: #3b4cca; margin-top: 15px">{{ usuario.rol?.nombre }}</h2>
+          </div>
+        </div>
+
+        <div class="info-section large">
+          <div class="info-group full-width">
+            <span class="label">Nombre del Entrenador</span>
+            <span class="data-value"
+              >{{ usuario.nombre }} {{ usuario.apellidoPaterno }}
+              {{ usuario.apellidoMaterno }}</span
+            >
+            <div class="divider"></div>
+          </div>
+
+          <div class="info-group">
+            <span class="label">ID de Usuario</span>
+            <span class="data-value">@{{ usuario.userName }}</span>
+          </div>
+
+          <div class="info-group">
+            <span class="label">Correo Electrónico</span>
+            <span class="data-value">{{ usuario.email }}</span>
+          </div>
+
+          <div class="info-group">
+            <span class="label">Teléfono</span>
+            <span class="data-value">{{ usuario.telefono || 'N/A' }}</span>
+          </div>
+
+          <div class="info-group">
+            <span class="label">Celular</span>
+            <span class="data-value">{{ usuario.celular }}</span>
+          </div>
+
+          <div class="info-group full-width">
+            <div class="divider"></div>
+            <span class="label">Rango en el Sistema</span>
+            <span class="data-value" style="color: #e3350d; font-weight: bold">
+              Nivel de Acceso: {{ usuario.rol?.nombre }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer con botones grandes -->
+      <div class="card-footer" style="padding: 20px">
+        <button class="sys-btn" (click)="abrirModalEdicion()" style="font-size: 1.1rem">
+          MODIFICAR REGISTRO
+        </button>
+        <button class="btn-delete" (click)="eliminar()" style="padding: 0 30px">ELIMINAR</button>
+      </div>
+    </div>
+  </div>
+  
+</div>
+

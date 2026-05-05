@@ -186,6 +186,23 @@
   transition: all 0.2s;
   box-shadow: 0 3px 0 #8b1a1a;
 }
+.user-button {
+  font-family: 'Courier New', monospace;
+  background: #dc0a2d;
+  border: none;
+  padding: 20px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 20px;
+  color: rgba(255, 255,255);
+  transition: all 0.2s;
+  box-shadow: 0 3px 0 #8b1a1a;
+}
+
+.user-button:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #8b1a1a;
+}
 
 .search-button:active {
   transform: translateY(2px);
@@ -752,11 +769,6 @@
 .tab-pane .chart-container { height: 160px; margin-bottom: 15px; }
 
 
-/* ═══════════════════════════════════════════════════════════════════
-   NUEVOS ESTILOS — SELECTOR DE GENERACIONES
-═══════════════════════════════════════════════════════════════════ */
-
-/* Barra de navegación de generaciones */
 .generation-nav {
   margin-bottom: 12px;
   background: #1a1a2e;
@@ -769,7 +781,7 @@
   font-family: 'Courier New', monospace;
   font-size: 10px;
   letter-spacing: 3px;
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255);
   margin-bottom: 10px;
   text-transform: uppercase;
 }
@@ -996,3 +1008,358 @@
   .gen-info-left { flex-wrap: wrap; gap: 8px; }
   .gen-range { display: none; }
 }
+.user-access-panel {
+    background: linear-gradient(135deg, #e3350d 0%, #b31101 100%);
+    border: 4px solid #333;
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+  }
+
+  .user-core-info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .user-identity {
+    border-bottom: 2px solid rgba(255,255,255,0.2);
+    padding-bottom: 15px;
+  }
+
+  .user-label {
+    font-size: 0.75rem;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    color: #ffde00; /* Amarillo Pokémon */
+    text-shadow: 1px 1px #3b4cca;
+  }
+
+  .user-name-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 5px 0;
+  }
+
+  .user-display-name {
+    margin: 0;
+    font-size: 1.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .verified-badge {
+    background: #3b4cca;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid white;
+  }
+
+  .user-role-text {
+    font-size: 0.9rem;
+  }
+
+  .role-highlight {
+    background: #ffde00;
+    color: #333;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+
+  .action-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .sys-btn {
+    background: #f0f0f0;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.7rem;
+    transition: all 0.2s;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    box-shadow: inset 0 -3px 0 #ccc;
+  }
+
+  .sys-btn:hover {
+    background: #fff;
+    transform: translateY(-2px);
+  }
+
+  .logout-btn {
+    grid-column: span 2;
+    background: #333;
+    color: #fff;
+    box-shadow: inset 0 -3px 0 #000;
+  }
+
+  .logout-btn:hover {
+    background: #555;
+  }
+
+  .power-icon {
+    color: #e3350d;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  .user-access-panel {
+    background: linear-gradient(135deg, #e3350d 0%, #b31101 100%);
+    border-bottom: 8px solid #333; /* Estilo barra superior */
+    padding: 30px;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* Expansión total */
+    width: 100%;
+    min-height: 200px;
+    box-sizing: border-box;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  }
+
+  .user-core-info {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: 100%;
+  }
+
+  .user-identity {
+    border-left: 5px solid #ffde00;
+    padding-left: 20px;
+  }
+
+  .user-label {
+    font-size: 0.85rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: #ffde00;
+    text-shadow: 2px 2px #3b4cca;
+  }
+
+  .user-name-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 10px 0;
+  }
+
+  .user-display-name {
+    margin: 0;
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 900;
+  }
+
+  .verified-badge {
+    background: #3b4cca;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    border: 2px solid white;
+    box-shadow: 3px 3px 0px rgba(0,0,0,0.2);
+  }
+
+  .user-role-text {
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
+
+  .role-highlight {
+    background: #ffde00;
+    color: #333;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    margin-left: 5px;
+  }
+
+  .action-grid {
+    display: grid;
+    /* Se adapta a la pantalla: 4 columnas en desktop, 1 en móvil */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    width: 100%;
+  }
+
+  .sys-btn {
+    background: #f0f0f0;
+    border: none;
+    padding: 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: inset 0 -4px 0 #ccc, 0 4px 6px rgba(0,0,0,0.2);
+  }
+
+  .sys-btn:hover {
+    background: #fff;
+    transform: scale(1.02);
+    box-shadow: inset 0 -4px 0 #3b4cca, 0 6px 12px rgba(0,0,0,0.3);
+  }
+
+  .logout-btn {
+    background: #333;
+    color: #fff;
+    box-shadow: inset 0 -4px 0 #000, 0 4px 6px rgba(0,0,0,0.2);
+  }
+
+  .logout-btn:hover {
+    background: #ffde00;
+    color: #333;
+    box-shadow: inset 0 -4px 0 #c4a000, 0 6px 12px rgba(0,0,0,0.3);
+  }
+
+  .power-icon {
+    color: #e3350d;
+  }
+
+  .logout-btn:hover .power-icon {
+    color: #333;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+  }
+
+  .user-access-panel {
+    background: linear-gradient(135deg, #e3350d 0%, #b31101 100%);
+    border-bottom: 8px solid #333;
+    padding: 30px;
+    color: white;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  }
+
+  .user-core-info {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: 100%;
+  }
+
+  /* Estilo del Badge de Rango con Icono */
+  .rank-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .pokeball-icon {
+    width: 40px;
+    height: 40px;
+    display: inline-block;
+    background-size: contain;
+    background-repeat: no-repeat;
+    filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.3));
+  }
+
+  /* RANGOS DEFINIDOS POR CLASES */
+  
+  /* 1. Novato - Poké Ball */
+  .rank-novato .pokeball-icon { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'); }
+  .rank-novato .role-highlight { background: #ff5645; color: white; }
+
+  /* 2. Veterano - Super Ball */
+  .rank-veterano .pokeball-icon { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png'); }
+  .rank-veterano .role-highlight { background: #2f89ff; color: white; }
+
+  /* 3. Elite - Ultra Ball */
+  .rank-elite .pokeball-icon { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png'); }
+  .rank-elite .role-highlight { background: #ffde00; color: #333; }
+
+  /* 4. Maestro Pokémon - Master Ball */
+  .rank-maestro .pokeball-icon { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png'); }
+  .rank-maestro .role-highlight { background: #a33ea1; color: white; border: 1px solid #ffde00; }
+
+  .user-label {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #ffde00;
+    text-shadow: 2px 2px #3b4cca;
+  }
+
+  .user-display-name {
+    margin: 0;
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    font-weight: 900;
+  }
+
+  .role-highlight {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+
+  .action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+  }
+
+  .sys-btn {
+    background: #f0f0f0;
+    border: none;
+    padding: 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: inset 0 -4px 0 #ccc;
+    transition: 0.2s;
+  }
+
+  .sys-btn:hover {
+    background: #fff;
+    transform: translateY(-3px);
+  }
+
+  .logout-btn {
+    background: #333;
+    color: #fff;
+    box-shadow: inset 0 -4px 0 #000;
+  }

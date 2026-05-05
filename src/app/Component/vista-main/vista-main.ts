@@ -1,11 +1,14 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType, Chart, registerables } from 'chart.js';
 import { Pokemon } from '../../Interface/pokemonDTO';
+import { PokemonApi } from '../../Interface/pokemonApi';
 import { PokemonService } from '../../Service/pokemon-service';
 import { Subscription } from 'rxjs';
+import { PokemonFavoritoService } from '../../Service/pokemon-favorito-service';
 
 Chart.register(...registerables);
 
@@ -52,21 +55,35 @@ export class VistaMain implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
 
   private typeColors: { [key: string]: string } = {
-    normal: '#A8A878', fire: '#F08030', water: '#6890F0', electric: '#F8D030',
-    grass: '#78C850', poison: '#A040A0', psychic: '#F85888', rock: '#B8A038',
-    ground: '#E0C068', ice: '#98D8D8', bug: '#A8B820', dragon: '#7038F8',
-    ghost: '#705898', dark: '#705848', steel: '#B8B8D0', fairy: '#EE99AC',
-    fighting: '#C03028', flying: '#A890F0',
+    normal: '#A8A878',
+    fire: '#F08030',
+    water: '#6890F0',
+    electric: '#F8D030',
+    grass: '#78C850',
+    poison: '#A040A0',
+    psychic: '#F85888',
+    rock: '#B8A038',
+    ground: '#E0C068',
+    ice: '#98D8D8',
+    bug: '#A8B820',
+    dragon: '#7038F8',
+    ghost: '#705898',
+    dark: '#705848',
+    steel: '#B8B8D0',
+    fairy: '#EE99AC',
+    fighting: '#C03028',
+    flying: '#A890F0',
   };
-  constructor(private pokemonService: PokemonService) { }
+  constructor(
+    private router: Router,
+    private pokemonService: PokemonService,
+    private pokemonFavoritoService: PokemonFavoritoService,
+  ) {}
 
   ngOnInit(): void {
-
+    this.subscriptions.push(this.pokemonService.loading$.subscribe((v) => (this.isLoading = v)));
     this.subscriptions.push(
-      this.pokemonService.loading$.subscribe(v => (this.isLoading = v))
-    );
-    this.subscriptions.push(
-      this.pokemonService.progress$.subscribe(v => (this.loadingProgress = v))
+      this.pokemonService.progress$.subscribe((v) => (this.loadingProgress = v)),
     );
     this.subscriptions.push(
       this.pokemonService.getAllPokemons().subscribe({
@@ -77,20 +94,21 @@ export class VistaMain implements OnInit, OnDestroy {
         error: (err) => {
           console.error('Error cargando pokémons:', err);
           this.isLoading = false;
-        }
-      })
+        },
+      }),
     );
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(s => s.unsubscribe());
-
+    this.subscriptions.forEach((s) => s.unsubscribe());
   }
 
   selectGeneration(index: number): void {
     this.selectedGenIndex = index;
     this.searchQuery = '';
-    this.allPokemons.forEach(p => { p.isFlipped = false; });
+    this.allPokemons.forEach((p) => {
+      p.isFlipped = false;
+    });
     this.applyFilter();
   }
 
@@ -100,20 +118,18 @@ export class VistaMain implements OnInit, OnDestroy {
 
   private applyFilter(): void {
     const gen = this.currentGen;
-    let list = this.allPokemons.filter(p => p.id >= gen.start && p.id <= gen.end);
+    let list = this.allPokemons.filter((p) => p.id >= gen.start && p.id <= gen.end);
 
     const q = this.searchQuery.trim().toLowerCase();
     if (q) {
-      list = list.filter(p =>
-        p.nombre.toLowerCase().includes(q) || String(p.id).includes(q)
-      );
+      list = list.filter((p) => p.nombre.toLowerCase().includes(q) || String(p.id).includes(q));
     }
     this.filteredPokemons = list;
   }
 
   get generationLoadedCount(): number {
     const gen = this.currentGen;
-    return this.allPokemons.filter(p => p.id >= gen.start && p.id <= gen.end).length;
+    return this.allPokemons.filter((p) => p.id >= gen.start && p.id <= gen.end).length;
   }
 
   get generationTotal(): number {
@@ -121,14 +137,13 @@ export class VistaMain implements OnInit, OnDestroy {
     return gen.end - gen.start + 1;
   }
 
-
   favorite(pokemon: Pokemon, event: Event): void {
     event.stopPropagation();
     this.pokemonService.toggleFavorite(pokemon);
   }
 
   flipPokemon(selectedPokemon: Pokemon): void {
-    this.filteredPokemons.forEach(p => {
+    this.filteredPokemons.forEach((p) => {
       p.isFlipped = p === selectedPokemon ? !p.isFlipped : false;
     });
   }
@@ -143,10 +158,9 @@ export class VistaMain implements OnInit, OnDestroy {
     if (pokemon.soundUrl) {
       this.audio?.pause();
       this.audio = new Audio(pokemon.soundUrl);
-      this.audio.play().catch(e => console.error('Error reproduciendo sonido:', e));
+      this.audio.play().catch((e) => console.error('Error reproduciendo sonido:', e));
     }
   }
-
 
   getTotalStats(p: Pokemon): number {
     return p.hp + p.attack + p.defense + p.specialAttack + p.specialDefense + p.speed;
@@ -163,7 +177,6 @@ export class VistaMain implements OnInit, OnDestroy {
     ];
     return stats.reduce((prev, cur) => (prev.valor > cur.valor ? prev : cur)).nombre;
   }
-
 
   getCardStyle(pokemon: Pokemon): any {
     const tipos = this.obtenerTipos(pokemon.tipo);
@@ -183,9 +196,8 @@ export class VistaMain implements OnInit, OnDestroy {
   }
 
   obtenerTipos(tipoString: string): string[] {
-    return tipoString.split(',').map(t => t.trim());
+    return tipoString.split(',').map((t) => t.trim());
   }
-
 
   public radarChartOptions: ChartConfiguration['options'] = {
     responsive: true,
@@ -208,17 +220,34 @@ export class VistaMain implements OnInit, OnDestroy {
   getRadarData(pokemon: Pokemon): ChartData<'radar'> {
     return {
       labels: [
-        'HP: ' + pokemon.hp, 'ATK: ' + pokemon.attack, 'DEF: ' + pokemon.defense,
-        'SP.ATK: ' + pokemon.specialAttack, 'SP.DEF: ' + pokemon.specialDefense, 'SPD: ' + pokemon.speed,
+        'HP: ' + pokemon.hp,
+        'ATK: ' + pokemon.attack,
+        'DEF: ' + pokemon.defense,
+        'SP.ATK: ' + pokemon.specialAttack,
+        'SP.DEF: ' + pokemon.specialDefense,
+        'SPD: ' + pokemon.speed,
       ],
-      datasets: [{
-        data: [pokemon.hp, pokemon.attack, pokemon.defense, pokemon.specialAttack, pokemon.specialDefense, pokemon.speed],
-        label: pokemon.nombre,
-        borderColor: '#2e2ca0',
-        backgroundColor: 'rgba(27,41,124,0.4)',
-        fill: true,
-        pointBackgroundColor: '#fff',
-      }],
+      datasets: [
+        {
+          data: [
+            pokemon.hp,
+            pokemon.attack,
+            pokemon.defense,
+            pokemon.specialAttack,
+            pokemon.specialDefense,
+            pokemon.speed,
+          ],
+          label: pokemon.nombre,
+          borderColor: '#2e2ca0',
+          backgroundColor: 'rgba(27,41,124,0.4)',
+          fill: true,
+          pointBackgroundColor: '#fff',
+        },
+      ],
     };
+  }
+
+  irGestionUsuarios() {
+    this.router.navigate(['/PokeUsers']);
   }
 }

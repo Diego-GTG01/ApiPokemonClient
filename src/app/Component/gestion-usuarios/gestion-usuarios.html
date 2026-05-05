@@ -1,0 +1,45 @@
+<div class="pokedex-container">
+  <header class="pokedex-header">
+    <div class="header-content">
+      <div class="pokedex-lens"></div>
+      <h1>Gestión de Entrenadores</h1>
+    </div>
+    <button (click)="agregarUsuario()" class="btn-add">Registrar Nuevo Entrenador</button>
+  </header>
+
+  <div class="trainer-grid">
+    <div *ngFor="let user of usuarios" class="trainer-card" [class.verified]="user.verified === 1">
+      <div class="card-header">
+        <span class="id-badge">ID: #{{ user.idUsuario }}</span>
+        <span class="role-tag">{{ user.rol.nombre }}</span>
+      </div>
+
+      <div class="card-body">
+        <div class="avatar-section">
+          <div class="trainer-photo">
+            <img
+              class="trainer-image"
+              src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{{
+                user.idUsuario
+              }}.png"
+              alt="Trainer Thumbnail"
+            />
+          </div>
+        </div>
+
+        <div class="info-section">
+          <h3>{{ user.nombre }} {{ user.apellidoPaterno }} {{ user.apellidoMaterno }}</h3>
+          <p class="username">@{{ user.userName }}</p>
+          <div class="divider"></div>
+          <p><span class="label">Email:</span> {{ user.email }}</p>
+          <p><span class="label">Celular:</span> {{ user.celular }}</p>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <button class="sys-btn">Ver Perfil</button>
+        <button (click)="EliminarUsuario(user)" class="btn-delete" title="Liberar entrenador">🗑️</button>
+      </div>
+    </div>
+  </div>
+</div>

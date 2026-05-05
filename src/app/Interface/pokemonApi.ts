@@ -1,6 +1,4 @@
 export interface PokemonApi {
-  id: number;
+  idPokemon: number;
   name: string;
-  height: number;
-  weight: number;
 }
