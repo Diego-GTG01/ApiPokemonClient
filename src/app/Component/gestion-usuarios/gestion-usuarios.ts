@@ -28,7 +28,8 @@ export class GestionUsuarios {
       next: (usuarios: Result<Usuario[]>) => {
         this.usuarios = usuarios.objects.flat();
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error al cargar los usuarios:', err);  
         Swal.fire({
           title: 'Error al cargar los usuarios',
           icon: 'error',

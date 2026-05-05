@@ -27,7 +27,7 @@ export class VistaLogin {
       })
       .subscribe({
         next: () => {
-          this.router.navigate(['/']);
+          this.router.navigate(['/main']);
         },
         error: (err) => {
           if (err.status === 403) {
