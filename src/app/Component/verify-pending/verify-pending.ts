@@ -28,9 +28,6 @@ export class VerifyPendingComponent implements OnInit, OnDestroy {
         )
       )
       .subscribe((res) => {
-
-        console.log('Respuesta:', res);
-
         if (res) {
           this.router.navigate(['/']);
         }
