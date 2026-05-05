@@ -15,6 +15,9 @@ export class UsuarioService {
   getAllUsers(): Observable<Result<Usuario[]>> {
     return this.http.get<Result<Usuario[]>>(this.apiUrl);
   }
+  getById(idUsuario: Number): Observable<Result<Usuario>>{
+    return this.http.get<Result<Usuario>>(this.apiUrl+'/'+idUsuario);
+  }
   addUser(user: Usuario): Observable<Result<Usuario[]>> {
     return this.http.post<Result<Usuario[]>>(this.apiUrl + '/add', user);
   }
