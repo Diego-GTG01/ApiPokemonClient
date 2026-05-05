@@ -193,10 +193,7 @@ export class PokemonService {
     }
     this.persistFavorites(favs);
 
-    //mandar al backend 
   }
-
-
 
 
   forceReload(): void {
