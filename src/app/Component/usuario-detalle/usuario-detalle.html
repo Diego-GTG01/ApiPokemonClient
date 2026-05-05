@@ -1,15 +1,14 @@
 <div class="pokedex-container">
-  <!-- Header estilo Pokédex -->
+  <!-- Header -->
   <header class="pokedex-header">
     <div class="header-content">
       <span class="pokedex-lens"></span>
       <h1>EXPEDIENTE DE ENTRENADOR: {{ usuario.userName | uppercase }}</h1>
     </div>
-    <button class="btn-add" (click)="regresar()">X SALIR</button>
+    <button class="btn-add" (click)="volver()">X SALIR</button>
   </header>
 
-  <div class="detail-wrapper">
-    <!-- Tarjeta Expandida -->
+  <div class="detail-wrapper" *ngIf="!mostrarModal">
     <div class="trainer-card full-detail" [class.verified]="usuario.verified === 1">
       <div class="card-header">
         <span>REGISTRO OFICIAL #{{ usuario.idUsuario }}</span>
@@ -24,7 +23,6 @@
                 src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{{
                   usuario.idUsuario
                 }}.png"
-                alt="Trainer"
                 class="trainer-image"
                 style="transform: scale(1.5)"
               />
@@ -36,26 +34,20 @@
         <div class="info-section large">
           <div class="info-group full-width">
             <span class="label">Nombre del Entrenador</span>
-            <span class="data-value"
-              >{{ usuario.nombre }} {{ usuario.apellidoPaterno }}
-              {{ usuario.apellidoMaterno }}</span
-            >
+            <span class="data-value">
+              {{ usuario.nombre }} {{ usuario.apellidoPaterno }} {{ usuario.apellidoMaterno }}
+            </span>
             <div class="divider"></div>
           </div>
 
           <div class="info-group">
-            <span class="label">ID de Usuario</span>
+            <span class="label">Usuario</span>
             <span class="data-value">@{{ usuario.userName }}</span>
           </div>
 
           <div class="info-group">
-            <span class="label">Correo Electrónico</span>
+            <span class="label">Email</span>
             <span class="data-value">{{ usuario.email }}</span>
-          </div>
-
-          <div class="info-group">
-            <span class="label">Teléfono</span>
-            <span class="data-value">{{ usuario.telefono || 'N/A' }}</span>
           </div>
 
           <div class="info-group">
@@ -63,25 +55,93 @@
             <span class="data-value">{{ usuario.celular }}</span>
           </div>
 
-          <div class="info-group full-width">
-            <div class="divider"></div>
-            <span class="label">Rango en el Sistema</span>
-            <span class="data-value" style="color: #e3350d; font-weight: bold">
-              Nivel de Acceso: {{ usuario.rol.nombre }}
-            </span>
+           <div class="info-group">
+            <span class="label">Telefono</span>
+            <span class="data-value">{{ usuario.telefono }}</span>
           </div>
         </div>
       </div>
 
-      <!-- Footer con botones grandes -->
-      <div class="card-footer" style="padding: 20px">
-        <button class="sys-btn" (click)="abrirModalEdicion()" style="font-size: 1.1rem">
-          MODIFICAR REGISTRO
-        </button>
-        <button class="btn-delete" (click)="eliminar()" style="padding: 0 30px">ELIMINAR</button>
+      <div class="card-footer">
+        <button class="sys-btn" (click)="editarEntrenador(usuario)">MODIFICAR REGISTRO</button>
+        <button class="btn-delete" (click)="EliminarUsuario(usuario)">ELIMINAR</button>
       </div>
     </div>
   </div>
-  
-</div>
 
+  <!-- MODAL -->
+  <div class="detail-wrapper">
+    <div class="modal-backdrop" *ngIf="mostrarModal">
+      <form [formGroup]="usuarioForm" (ngSubmit)="guardarUsuario($event)" class="pokedex-card-form">
+        <div class="card-header">
+          <span class="id-badge">EDITAR ENTRENADOR</span>
+        </div>
+
+        <div class="form-body column-layout">
+          <!-- FILA 1 -->
+           
+          <div class="form-row">
+             <h3 class="section-title">Credenciales de Acceso</h3>
+            <div class="input-group">
+              <label>Username</label>
+              <input type="text" formControlName="userName" class="poke-input" />
+            </div>
+
+            <div class="input-group">
+              <label>Email</label>
+              <input type="text" formControlName="email" class="poke-input" />
+            </div>
+            <div class="input-group">
+              <label>Rol</label>
+              <select formControlName="rol" [compareWith]="compareRoles" class="poke-input">
+                <option *ngFor="let r of roles" [ngValue]="r">{{ r.nombre }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- FILA 2 -->
+          <div class="form-row">
+            
+            <h3 class="section-title">Información Personal</h3>
+            <div class="input-group">
+              <label>Nombre</label>
+              <input type="text" formControlName="nombre" class="poke-input" />
+            </div>
+
+            <div class="input-group">
+              <label>Apellido Paterno</label>
+              <input type="text" formControlName="apellidoPaterno" class="poke-input" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="input-group">
+              
+            <h2 class=""></h2>
+           
+              <label>Apellido Materno</label>
+              <input type="text" formControlName="apellidoMaterno" class="poke-input" />
+            </div>
+
+            <div class="input-group">
+              <label>Celular</label>
+              <input type="text" formControlName="celular" class="poke-input" />
+            </div>
+            <div class="input-group">
+              <label>Telefono</label>
+              <input type="text" formControlName="telefono" class="poke-input" />
+            </div>
+          </div>
+
+        </div>
+
+        <div class="card-footer">
+          <button type="submit" class="sys-btn">ACTUALIZAR</button>
+          <button type="button" class="btn-delete" (click)="cerrarModal()">CANCELAR</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

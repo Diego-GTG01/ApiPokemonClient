@@ -40,7 +40,7 @@ export class GestionUsuarios {
     });
   }
 
-  EliminarUsuario(user: Usuario): void {
+  public EliminarUsuario(user: Usuario): void {
     Swal.fire({
       title: 'Esta seguro de eliminar este usuario?',
       text: 'No podrás revertir esto',
@@ -96,6 +96,9 @@ export class GestionUsuarios {
     });
 
     this.router.navigate([this.router.url]);
+  }
+  verPerfil(idUsuario: Number): void{
+    this.router.navigate(['/PokeUsers/', idUsuario]);
   }
   agregarUsuario(): void {
     this.router.navigate(['/PokeForm']);
