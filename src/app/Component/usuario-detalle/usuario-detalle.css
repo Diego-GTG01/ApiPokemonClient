@@ -231,3 +231,21 @@
   display: block;
   margin-top: 5px;
 }
+
+.forgot-password {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.forgot-password a {
+  color: #3b4cca;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.forgot-password a:hover {
+  color: #ffcb05;
+  text-shadow: 0 0 8px rgba(255, 203, 5, 0.8);
+}

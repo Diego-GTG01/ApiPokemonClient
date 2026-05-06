@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../Service/auth-service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-vista-login',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './vista-login.html',
   styleUrls: ['./vista-login.css'],
 })
