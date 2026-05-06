@@ -54,16 +54,77 @@
 
   <div class="search-container">
     <div class="search-label">BÚSQUEDA DE ESPECIES</div>
-    <div class="search-wrapper">
+
+    <!-- Mode selector -->
+    <div class="search-mode-selector">
+      <button
+        class="search-mode-btn"
+        [class.active]="searchMode === 'name'"
+        (click)="setSearchMode('name')"
+      >
+        🔤 NOMBRE
+      </button>
+      <button
+        class="search-mode-btn"
+        [class.active]="searchMode === 'id'"
+        (click)="setSearchMode('id')"
+      >
+        🔢 NÚMERO
+      </button>
+      <button
+        class="search-mode-btn"
+        [class.active]="searchMode === 'type'"
+        (click)="setSearchMode('type')"
+      >
+        🏷️ TIPO
+      </button>
+    </div>
+
+    <!-- Name / ID search bar -->
+    <div class="search-wrapper" *ngIf="searchMode === 'name' || searchMode === 'id'">
       <div class="search-decoration"></div>
       <input
         type="text"
         class="search-input"
-        placeholder="NOMBRE / NÚMERO..."
+        [placeholder]="searchMode === 'name' ? 'NOMBRE DEL POKÉMON...' : 'NÚMERO (#001, 25...)'"
         [(ngModel)]="searchQuery"
         (input)="onSearch()"
       />
       <button class="search-button">🔍</button>
+    </div>
+
+    <!-- Type search -->
+    <div class="type-search-panel" *ngIf="searchMode === 'type'">
+      <div class="type-search-hint">
+        <span *ngIf="selectedTypes.length === 0">Selecciona hasta 2 tipos (el orden importa)</span>
+        <span *ngIf="selectedTypes.length === 1">Tipo 1: <strong>{{ selectedTypes[0] | uppercase }}</strong> — puedes añadir un segundo tipo</span>
+        <span *ngIf="selectedTypes.length === 2">
+          Tipo 1: <strong>{{ selectedTypes[0] | uppercase }}</strong> &nbsp;·&nbsp;
+          Tipo 2: <strong>{{ selectedTypes[1] | uppercase }}</strong>
+        </span>
+      </div>
+
+      <div class="type-chips-grid">
+        <button
+          class="type-chip"
+          *ngFor="let tipo of allTypes"
+          [class.selected]="isTypeSelected(tipo)"
+          [class.disabled]="isTypeDisabled(tipo)"
+          [style.--chip-color]="getTypeColor(tipo)"
+          (click)="toggleType(tipo)"
+        >
+          <span class="chip-order" *ngIf="getTypeOrder(tipo) !== -1">{{ getTypeOrder(tipo) }}</span>
+          {{ tipo | uppercase }}
+        </button>
+      </div>
+
+      <button
+        class="clear-types-btn"
+        *ngIf="selectedTypes.length > 0"
+        (click)="selectedTypes = []; applyFilter()"
+      >
+        ✕ Limpiar tipos
+      </button>
     </div>
   </div>
 
@@ -90,7 +151,7 @@
         >GEN {{ currentGen.label }}</span
       >
       <span class="gen-region-label">Región {{ currentGen.region }}</span>
-      <span class="gen-range"
+      <span class="gen-range" *ngIf="currentGen.label !== 'ALL'"
         >#{{ currentGen.start | number: '3.0-0' }} – #{{ currentGen.end | number: '3.0-0' }}</span
       >
     </div>

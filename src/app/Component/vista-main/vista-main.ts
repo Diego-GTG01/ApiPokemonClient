@@ -34,7 +34,19 @@ export class VistaMain implements OnInit, OnDestroy {
   loadingProgress = 0;
   searchQuery = '';
 
+  // Search mode: 'name' | 'id' | 'type'
+  searchMode: 'name' | 'id' | 'type' = 'name';
+
+  // Type search: up to 2 types, ordered
+  readonly allTypes: string[] = [
+    'normal','fire','water','electric','grass','poison','psychic',
+    'rock','ground','ice','bug','dragon','ghost','dark','steel',
+    'fairy','fighting','flying'
+  ];
+  selectedTypes: string[] = [];  // max 2, ordered
+
   readonly generations: Generation[] = [
+    { label: 'ALL', name: 'Todos', start: 1, end: 99999, region: 'Nacional', color: '#ffd700' },
     { label: 'I', name: 'Gen I', start: 1, end: 151, region: 'Kanto', color: '#dc0a2d' },
     { label: 'II', name: 'Gen II', start: 152, end: 251, region: 'Johto', color: '#3b82f6' },
     { label: 'III', name: 'Gen III', start: 252, end: 386, region: 'Hoenn', color: '#16a34a' },
@@ -116,14 +128,67 @@ export class VistaMain implements OnInit, OnDestroy {
     this.applyFilter();
   }
 
-  private applyFilter(): void {
+  setSearchMode(mode: 'name' | 'id' | 'type'): void {
+    this.searchMode = mode;
+    this.searchQuery = '';
+    this.selectedTypes = [];
+    this.applyFilter();
+  }
+
+  toggleType(tipo: string): void {
+    const idx = this.selectedTypes.indexOf(tipo);
+    if (idx !== -1) {
+      
+      this.selectedTypes.splice(idx, 1);
+    } else {
+      if (this.selectedTypes.length < 2) {
+        this.selectedTypes.push(tipo);
+      }
+    }
+    this.applyFilter();
+  }
+
+  isTypeSelected(tipo: string): boolean {
+    return this.selectedTypes.includes(tipo);
+  }
+
+  isTypeDisabled(tipo: string): boolean {
+    return this.selectedTypes.length === 2 && !this.selectedTypes.includes(tipo);
+  }
+
+  getTypeOrder(tipo: string): number {
+    const idx = this.selectedTypes.indexOf(tipo);
+    return idx === -1 ? -1 : idx + 1;
+  }
+
+  applyFilter(): void {
     const gen = this.currentGen;
     let list = this.allPokemons.filter((p) => p.id >= gen.start && p.id <= gen.end);
 
-    const q = this.searchQuery.trim().toLowerCase();
-    if (q) {
-      list = list.filter((p) => p.nombre.toLowerCase().includes(q) || String(p.id).includes(q));
+    if (this.searchMode === 'name') {
+      const q = this.searchQuery.trim().toLowerCase();
+      if (q) {
+        list = list.filter((p) => p.nombre.toLowerCase().includes(q));
+      }
+    } else if (this.searchMode === 'id') {
+      const q = this.searchQuery.trim();
+      if (q) {
+        list = list.filter((p) => String(p.id).includes(q));
+      }
+    } else if (this.searchMode === 'type') {
+      if (this.selectedTypes.length > 0) {
+        list = list.filter((p) => {
+          const tipos = this.obtenerTipos(p.tipo);
+          if (this.selectedTypes.length === 1) {
+            return tipos.some(t => t.toLowerCase() === this.selectedTypes[0].toLowerCase());
+          } else {
+            return tipos[0]?.toLowerCase() === this.selectedTypes[0].toLowerCase()
+              && tipos[1]?.toLowerCase() === this.selectedTypes[1].toLowerCase();
+          }
+        });
+      }
     }
+
     this.filteredPokemons = list;
   }
 
