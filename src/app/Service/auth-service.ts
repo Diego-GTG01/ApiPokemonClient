@@ -5,9 +5,7 @@ import { Auth } from '../Interface/auth';
 @Injectable({
   providedIn: 'root',
 })
-
 export class AuthService {
-
   private apiUrl = 'http://localhost:8080/auth';
 
   constructor(private http: HttpClient) {}
@@ -15,20 +13,25 @@ export class AuthService {
   login(data: Auth) {
     return this.http.post(`${this.apiUrl}/login`, data, {
       withCredentials: true,
-      responseType: 'text'
+      responseType: 'text',
+      
     });
   }
 
   logout() {
-    return this.http.post(`${this.apiUrl}/logout`, {}, {
-      withCredentials: true
-    });
+    return this.http.post(
+      `${this.apiUrl}/logout`,
+      {},
+      {
+        withCredentials: true,
+      },
+    );
   }
 
   checkAuth() {
     return this.http.get(`${this.apiUrl}/me`, {
-      withCredentials: true
+      withCredentials: true,
+      responseType: 'text',
     });
   }
 }
-

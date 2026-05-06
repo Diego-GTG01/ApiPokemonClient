@@ -10,7 +10,7 @@ import { PokemonApi } from '../Interface/pokemonApi';
 })
 export class PokemonFavoritoService {
   private http = inject(HttpClient);
-  private readonly apiUrl = 'http://127.0.0.1:8080/usuario/pokeFavs/';
+  private readonly apiUrl = 'http://localhost:8080/usuario/pokeFavs/';
 
   httpOptions = {
     headers: new HttpHeaders({

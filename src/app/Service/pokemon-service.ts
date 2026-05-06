@@ -39,7 +39,6 @@ export class PokemonService {
     private http: HttpClient,
     private pokemonFavoritoService: PokemonFavoritoService,
   ) {
-    localStorage.clear();
     this.bootstrap();
   }
 
@@ -255,25 +254,11 @@ export class PokemonService {
         favoriteIds.delete(pokemon.id);
       }
 
-<<<<<<< HEAD
       this.persistFavorites(favoriteIds);
       console.log(favoriteIds);
     });
   }
 
-=======
-    const favs = this.getStoredFavorites();
-    if (pokemon.isFavorite) {
-      favs.add(pokemon.id);
-    } else {
-      favs.delete(pokemon.id);
-    }
-    this.persistFavorites(favs);
-
-  }
-
-
->>>>>>> origin/VistaLogin
   forceReload(): void {
     this.clearCache();
     localStorage.removeItem(this.STORAGE_KEY);
