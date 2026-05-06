@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType, Chart, registerables } from 'chart.js';
 import { Pokemon } from '../../Interface/pokemonDTO';
-import { PokemonApi } from '../../Interface/pokemonApi';
 import { PokemonService } from '../../Service/pokemon-service';
 import { Subscription } from 'rxjs';
 import { PokemonFavoritoService } from '../../Service/pokemon-favorito-service';
@@ -33,17 +32,16 @@ export class VistaMain implements OnInit, OnDestroy {
   isLoading = false;
   loadingProgress = 0;
   searchQuery = '';
+  viewFavoritesOnly = false;
 
-  // Search mode: 'name' | 'id' | 'type'
   searchMode: 'name' | 'id' | 'type' = 'name';
 
-  // Type search: up to 2 types, ordered
   readonly allTypes: string[] = [
     'normal','fire','water','electric','grass','poison','psychic',
     'rock','ground','ice','bug','dragon','ghost','dark','steel',
     'fairy','fighting','flying'
   ];
-  selectedTypes: string[] = [];  // max 2, ordered
+  selectedTypes: string[] = []; 
 
   readonly generations: Generation[] = [
     { label: 'ALL', name: 'Todos', start: 1, end: 99999, region: 'Nacional', color: '#ffd700' },
@@ -62,6 +60,7 @@ export class VistaMain implements OnInit, OnDestroy {
   get currentGen(): Generation {
     return this.generations[this.selectedGenIndex];
   }
+  
 
   private audio: HTMLAudioElement | null = null;
   private subscriptions: Subscription[] = [];
@@ -135,6 +134,15 @@ export class VistaMain implements OnInit, OnDestroy {
     this.applyFilter();
   }
 
+  onlyFavs(): void{
+    this.viewFavoritesOnly = !this.viewFavoritesOnly;
+    if(this.viewFavoritesOnly){
+      this.filteredPokemons = this.filteredPokemons.filter(p => p.isFavorite);
+    } else {
+      this.applyFilter();
+    }
+  }
+
   toggleType(tipo: string): void {
     const idx = this.selectedTypes.indexOf(tipo);
     if (idx !== -1) {
@@ -162,18 +170,24 @@ export class VistaMain implements OnInit, OnDestroy {
   }
 
   applyFilter(): void {
+    
+
     const gen = this.currentGen;
     let list = this.allPokemons.filter((p) => p.id >= gen.start && p.id <= gen.end);
 
+    if(this.viewFavoritesOnly){
+      list = list.filter(p => p.isFavorite);
+    }
+
     if (this.searchMode === 'name') {
-      const q = this.searchQuery.trim().toLowerCase();
-      if (q) {
-        list = list.filter((p) => p.nombre.toLowerCase().includes(q));
+      const searchText = this.searchQuery.trim().toLowerCase();
+      if (searchText) {
+        list = list.filter((p) => p.nombre.toLowerCase().includes(searchText));
       }
     } else if (this.searchMode === 'id') {
-      const q = this.searchQuery.trim();
-      if (q) {
-        list = list.filter((p) => String(p.id).includes(q));
+      const searchText = this.searchQuery.trim();
+      if (searchText) {
+        list = list.filter((p) => String(p.id).includes(searchText));
       }
     } else if (this.searchMode === 'type') {
       if (this.selectedTypes.length > 0) {
@@ -310,6 +324,14 @@ export class VistaMain implements OnInit, OnDestroy {
         },
       ],
     };
+  }
+  irFichaEntrenador(idUsuario: Number){
+    //sustituir con el del usuario real
+    idUsuario = 21;
+    this.router.navigate(['/PokeUsers/' + idUsuario]);
+  }
+  irEstadisticasFavs(){
+    this.router.navigate(['/PokeStats']);
   }
 
   irGestionUsuarios() {

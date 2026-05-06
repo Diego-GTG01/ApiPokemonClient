@@ -39,10 +39,10 @@ export class PokemonService {
     private http: HttpClient,
     private pokemonFavoritoService: PokemonFavoritoService,
   ) {
-    this.bootstrap();
+    this.start();
   }
 
-  private bootstrap(): void {
+  private start(): void {
     const stored = localStorage.getItem(this.STORAGE_KEY);
 
     if (stored) {
@@ -259,13 +259,6 @@ export class PokemonService {
     });
   }
 
-  forceReload(): void {
-    this.clearCache();
-    localStorage.removeItem(this.STORAGE_KEY);
-    this.pokemonsSubject.next([]);
-    this.fetchStarted = false;
-    this.loadAllPokemons();
-  }
 
   isDataComplete(): boolean {
     return this.pokemonsSubject.value.length === this.TOTAL_POKEMONS;

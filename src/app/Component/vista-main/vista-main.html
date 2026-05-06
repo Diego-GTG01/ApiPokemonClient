@@ -38,12 +38,14 @@
 
       <div class="user-system-actions">
         <div class="action-grid">
-          <button class="sys-btn" title="Ver mis favoritos">⭐ MIS FAVORITOS</button>
+          <button *ngIf="!viewFavoritesOnly" (click)="onlyFavs()" class="sys-btn" title="Ver mis favoritos">⭐ VER MIS FAVORITOS</button>
+          <button *ngIf="viewFavoritesOnly"(click)="onlyFavs()" class="sys-btn" title="Ver mis favoritos">⭐ OCULTAR MIS FAVORITOS</button>
+          
           <button class="sys-btn" title="Ver estadísticas de usuarios">📊 ESTADÍSTICAS</button>
           <button (click)="irGestionUsuarios()" class="sys-btn" title="Gestionar Usuarios">
             📋 GESTIÓN DE USUARIOS
           </button>
-          <button class="sys-btn" title="Editar Perfil">🆔 FICHA ENTRENADOR</button>
+          <button (click)="irFichaEntrenador(21)" class="sys-btn" title="Editar Perfil">🆔 FICHA ENTRENADOR</button>
           <button class="sys-btn logout-btn" title="Finalizar Sesión">
             <span class="power-icon">⏻</span> CERRAR SESIÓN POKÉDEX
           </button>
@@ -93,7 +95,6 @@
       <button class="search-button">🔍</button>
     </div>
 
-    <!-- Type search -->
     <div class="type-search-panel" *ngIf="searchMode === 'type'">
       <div class="type-search-hint">
         <span *ngIf="selectedTypes.length === 0">Selecciona hasta 2 tipos (el orden importa)</span>

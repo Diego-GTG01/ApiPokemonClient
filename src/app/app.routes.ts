@@ -6,6 +6,7 @@ import { VerifyPendingComponent } from './Component/verify-pending/verify-pendin
 import { GestionUsuarios } from './Component/gestion-usuarios/gestion-usuarios';
 import { UsuarioForm } from './Component/usuario-form/usuario-form';
 import { UsuarioDetalle } from './Component/usuario-detalle/usuario-detalle';
+import { EstadisticasPokeFav } from './Component/estadisticas-poke-fav/estadisticas-poke-fav';
 
 export const routes: Routes = [
   {
@@ -32,5 +33,8 @@ export const routes: Routes = [
   },
   {
     path: "verify-pending", component: VerifyPendingComponent
+  },
+  {
+    path: "PokeStats", component: EstadisticasPokeFav
   }
 ];
