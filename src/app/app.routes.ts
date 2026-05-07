@@ -6,6 +6,8 @@ import { VerifyPendingComponent } from './Component/verify-pending/verify-pendin
 import { GestionUsuarios } from './Component/gestion-usuarios/gestion-usuarios';
 import { UsuarioForm } from './Component/usuario-form/usuario-form';
 import { UsuarioDetalle } from './Component/usuario-detalle/usuario-detalle';
+import { ForgotPassword } from './Component/forgot-password/forgot-password';
+import { ResetPassword } from './Component/reset-password/reset-password';
 
 export const routes: Routes = [
   {
@@ -17,20 +19,32 @@ export const routes: Routes = [
     component: GestionUsuarios,
   },
   {
-    path: "PokeForm",
-    component: UsuarioForm
-  }, 
-  {
-    path: "PokeUsers/:idUsuario",
-    component: UsuarioDetalle
+    path: 'PokeForm',
+    component: UsuarioForm,
   },
   {
-    path: "", component: VistaMain, canActivate: [authGuard]
+    path: 'PokeUsers/:idUsuario',
+    component: UsuarioDetalle,
   },
   {
-    path: "login", component: VistaLogin
+    path: '',
+    component: VistaMain,
+    canActivate: [authGuard],
   },
   {
-    path: "verify-pending", component: VerifyPendingComponent
-  }
+    path: 'login',
+    component: VistaLogin,
+  },
+  {
+    path: 'verify-pending',
+    component: VerifyPendingComponent,
+  },
+  {
+    path: 'forgot-password',
+    component: ForgotPassword,
+  },
+  {
+    path: 'reset-password',
+    component: ResetPassword,
+  },
 ];
