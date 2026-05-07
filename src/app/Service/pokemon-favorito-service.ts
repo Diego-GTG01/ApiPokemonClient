@@ -17,8 +17,8 @@ export class PokemonFavoritoService {
       'Content-Type': 'application/json',
     }),
   };
-  getPokemonFavorite(idUsuario: Number): Observable <Result<any[]>> {
-    return this.http.get<Result<any[]>>(this.apiUrl+idUsuario);
+  getPokemonFavorite(idUsuario: Number): Observable<Result<any[]>> {
+    return this.http.get<Result<any[]>>(this.apiUrl + idUsuario);
   }
   addPokemonFavorite(idUsuario: Number, pokemon: PokemonApi): Observable<Result<any>> {
     this.httpOptions.headers.append(
@@ -36,4 +36,14 @@ export class PokemonFavoritoService {
       observe: 'response',
     });
   }
+  GetMostFavoritePokemon(): Observable<Result<any>> {
+    return this.http.get<Result<any>>(this.apiUrl + 'mostFavorite');
+  }
+  GetLeastFavoritePokemon(): Observable<Result<any>> {
+    return this.http.get<Result<any>>(this.apiUrl + 'leastFavorite');
+  }
+  GetAllFavoritePokemon(): Observable<Result<any[]>> {
+    return this.http.get<Result<any[]>>(this.apiUrl + 'allFavorites');
+  }
+
 }

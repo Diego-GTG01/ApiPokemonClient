@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Pokemon } from '../../Interface/pokemonDTO';
+import { PokemonFavoritoService } from '../../Service/pokemon-favorito-service';
 
 @Component({
   selector: 'app-estadisticas-poke-fav',
@@ -9,6 +10,27 @@ import { Pokemon } from '../../Interface/pokemonDTO';
   styleUrl: './estadisticas-poke-fav.css',
 })
 export class EstadisticasPokeFav {
+  constructor(
+    private pokemonFavoritoService: PokemonFavoritoService,
+  ) {
+    this.pokemonFavoritoService.GetMostFavoritePokemon().subscribe((res) => {
+      console.log(String(res.object[0]))
+      this.favoriteStats.mostFavorite.nombre = res.object[0];
+      this.favoriteStats.mostFavorite.idPokemon = res.object[1];
+      this.favoriteStats.mostFavorite.total = res.object[2];
+      this.favoriteStats.mostFavorite.tipo = "normal";
+      
+    });
+    this.pokemonFavoritoService.GetLeastFavoritePokemon().subscribe((res) => {
+      console.log(res)
+    }
+    );
+    this.pokemonFavoritoService.GetAllFavoritePokemon().subscribe((res) => {
+      console.log(res)
+    }
+    );
+  }
+
   private typeColors: { [key: string]: string } = {
     normal: '#A8A878',
     fire: '#F08030',
