@@ -35,16 +35,62 @@ export class UsuarioForm implements OnInit {
   private initForm(): void {
     this.usuarioForm = this.formBuilder.group({
       idUsuario: [0],
-      userName: [''],
-      password: [''],
-      nombre: [''],
-      apellidoPaterno: [''],
-      apellidoMaterno: [''],
-      telefono: [''],
-      celular: [''],
-      email: [''],
+      userName: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(20),
+          Validators.pattern('^[A-Za-z][A-Za-z0-9_]{7,29}$'),
+        ],
+      ],
+      password: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(8),
+          Validators.maxLength(20),
+          Validators.pattern('^[A-Za-z][A-Za-z0-9_]{7,29}$'),
+        ],
+      ],
+      nombre: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(50),
+          Validators.pattern('^[A-Za-zÁÉÍÓÚáéíóúÑñ]+$'),
+        ],
+      ],
+      apellidoPaterno: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(50),
+          Validators.pattern('^[A-Za-zÁÉÍÓÚáéíóúÑñ]+$'),
+        ],
+      ],
+      apellidoMaterno: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(50),
+          Validators.pattern('^[A-Za-zÁÉÍÓÚáéíóúÑñ]+$'),
+        ],
+      ],
+      telefono: ['', [Validators.required, Validators.pattern('^\\d{10}$')]],
+      celular: ['', [Validators.required, Validators.pattern('^\\d{10}$')]],
+      email: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'),
+        ],
+      ],
       verified: [0],
-      rol: [null],
+      rol: [null, Validators.required],
     });
   }
 
@@ -64,6 +110,8 @@ export class UsuarioForm implements OnInit {
 
   guardarUsuario(event: Event): void {
     event.preventDefault();
+    console.log('Formulario enviado');
+    this.usuarioForm.markAllAsTouched();
     if (this.usuarioForm.valid) {
       console.log('Datos del Entrenador:', this.usuarioForm.value);
       this.usuarioService.addUser(this.usuarioForm.value).subscribe({
@@ -71,17 +119,17 @@ export class UsuarioForm implements OnInit {
           console.log(result);
           if (result.correct) {
             this.usuarioForm.reset();
-              Swal.fire({
-                title: 'Usuario guardado exitosamente',
-                icon: 'success',
-                confirmButtonText: 'OK',
-              });
+            Swal.fire({
+              title: 'Usuario guardado exitosamente',
+              icon: 'success',
+              confirmButtonText: 'OK',
+            });
 
             this.volver();
           } else {
             this.usuarioForm.markAllAsTouched();
             alert('Usuario no guardado');
-             Swal.fire({
+            Swal.fire({
               title: 'Error al guardar el usuario',
               icon: 'error',
               confirmButtonText: 'OK',
@@ -90,15 +138,21 @@ export class UsuarioForm implements OnInit {
         },
         error: (err) => {
           console.warn(err);
-          
-             Swal.fire({
-              title: 'Error al guardar el usuario',
-              icon: 'error',
-              confirmButtonText: 'OK',
-            });
+
+          Swal.fire({
+            title: 'Error al guardar el usuario',
+            icon: 'error',
+            confirmButtonText: 'OK',
+          });
         },
       });
     } else {
+      Swal.fire({
+        title: 'Formulario inválido',
+        text: 'Por favor, corrige los errores antes de guardar.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
       this.usuarioForm.markAllAsTouched();
     }
   }

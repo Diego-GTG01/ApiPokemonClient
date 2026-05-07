@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { UsuarioService } from '../../Service/usuario-service';
 import { RolService } from '../../Service/rol-service';
@@ -19,7 +19,6 @@ import Swal from 'sweetalert2';
   styleUrl: './usuario-detalle.css',
 })
 export class UsuarioDetalle implements OnInit {
-
   id: number = 0;
   usuario!: Usuario;
   roles: Rol[] = [];
@@ -31,7 +30,7 @@ export class UsuarioDetalle implements OnInit {
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private usuarioService: UsuarioService,
-    private rolService: RolService
+    private rolService: RolService,
   ) {}
 
   ngOnInit(): void {
@@ -43,15 +42,55 @@ export class UsuarioDetalle implements OnInit {
   initForm(usuario: Usuario) {
     this.usuarioForm = this.fb.group({
       idUsuario: [usuario.idUsuario],
-      userName: [usuario.userName],
-      nombre: [usuario.nombre],
-      apellidoPaterno: [usuario.apellidoPaterno],
-      apellidoMaterno: [usuario.apellidoMaterno],
-      celular: [usuario.celular],
-      telefono: [usuario.telefono],
-      email: [usuario.email],
-      rol: [usuario.rol],
-      verified: [usuario.verified]
+
+      userName: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(20),
+          Validators.pattern('^[A-Za-z][A-Za-z0-9_]{7,29}$'),
+        ],
+      ],
+      password: [''],
+      nombre: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(50),
+          Validators.pattern('^[A-Za-zÁÉÍÓÚáéíóúÑñ]+$'),
+        ],
+      ],
+      apellidoPaterno: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(50),
+          Validators.pattern('^[A-Za-zÁÉÍÓÚáéíóúÑñ]+$'),
+        ],
+      ],
+      apellidoMaterno: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(50),
+          Validators.pattern('^[A-Za-zÁÉÍÓÚáéíóúÑñ]+$'),
+        ],
+      ],
+      telefono: ['', [Validators.required, Validators.pattern('^\\d{10}$')]],
+      celular: ['', [Validators.required, Validators.pattern('^\\d{10}$')]],
+      email: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'),
+        ],
+      ],
+      verified: [usuario.verified],
+      rol: [null, Validators.required],
     });
   }
 
@@ -61,7 +100,7 @@ export class UsuarioDetalle implements OnInit {
         this.usuario = res.object;
         console.log(this.usuario);
         this.initForm(this.usuario);
-      }
+      },
     });
   }
 
@@ -69,7 +108,7 @@ export class UsuarioDetalle implements OnInit {
     this.rolService.getAllRol().subscribe({
       next: (res: Result<Rol[]>) => {
         this.roles = res.objects.flat();
-      }
+      },
     });
   }
 
@@ -87,24 +126,41 @@ export class UsuarioDetalle implements OnInit {
 
     const data: Usuario = this.usuarioForm.value;
 
-    this.usuarioService.updateUser(data).subscribe({
-      next: () => {
-        Swal.fire({
-          title: 'Actualizado correctamente',
-          icon: 'success'
-        });
-
-        this.mostrarModal = false;
-        this.cargarUsuario();
-      },
-      error: (err) => {
-        console.log(err);
-        Swal.fire({
-          title: 'Error al actualizar',
-          icon: 'error'
-        });
+    Object.keys(this.usuarioForm.controls).forEach((key) => {
+      const controlErrors = this.usuarioForm.get(key)?.errors;
+      if (controlErrors != null) {
+        console.log('Key control: ' + key + ', err: ', controlErrors);
       }
     });
+    if (this.usuarioForm.invalid) {
+      this.usuarioForm.markAllAsTouched();
+      Swal.fire({
+        title: 'Formulario inválido',
+        text: 'Por favor, corrige los errores antes de guardar.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+      return;
+    } else {
+      this.usuarioService.updateUser(data).subscribe({
+        next: () => {
+          Swal.fire({
+            title: 'Actualizado correctamente',
+            icon: 'success',
+          });
+
+          this.mostrarModal = false;
+          this.cargarUsuario();
+        },
+        error: (err) => {
+          console.log(err);
+          Swal.fire({
+            title: 'Error al actualizar',
+            icon: 'error',
+          });
+        },
+      });
+    }
   }
 
   compareRoles(o1: any, o2: any): boolean {
@@ -120,8 +176,8 @@ export class UsuarioDetalle implements OnInit {
       title: '¿Eliminar usuario?',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Eliminar'
-    }).then(res => {
+      confirmButtonText: 'Eliminar',
+    }).then((res) => {
       if (res.isConfirmed) {
         this.usuarioService.deleteUser(user.idUsuario).subscribe(() => {
           Swal.fire('Eliminado', '', 'success');

@@ -578,3 +578,11 @@
     grid-template-columns: 1fr;
   }
 }
+/* Contenedor del mensaje */
+.error-message {
+  color: #ff0000; /* Rojo tipo alerta */
+  font-size: 0.75rem;
+  margin-top: 4px;
+  font-weight: bold;
+  text-transform: uppercase; /* Para que parezca texto de consola */
+}
