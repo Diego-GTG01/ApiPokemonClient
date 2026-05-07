@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Pokemon } from '../Interface/pokemonDTO';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { Result } from '../Interface/Result';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { PokemonApi } from '../Interface/pokemonApi';
@@ -11,6 +11,7 @@ import { PokemonApi } from '../Interface/pokemonApi';
 export class PokemonFavoritoService {
   private http = inject(HttpClient);
   private readonly apiUrl = 'http://127.0.0.1:8080/usuario/pokeFavs/';
+  private readonly pokeApiUrl = 'https://pokeapi.co/api/v2/pokemon';
 
   httpOptions = {
     headers: new HttpHeaders({
@@ -45,5 +46,9 @@ export class PokemonFavoritoService {
   GetAllFavoritePokemon(): Observable<Result<any[]>> {
     return this.http.get<Result<any[]>>(this.apiUrl + 'allFavorites');
   }
-
+  getTypesByPokemonId(id: number): Observable<string[]> {
+    return this.http
+      .get<any>(`${this.pokeApiUrl}/${id}`)
+      .pipe(map((data) => data.types.map((t: any) => t.type.name)));
+  }
 }

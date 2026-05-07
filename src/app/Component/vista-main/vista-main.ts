@@ -44,7 +44,7 @@ export class VistaMain implements OnInit, OnDestroy {
   selectedTypes: string[] = []; 
 
   readonly generations: Generation[] = [
-    { label: 'ALL', name: 'Todos', start: 1, end: 99999, region: 'Nacional', color: '#ffd700' },
+    
     { label: 'I', name: 'Gen I', start: 1, end: 151, region: 'Kanto', color: '#dc0a2d' },
     { label: 'II', name: 'Gen II', start: 152, end: 251, region: 'Johto', color: '#3b82f6' },
     { label: 'III', name: 'Gen III', start: 252, end: 386, region: 'Hoenn', color: '#16a34a' },
@@ -54,6 +54,7 @@ export class VistaMain implements OnInit, OnDestroy {
     { label: 'VII', name: 'Gen VII', start: 722, end: 809, region: 'Alola', color: '#e11d48' },
     { label: 'VIII', name: 'Gen VIII', start: 810, end: 905, region: 'Galar', color: '#059669' },
     { label: 'IX', name: 'Gen IX', start: 906, end: 1025, region: 'Paldea', color: '#dc2626' },
+    { label: 'ALL', name: 'Todos', start: 1, end: 1025, region: 'Nacional', color: '#ffd700' },
   ];
   selectedGenIndex = 0;
 

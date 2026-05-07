@@ -88,6 +88,7 @@ export class PokemonService {
 
     return this.pokemonsSubject.asObservable();
   }
+  
 
   private loadAllPokemons(): void {
     if (this.fetchStarted) return;
@@ -258,7 +259,6 @@ export class PokemonService {
       console.log(favoriteIds);
     });
   }
-
 
   isDataComplete(): boolean {
     return this.pokemonsSubject.value.length === this.TOTAL_POKEMONS;

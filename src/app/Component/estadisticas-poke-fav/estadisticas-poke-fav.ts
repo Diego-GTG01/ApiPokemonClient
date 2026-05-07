@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Pokemon } from '../../Interface/pokemonDTO';
 import { PokemonFavoritoService } from '../../Service/pokemon-favorito-service';
+import { forkJoin, map } from 'rxjs';
 
 @Component({
   selector: 'app-estadisticas-poke-fav',
@@ -10,25 +11,88 @@ import { PokemonFavoritoService } from '../../Service/pokemon-favorito-service';
   styleUrl: './estadisticas-poke-fav.css',
 })
 export class EstadisticasPokeFav {
-  constructor(
-    private pokemonFavoritoService: PokemonFavoritoService,
-  ) {
-    this.pokemonFavoritoService.GetMostFavoritePokemon().subscribe((res) => {
-      console.log(String(res.object[0]))
-      this.favoriteStats.mostFavorite.nombre = res.object[0];
-      this.favoriteStats.mostFavorite.idPokemon = res.object[1];
-      this.favoriteStats.mostFavorite.total = res.object[2];
-      this.favoriteStats.mostFavorite.tipo = "normal";
-      
+  constructor(private pokemonFavoritoService: PokemonFavoritoService) {
+    this.pokemonFavoritoService.GetMostFavoritePokemon().subscribe({
+      next: (res) => {
+        this.favoriteStats.mostFavorite.nombre = res.object[0];
+        this.favoriteStats.mostFavorite.idPokemon = res.object[1];
+        this.favoriteStats.mostFavorite.total = res.object[2];
+        this.favoriteStats.mostFavorite.tipo = 'normal';
+      },
+      error: (erro) => {
+        this.favoriteStats.mostFavorite.nombre = 'Pokemon no encontrado';
+        this.favoriteStats.mostFavorite.idPokemon = 0;
+        this.favoriteStats.mostFavorite.total = 0;
+        this.favoriteStats.mostFavorite.tipo = 'normal';
+      },
     });
-    this.pokemonFavoritoService.GetLeastFavoritePokemon().subscribe((res) => {
-      console.log(res)
-    }
-    );
-    this.pokemonFavoritoService.GetAllFavoritePokemon().subscribe((res) => {
-      console.log(res)
-    }
-    );
+    this.pokemonFavoritoService.GetLeastFavoritePokemon().subscribe({
+      next: (res) => {
+        this.favoriteStats.leastFavorite.nombre = res.object[0];
+        this.favoriteStats.leastFavorite.idPokemon = res.object[1];
+        this.favoriteStats.leastFavorite.total = res.object[2];
+        this.favoriteStats.leastFavorite.tipo = 'normal';
+      },
+      error: (erro) => {
+        this.favoriteStats.leastFavorite.nombre = 'Pokemon no encontrado';
+        this.favoriteStats.leastFavorite.idPokemon = 0;
+        this.favoriteStats.leastFavorite.total = 0;
+        this.favoriteStats.leastFavorite.tipo = 'normal';
+      },
+    });
+    // TODOS LOS FAVORITOS + TIPOS
+    this.pokemonFavoritoService.GetAllFavoritePokemon().subscribe({
+      next: (res) => {
+
+        const requests = res.objects.map((obj: any) => {
+
+          const idPokemon = obj[0];
+
+          return this.pokemonFavoritoService
+            .getTypesByPokemonId(idPokemon)
+            .pipe(
+              map((tipoRes: String[]) => {
+
+                let tipos ="";
+                tipoRes.forEach((t, index) => { 
+                  console.log(index);
+                  if(index==1){
+                    tipos= tipos +",";
+                  }
+                  tipos = tipos + t;
+                 });
+
+                return {
+                  pokemon: obj[1],
+                  idPokemon: idPokemon,
+                  tipo: tipos,
+                  users: obj[2]
+                    .split(',')
+                    .map((u: string) => u.trim()),
+                  isFlipped: false,
+                };
+              })
+            );
+        });
+
+        forkJoin(requests).subscribe({
+          next: (resultadoFinal) => {
+            this.favoriteStats.allFavorites = resultadoFinal;
+            console.log(resultadoFinal);
+          },
+          error: (error) => {
+            console.error('Error obteniendo tipos:', error);
+            this.favoriteStats.allFavorites = [];
+          },
+        });
+      },
+
+      error: () => {
+        this.favoriteStats.allFavorites = [];
+      },
+    });
+  
+    
   }
 
   private typeColors: { [key: string]: string } = {
@@ -53,52 +117,25 @@ export class EstadisticasPokeFav {
   };
   favoriteStats = {
     mostFavorite: {
-      nombre: 'Pikachu',
-      total: 10,
-      idPokemon: 25,
-      tipo: 'electric',
+      nombre: '',
+      total: 0,
+      idPokemon: 0,
+      tipo: '',
       isFlipped: false,
     },
     leastFavorite: {
-      nombre: 'Zubat',
-      total: 1,
-      idPokemon: 41,
-      tipo: 'poison,flying',
+      nombre: '',
+      total: 0,
+      idPokemon: 0,
+      tipo: '',
       isFlipped: false,
     },
     allFavorites: [
       {
-        pokemon: 'Pikachu',
-        users: ['Ash', 'Misty', 'Brock'],
-        idPokemon: 25,
-        tipo: 'electric',
-        isFlipped: false,
-      },
-      {
-        pokemon: 'Charmander',
-        users: ['Ash'],
-        idPokemon: 4,
-        tipo: 'fire',
-        isFlipped: false,
-      },{
-        pokemon: 'Vulpix',
-        users: ['Ash, Misty, Brock, James'],
-        idPokemon: 4,
-        tipo: 'fire',
-        isFlipped: false,
-      },
-      {
-        pokemon: 'Magnemite',
-        users: ['Ash, Misty, Brock, James'],
-        idPokemon: 4,
-        tipo: 'electric',
-        isFlipped: false,
-      },
-      {
-        pokemon: 'Zapdos',
-        users: ['Ash, Misty, Brock, James'],
-        idPokemon: 4,
-        tipo: 'electric',
+        pokemon: '',
+        users: [''],
+        idPokemon: 0,
+        tipo: '',
         isFlipped: false,
       },
     ],
