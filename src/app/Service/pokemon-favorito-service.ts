@@ -13,6 +13,7 @@ export class PokemonFavoritoService {
   private readonly apiUrl = 'http://127.0.0.1:8080/usuario/pokeFavs/';
   private readonly pokeApiUrl = 'https://pokeapi.co/api/v2/pokemon';
 
+
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
@@ -51,4 +52,6 @@ export class PokemonFavoritoService {
       .get<any>(`${this.pokeApiUrl}/${id}`)
       .pipe(map((data) => data.types.map((t: any) => t.type.name)));
   }
+
+  
 }
