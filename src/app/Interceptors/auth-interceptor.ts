@@ -23,7 +23,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
         if ((err.status === 401 || err.status === 403) 
             && currentUrl !== '/verify-pending'
-            && currentUrl !== '/login') {
+            && currentUrl !== '/login'
+            && !req.url.includes('/auth/logout')) {
 
           router.navigate(['/login']);
         }

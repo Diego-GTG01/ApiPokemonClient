@@ -5,10 +5,12 @@ import { Router } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType, Chart, registerables } from 'chart.js';
 import { Pokemon } from '../../Interface/pokemonDTO';
-import { PokemonApi } from '../../Interface/pokemonApi';
+import { Usuario } from '../../Interface/Usuario';
 import { PokemonService } from '../../Service/pokemon-service';
 import { Subscription } from 'rxjs';
 import { PokemonFavoritoService } from '../../Service/pokemon-favorito-service';
+import { AuthService } from '../../Service/auth-service';
+import Swal from 'sweetalert2';
 
 Chart.register(...registerables);
 
@@ -47,6 +49,12 @@ export class VistaMain implements OnInit, OnDestroy {
   ];
   selectedGenIndex = 0;
 
+  usuario: Usuario | null = null;
+
+  isMaestro(): boolean {
+    return this.usuario?.rol.nombre === 'Maestro';
+  }
+
   get currentGen(): Generation {
     return this.generations[this.selectedGenIndex];
   }
@@ -78,9 +86,15 @@ export class VistaMain implements OnInit, OnDestroy {
     private router: Router,
     private pokemonService: PokemonService,
     private pokemonFavoritoService: PokemonFavoritoService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
+    this.authService.checkAuth().subscribe({
+      next: (response: any) => {
+        this.usuario = response;
+        }
+    })
     this.subscriptions.push(this.pokemonService.loading$.subscribe((v) => (this.isLoading = v)));
     this.subscriptions.push(
       this.pokemonService.progress$.subscribe((v) => (this.loadingProgress = v)),
@@ -249,5 +263,46 @@ export class VistaMain implements OnInit, OnDestroy {
 
   irGestionUsuarios() {
     this.router.navigate(['/PokeUsers']);
+  }
+
+  logout() {
+    Swal.fire({
+      title: '¿Cerrar sesión?',
+      text: 'Tu aventura Pokémon será pausada',
+      icon: 'question',
+
+      showCancelButton: true,
+
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#2a75bb',
+
+      confirmButtonText: 'Sí, cerrar sesión',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.authService.logout().subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Sesión cerrada',
+              text: 'Hasta pronto entrenador',
+
+              confirmButtonColor: '#2a75bb',
+
+              timer: 2000,
+              showConfirmButton: false,
+            });
+
+            setTimeout(() => {
+              this.router.navigate(['/login']);
+            }, 2000);
+          },
+
+          error: () => {
+            this.router.navigate(['/login']);
+          },
+        });
+      }
+    });
   }
 }

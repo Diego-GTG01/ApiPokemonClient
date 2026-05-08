@@ -14,7 +14,6 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/login`, data, {
       withCredentials: true,
       responseType: 'text',
-      
     });
   }
 
@@ -31,7 +30,26 @@ export class AuthService {
   checkAuth() {
     return this.http.get(`${this.apiUrl}/me`, {
       withCredentials: true,
-      responseType: 'text',
     });
+  }
+
+  forgotPassword(email: string) {
+    return this.http.post(
+      `${this.apiUrl}/forgot-password`,
+      { email },
+      {
+        responseType: 'text',
+      },
+    );
+  }
+
+  resetPassword(token: string, password: string) {
+    return this.http.post(
+      `${this.apiUrl}/reset-password?token=${token}`,
+      { password },
+      {
+        responseType: 'text',
+      },
+    );
   }
 }
