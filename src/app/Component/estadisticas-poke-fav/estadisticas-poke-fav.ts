@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { Pokemon } from '../../Interface/pokemonDTO';
 import { PokemonFavoritoService } from '../../Service/pokemon-favorito-service';
 import { forkJoin, map } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-estadisticas-poke-fav',
@@ -11,7 +12,9 @@ import { forkJoin, map } from 'rxjs';
   styleUrl: './estadisticas-poke-fav.css',
 })
 export class EstadisticasPokeFav {
-  constructor(private pokemonFavoritoService: PokemonFavoritoService) {
+  constructor(private pokemonFavoritoService: PokemonFavoritoService,
+    private router: Router
+  ) {
     this.pokemonFavoritoService.GetMostFavoritePokemon().subscribe({
       next: (res) => {
         this.favoriteStats.mostFavorite.nombre = res.object[0];
@@ -40,7 +43,6 @@ export class EstadisticasPokeFav {
         this.favoriteStats.leastFavorite.tipo = 'normal';
       },
     });
-    // TODOS LOS FAVORITOS + TIPOS
     this.pokemonFavoritoService.GetAllFavoritePokemon().subscribe({
       next: (res) => {
 
@@ -180,5 +182,9 @@ export class EstadisticasPokeFav {
 
   obtenerTipos(tipoString: string): string[] {
     return tipoString.split(',').map((t) => t.trim());
+  }
+
+  volver(): void {
+    this.router.navigate(['/main']);
   }
 }

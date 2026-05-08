@@ -103,4 +103,7 @@ export class GestionUsuarios {
   agregarUsuario(): void {
     this.router.navigate(['/PokeForm']);
   }
+  volver(): void {
+    this.router.navigate(['/main']);
+  }
 }

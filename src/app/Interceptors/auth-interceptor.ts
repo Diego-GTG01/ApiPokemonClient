@@ -9,6 +9,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   const SECURE_ROUTES = [
     '127.0.0.1:8080',
+    'localhost:8080',
     'pokeapi.co/api/v2/pokemon',
   ];
 

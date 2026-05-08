@@ -16,8 +16,9 @@ export class VerifyPendingComponent implements OnInit {
     setInterval(() => {
 
       this.auth.checkAuth().subscribe({
-        next: () => {
-          this.router.navigate(['/']);
+        next: (res) => {
+          console.log(res);
+          this.router.navigate(['/main']);
         },
         error: () => {
         }

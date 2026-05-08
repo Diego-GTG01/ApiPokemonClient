@@ -331,11 +331,12 @@ export class VistaMain implements OnInit, OnDestroy {
     idUsuario = 21;
     this.router.navigate(['/PokeUsers/' + idUsuario]);
   }
-  irEstadisticasFavs(){
-    this.router.navigate(['/PokeStats']);
-  }
+  
 
   irGestionUsuarios() {
     this.router.navigate(['/PokeUsers']);
+  }
+  irEstadisticas(){
+    this.router.navigate(['/PokeStats']);
   }
 }

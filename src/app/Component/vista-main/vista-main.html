@@ -41,7 +41,7 @@
           <button *ngIf="!viewFavoritesOnly" (click)="onlyFavs()" class="sys-btn" title="Ver mis favoritos">⭐ VER MIS FAVORITOS</button>
           <button *ngIf="viewFavoritesOnly"(click)="onlyFavs()" class="sys-btn" title="Ver mis favoritos">⭐ OCULTAR MIS FAVORITOS</button>
           
-          <button class="sys-btn" title="Ver estadísticas de usuarios">📊 ESTADÍSTICAS</button>
+          <button (click)="irEstadisticas()"   class="sys-btn" title="Ver estadísticas de usuarios">📊 ESTADÍSTICAS</button>
           <button (click)="irGestionUsuarios()" class="sys-btn" title="Gestionar Usuarios">
             📋 GESTIÓN DE USUARIOS
           </button>

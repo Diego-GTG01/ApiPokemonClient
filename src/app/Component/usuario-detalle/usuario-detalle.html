@@ -55,7 +55,7 @@
             <span class="data-value">{{ usuario.celular }}</span>
           </div>
 
-           <div class="info-group">
+          <div class="info-group">
             <span class="label">Telefono</span>
             <span class="data-value">{{ usuario.telefono }}</span>
           </div>
@@ -79,9 +79,9 @@
 
         <div class="form-body column-layout">
           <!-- FILA 1 -->
-           
+
           <div class="form-row">
-             <h3 class="section-title">Credenciales de Acceso</h3>
+            <h3 class="section-title">Credenciales de Acceso</h3>
             <div class="input-group">
               <label>Username</label>
               <input type="text" formControlName="userName" class="poke-input" />
@@ -115,7 +115,6 @@
                   >Debe ser un email válido.</small
                 >
               </div>
-            
             </div>
             <div class="input-group">
               <label>Rol</label>
@@ -129,7 +128,6 @@
                 <small *ngIf="usuarioForm.get('rol')?.errors?.['required']"
                   >El rol es obligatorio.</small
                 >
-                
               </div>
             </div>
           </div>
@@ -138,7 +136,6 @@
 
           <!-- FILA 2 -->
           <div class="form-row">
-            
             <h3 class="section-title">Información Personal</h3>
             <div class="input-group">
               <label>Nombre</label>
@@ -157,14 +154,16 @@
                   >Debe contener solo letras.</small
                 >
               </div>
-            
             </div>
 
             <div class="input-group">
               <label>Apellido Paterno</label>
               <input type="text" formControlName="apellidoPaterno" class="poke-input" />
               <div
-                *ngIf="usuarioForm.get('apellidoPaterno')?.invalid && usuarioForm.get('apellidoPaterno')?.touched"
+                *ngIf="
+                  usuarioForm.get('apellidoPaterno')?.invalid &&
+                  usuarioForm.get('apellidoPaterno')?.touched
+                "
                 class="error-message"
               >
                 <small *ngIf="usuarioForm.get('apellidoPaterno')?.errors?.['required']"
@@ -182,9 +181,8 @@
 
           <div class="form-row">
             <div class="input-group">
-              
-            <h2 class=""></h2>
-           
+              <h2 class=""></h2>
+
               <label>Apellido Materno</label>
               <input type="text" formControlName="apellidoMaterno" class="poke-input" />
             </div>
@@ -207,9 +205,19 @@
             <div class="input-group">
               <label>Telefono</label>
               <input type="text" formControlName="telefono" class="poke-input" />
+              <div
+                *ngIf="usuarioForm.get('telefono')?.invalid && usuarioForm.get('telefono')?.touched"
+                class="error-message"
+              >
+                <small *ngIf="usuarioForm.get('telefono')?.errors?.['required']"
+                  >El teléfono es obligatorio.</small
+                >
+                <small *ngIf="usuarioForm.get('telefono')?.errors?.['pattern']"
+                  >Debe ser un número de teléfono válido.</small
+                >
+              </div>
             </div>
           </div>
-
         </div>
 
         <div class="card-footer">

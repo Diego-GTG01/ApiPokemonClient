@@ -1286,24 +1286,7 @@
     filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.3));
   }
 
-  /* RANGOS DEFINIDOS POR CLASES */
-  
-  /* 1. Novato - Poké Ball */
-  .rank-novato .pokeball-icon { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'); }
-  .rank-novato .role-highlight { background: #ff5645; color: white; }
-
-  /* 2. Veterano - Super Ball */
-  .rank-veterano .pokeball-icon { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png'); }
-  .rank-veterano .role-highlight { background: #2f89ff; color: white; }
-
-  /* 3. Elite - Ultra Ball */
-  .rank-elite .pokeball-icon { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png'); }
-  .rank-elite .role-highlight { background: #ffde00; color: #333; }
-
-  /* 4. Maestro Pokémon - Master Ball */
-  .rank-maestro .pokeball-icon { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png'); }
-  .rank-maestro .role-highlight { background: #a33ea1; color: white; border: 1px solid #ffde00; }
-
+ 
   .user-label {
     font-size: 0.85rem;
     font-weight: bold;
