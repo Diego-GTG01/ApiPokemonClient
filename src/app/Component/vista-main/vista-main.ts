@@ -33,18 +33,33 @@ export class VistaMain implements OnInit, OnDestroy {
   loadingProgress = 0;
   searchQuery = '';
   viewFavoritesOnly = false;
+  pokemonOriginales: Map<number, Pokemon> = new Map();
 
   searchMode: 'name' | 'id' | 'type' = 'name';
 
   readonly allTypes: string[] = [
-    'normal','fire','water','electric','grass','poison','psychic',
-    'rock','ground','ice','bug','dragon','ghost','dark','steel',
-    'fairy','fighting','flying'
+    'normal',
+    'fire',
+    'water',
+    'electric',
+    'grass',
+    'poison',
+    'psychic',
+    'rock',
+    'ground',
+    'ice',
+    'bug',
+    'dragon',
+    'ghost',
+    'dark',
+    'steel',
+    'fairy',
+    'fighting',
+    'flying',
   ];
-  selectedTypes: string[] = []; 
+  selectedTypes: string[] = [];
 
   readonly generations: Generation[] = [
-    
     { label: 'I', name: 'Gen I', start: 1, end: 151, region: 'Kanto', color: '#dc0a2d' },
     { label: 'II', name: 'Gen II', start: 152, end: 251, region: 'Johto', color: '#3b82f6' },
     { label: 'III', name: 'Gen III', start: 252, end: 386, region: 'Hoenn', color: '#16a34a' },
@@ -54,6 +69,15 @@ export class VistaMain implements OnInit, OnDestroy {
     { label: 'VII', name: 'Gen VII', start: 722, end: 809, region: 'Alola', color: '#e11d48' },
     { label: 'VIII', name: 'Gen VIII', start: 810, end: 905, region: 'Galar', color: '#059669' },
     { label: 'IX', name: 'Gen IX', start: 906, end: 1025, region: 'Paldea', color: '#dc2626' },
+
+    {
+      label: 'DIFF',
+      name: 'Otros',
+      start: 10001,
+      end: 10325,
+      region: 'Nacional',
+      color: '#ffd700',
+    },
     { label: 'ALL', name: 'Todos', start: 1, end: 1025, region: 'Nacional', color: '#ffd700' },
   ];
   selectedGenIndex = 0;
@@ -61,7 +85,6 @@ export class VistaMain implements OnInit, OnDestroy {
   get currentGen(): Generation {
     return this.generations[this.selectedGenIndex];
   }
-  
 
   private audio: HTMLAudioElement | null = null;
   private subscriptions: Subscription[] = [];
@@ -135,10 +158,10 @@ export class VistaMain implements OnInit, OnDestroy {
     this.applyFilter();
   }
 
-  onlyFavs(): void{
+  onlyFavs(): void {
     this.viewFavoritesOnly = !this.viewFavoritesOnly;
-    if(this.viewFavoritesOnly){
-      this.filteredPokemons = this.filteredPokemons.filter(p => p.isFavorite);
+    if (this.viewFavoritesOnly) {
+      this.filteredPokemons = this.filteredPokemons.filter((p) => p.isFavorite);
     } else {
       this.applyFilter();
     }
@@ -147,7 +170,6 @@ export class VistaMain implements OnInit, OnDestroy {
   toggleType(tipo: string): void {
     const idx = this.selectedTypes.indexOf(tipo);
     if (idx !== -1) {
-      
       this.selectedTypes.splice(idx, 1);
     } else {
       if (this.selectedTypes.length < 2) {
@@ -171,13 +193,11 @@ export class VistaMain implements OnInit, OnDestroy {
   }
 
   applyFilter(): void {
-    
-
     const gen = this.currentGen;
     let list = this.allPokemons.filter((p) => p.id >= gen.start && p.id <= gen.end);
 
-    if(this.viewFavoritesOnly){
-      list = list.filter(p => p.isFavorite);
+    if (this.viewFavoritesOnly) {
+      list = list.filter((p) => p.isFavorite);
     }
 
     if (this.searchMode === 'name') {
@@ -195,10 +215,12 @@ export class VistaMain implements OnInit, OnDestroy {
         list = list.filter((p) => {
           const tipos = this.obtenerTipos(p.tipo);
           if (this.selectedTypes.length === 1) {
-            return tipos.some(t => t.toLowerCase() === this.selectedTypes[0].toLowerCase());
+            return tipos.some((t) => t.toLowerCase() === this.selectedTypes[0].toLowerCase());
           } else {
-            return tipos[0]?.toLowerCase() === this.selectedTypes[0].toLowerCase()
-              && tipos[1]?.toLowerCase() === this.selectedTypes[1].toLowerCase();
+            return (
+              tipos[0]?.toLowerCase() === this.selectedTypes[0].toLowerCase() &&
+              tipos[1]?.toLowerCase() === this.selectedTypes[1].toLowerCase()
+            );
           }
         });
       }
@@ -326,17 +348,51 @@ export class VistaMain implements OnInit, OnDestroy {
       ],
     };
   }
-  irFichaEntrenador(idUsuario: Number){
+  cambiarVariedad(idPokemon: number, pokemon: Pokemon, event: Event): void {
+    event.stopPropagation();
+    pokemon.selectedVariety = idPokemon;
+    console.log('Cambiando a variedad ID:', idPokemon, ' para Pokémon:', pokemon.nombre);
+
+    if (!this.pokemonOriginales.has(pokemon.id)) {
+      this.pokemonOriginales.set(pokemon.id, { ...pokemon });
+    }
+
+    if (idPokemon === pokemon.id) {
+      const original = this.pokemonOriginales.get(pokemon.id);
+
+      if (original) {
+        Object.assign(pokemon, original);
+      }
+
+      return;
+    }
+
+    const nuevaVariedad = this.allPokemons.find((p) => p.id === idPokemon);
+
+    if (nuevaVariedad) {
+      Object.assign(pokemon, {
+        nombre: nuevaVariedad.nombre,
+        tipo: nuevaVariedad.tipo,
+        imagen: nuevaVariedad.imagen,
+        hp: nuevaVariedad.hp,
+        attack: nuevaVariedad.attack,
+        defense: nuevaVariedad.defense,
+        specialAttack: nuevaVariedad.specialAttack,
+        specialDefense: nuevaVariedad.specialDefense,
+        speed: nuevaVariedad.speed,
+      });
+    }
+  }
+  irFichaEntrenador(idUsuario: Number) {
     //sustituir con el del usuario real
     idUsuario = 21;
     this.router.navigate(['/PokeUsers/' + idUsuario]);
   }
-  
 
   irGestionUsuarios() {
     this.router.navigate(['/PokeUsers']);
   }
-  irEstadisticas(){
+  irEstadisticas() {
     this.router.navigate(['/PokeStats']);
   }
 }

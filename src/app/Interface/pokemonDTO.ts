@@ -16,4 +16,7 @@ export interface Pokemon {
   abilities?: string[];
   description?: string;
   selectedTab?: number;
+  varieties?: { id: number; name: string }[];
+  selectedVariety?: number;
+  
 }

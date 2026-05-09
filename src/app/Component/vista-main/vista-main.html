@@ -38,14 +38,32 @@
 
       <div class="user-system-actions">
         <div class="action-grid">
-          <button *ngIf="!viewFavoritesOnly" (click)="onlyFavs()" class="sys-btn" title="Ver mis favoritos">⭐ VER MIS FAVORITOS</button>
-          <button *ngIf="viewFavoritesOnly"(click)="onlyFavs()" class="sys-btn" title="Ver mis favoritos">⭐ OCULTAR MIS FAVORITOS</button>
-          
-          <button (click)="irEstadisticas()"   class="sys-btn" title="Ver estadísticas de usuarios">📊 ESTADÍSTICAS</button>
+          <button
+            *ngIf="!viewFavoritesOnly"
+            (click)="onlyFavs()"
+            class="sys-btn"
+            title="Ver mis favoritos"
+          >
+            ⭐ VER MIS FAVORITOS
+          </button>
+          <button
+            *ngIf="viewFavoritesOnly"
+            (click)="onlyFavs()"
+            class="sys-btn"
+            title="Ver mis favoritos"
+          >
+            ⭐ OCULTAR MIS FAVORITOS
+          </button>
+
+          <button (click)="irEstadisticas()" class="sys-btn" title="Ver estadísticas de usuarios">
+            📊 ESTADÍSTICAS
+          </button>
           <button (click)="irGestionUsuarios()" class="sys-btn" title="Gestionar Usuarios">
             📋 GESTIÓN DE USUARIOS
           </button>
-          <button (click)="irFichaEntrenador(21)" class="sys-btn" title="Editar Perfil">🆔 FICHA ENTRENADOR</button>
+          <button (click)="irFichaEntrenador(21)" class="sys-btn" title="Editar Perfil">
+            🆔 FICHA ENTRENADOR
+          </button>
           <button class="sys-btn logout-btn" title="Finalizar Sesión">
             <span class="power-icon">⏻</span> CERRAR SESIÓN POKÉDEX
           </button>
@@ -98,10 +116,13 @@
     <div class="type-search-panel" *ngIf="searchMode === 'type'">
       <div class="type-search-hint">
         <span *ngIf="selectedTypes.length === 0">Selecciona hasta 2 tipos (el orden importa)</span>
-        <span *ngIf="selectedTypes.length === 1">Tipo 1: <strong>{{ selectedTypes[0] | uppercase }}</strong> — puedes añadir un segundo tipo</span>
+        <span *ngIf="selectedTypes.length === 1"
+          >Tipo 1: <strong>{{ selectedTypes[0] | uppercase }}</strong> — puedes añadir un segundo
+          tipo</span
+        >
         <span *ngIf="selectedTypes.length === 2">
-          Tipo 1: <strong>{{ selectedTypes[0] | uppercase }}</strong> &nbsp;·&nbsp;
-          Tipo 2: <strong>{{ selectedTypes[1] | uppercase }}</strong>
+          Tipo 1: <strong>{{ selectedTypes[0] | uppercase }}</strong> &nbsp;·&nbsp; Tipo 2:
+          <strong>{{ selectedTypes[1] | uppercase }}</strong>
         </span>
       </div>
 
@@ -216,6 +237,22 @@
               >
                 🔊
               </button>
+              <div class="poke-container" *ngIf="pokemon.varieties?.length">
+                <p class="poke-label">Variedades</p>
+                <div class="poke-grid">
+                  <button class="poke-btn" (click)="cambiarVariedad(pokemon.id, pokemon, $event)">
+                    Default
+                  </button>
+
+                  <button
+                    class="poke-btn"
+                    *ngFor="let variety of pokemon.varieties"
+                    (click)="cambiarVariedad(variety.id, pokemon, $event)"
+                  >
+                    {{ variety.name.replace('-', ' ') }}
+                  </button>
+                </div>
+              </div>
 
               <h3 class="pokemon-name">{{ pokemon.nombre }}</h3>
 

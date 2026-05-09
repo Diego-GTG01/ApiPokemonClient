@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, forkJoin, map, Observable } from 'rxjs';
+import { BehaviorSubject, forkJoin, map, Observable, of } from 'rxjs';
 import { Pokemon } from '../Interface/pokemonDTO';
 import { PokemonApi } from '../Interface/pokemonApi';
 import { PokemonFavoritoService } from './pokemon-favorito-service';
@@ -27,7 +27,7 @@ export class PokemonService {
 
   private readonly STORAGE_KEY = 'pokemons_data';
   private readonly FAVORITES_KEY = 'pokemons_favorites';
-  private readonly TOTAL_POKEMONS = 1025;
+  private TOTAL_POKEMONS = 0;
 
   public loading$ = this.loadingSubject.asObservable();
   public progress$ = this.progressSubject.asObservable();
@@ -48,7 +48,7 @@ export class PokemonService {
     if (stored) {
       try {
         const pokemons: Pokemon[] = JSON.parse(stored);
-        if (pokemons.length === this.TOTAL_POKEMONS) {
+        if (pokemons.length > 0) {
           this.getStoredFavorites().subscribe((favoriteIds) => {
             pokemons.forEach((p) => {
               favoriteIds.forEach((pokeFav) => {
@@ -58,6 +58,12 @@ export class PokemonService {
               });
               p.isFlipped = false;
               p.selectedTab = 0;
+              this.getVarieties(p.id).subscribe((varieties) => {
+                p.varieties = varieties;
+              });
+              this.getFlavorText(p.id).subscribe((flavorTexts) => {
+                p.description = flavorTexts[0];
+              });
             });
           });
 
@@ -89,79 +95,101 @@ export class PokemonService {
 
   private loadAllPokemons(): void {
     if (this.fetchStarted) return;
+
     this.fetchStarted = true;
 
     this.loadingSubject.next(true);
     this.progressSubject.next(0);
 
-    const BATCH_SIZE = 50;
-    const batches: number[][] = [];
-    for (let i = 1; i <= this.TOTAL_POKEMONS; i += BATCH_SIZE) {
-      const batch: number[] = [];
-      for (let j = i; j < i + BATCH_SIZE && j <= this.TOTAL_POKEMONS; j++) {
-        batch.push(j);
-      }
-      batches.push(batch);
-    }
-    this.processBatches(batches, 0, new Map<number, Pokemon>());
-  }
+    this.http.get<any>('https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0').subscribe({
+      next: (response) => {
+        const results = response.results;
 
-  private processBatches(
-    batches: number[][],
+        this.TOTAL_POKEMONS = results.length;
+
+        const BATCH_SIZE = 50;
+        const batches: any[][] = [];
+
+        for (let i = 0; i < results.length; i += BATCH_SIZE) {
+          batches.push(results.slice(i, i + BATCH_SIZE));
+        }
+
+        this.processUrlBatches(batches, 0, new Map<number, Pokemon>());
+      },
+      error: (err) => {
+        console.error(err);
+        this.loadingSubject.next(false);
+      },
+    });
+  }
+  private processUrlBatches(
+    batches: any[][],
     batchIndex: number,
     pokemonsMap: Map<number, Pokemon>,
   ): void {
     if (batchIndex >= batches.length) {
       const pokemons = Array.from(pokemonsMap.values()).sort((a, b) => a.id - b.id);
+
       this.getStoredFavorites().subscribe((favoriteIds) => {
         pokemons.forEach((p) => {
-          favoriteIds.forEach((pokeFav) => {
-            if (p.id === pokeFav) {
-              p.isFavorite = true;
-            }
+          p.isFavorite = favoriteIds.has(p.id);
+          p.isFlipped = false;
+          p.selectedTab = 0;
+          this.getVarieties(p.id).subscribe((varieties) => {
+            p.varieties = varieties;
           });
           this.getFlavorText(p.id).subscribe((flavorTexts) => {
             p.description = flavorTexts[0];
           });
-          p.isFlipped = false;
-          p.selectedTab = 0;
         });
+
+        this.pokemonsSubject.next(pokemons);
+
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(pokemons));
+
+        this.loadingSubject.next(false);
+        this.progressSubject.next(100);
       });
 
-      this.pokemonsSubject.next(pokemons);
-      this.loadingSubject.next(false);
-      this.progressSubject.next(100);
-
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(pokemons));
       return;
     }
 
     const batch = batches[batchIndex];
-    const requests = batch.map((id) =>
-      this.http.get<any>(`${this.apiUrl}/${id}`).pipe(map((data) => this.mapToPokemon(data))),
+
+    const requests = batch.map((pokemonItem) =>
+      this.http.get<any>(pokemonItem.url).pipe(map((data) => this.mapToPokemon(data))),
     );
 
     forkJoin(requests).subscribe({
       next: (pokemons) => {
-        pokemons.forEach((p) => pokemonsMap.set(p.id, p));
+        pokemons.forEach((p) => {
+          pokemonsMap.set(p.id, p);
+        });
 
         const progress = Math.round((pokemonsMap.size / this.TOTAL_POKEMONS) * 100);
+
         this.progressSubject.next(progress);
 
         const partial = Array.from(pokemonsMap.values()).sort((a, b) => a.id - b.id);
+
         this.pokemonsSubject.next(partial);
 
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(partial));
 
         setTimeout(() => {
-          this.processBatches(batches, batchIndex + 1, pokemonsMap);
+          this.processUrlBatches(batches, batchIndex + 1, pokemonsMap);
         }, 200);
       },
       error: (err) => {
+        console.error(err);
+
         this.loadingSubject.next(false);
 
         const partial = Array.from(pokemonsMap.values()).sort((a, b) => a.id - b.id);
-        if (partial.length) this.pokemonsSubject.next(partial);
+
+        if (partial.length) {
+          this.pokemonsSubject.next(partial);
+        }
       },
     });
   }
@@ -250,15 +278,38 @@ export class PokemonService {
     });
   }
 
-  getFlavorText(id: number | string): Observable<string[]> {
+  getFlavorText(id: number): Observable<string[]> {
     return this.http.get<any>(`${this.baseUrl}/${id}`).pipe(
       map((res) => {
+        if (id > 1025) {
+          return [];
+        }
         let entries = res.flavor_text_entries.filter((entry: any) => entry.language.name === 'es');
         if (entries.length === 0) {
           entries = res.flavor_text_entries.filter((entry: any) => entry.language.name === 'en');
         }
 
         return entries.map((entry: any) => entry.flavor_text);
+      }),
+    );
+  }
+  getVarieties(id: number): Observable<{ id: number; name: string }[]> {
+    if (id > 1025) {
+      return of([]);
+    }
+
+    return this.http.get<any>(`${this.baseUrl}/${id}`).pipe(
+      map((res) => {
+        return res.varieties
+          .filter((v: any) => !v.is_default)
+          .map((v: any) => {
+            const parts = v.pokemon.url.split('/').filter(Boolean);
+
+            return {
+              id: Number(parts[parts.length - 1]),
+              name: v.pokemon.name,
+            };
+          });
       }),
     );
   }
