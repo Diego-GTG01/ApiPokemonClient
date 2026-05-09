@@ -8,6 +8,8 @@ import { UsuarioForm } from './Component/usuario-form/usuario-form';
 import { UsuarioDetalle } from './Component/usuario-detalle/usuario-detalle';
 import { ForgotPassword } from './Component/forgot-password/forgot-password';
 import { ResetPassword } from './Component/reset-password/reset-password';
+import { EstadisticasPokeFav } from './Component/estadisticas-poke-fav/estadisticas-poke-fav';
+
 
 export const routes: Routes = [
   {
@@ -47,4 +49,7 @@ export const routes: Routes = [
     path: 'reset-password',
     component: ResetPassword,
   },
+  {
+    path: "PokeStats", component: EstadisticasPokeFav
+  }
 ];

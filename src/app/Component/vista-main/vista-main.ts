@@ -5,10 +5,12 @@ import { Router } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType, Chart, registerables } from 'chart.js';
 import { Pokemon } from '../../Interface/pokemonDTO';
-import { PokemonApi } from '../../Interface/pokemonApi';
 import { PokemonService } from '../../Service/pokemon-service';
 import { Subscription } from 'rxjs';
 import { PokemonFavoritoService } from '../../Service/pokemon-favorito-service';
+import { Usuario } from '../../Interface/Usuario';
+import { AuthService } from '../../Service/auth-service';
+import Swal from 'sweetalert2';
 
 Chart.register(...registerables);
 
@@ -33,6 +35,31 @@ export class VistaMain implements OnInit, OnDestroy {
   isLoading = false;
   loadingProgress = 0;
   searchQuery = '';
+  viewFavoritesOnly = false;
+
+  searchMode: 'name' | 'id' | 'type' = 'name';
+
+  readonly allTypes: string[] = [
+    'normal',
+    'fire',
+    'water',
+    'electric',
+    'grass',
+    'poison',
+    'psychic',
+    'rock',
+    'ground',
+    'ice',
+    'bug',
+    'dragon',
+    'ghost',
+    'dark',
+    'steel',
+    'fairy',
+    'fighting',
+    'flying',
+  ];
+  selectedTypes: string[] = [];
 
   readonly generations: Generation[] = [
     { label: 'I', name: 'Gen I', start: 1, end: 151, region: 'Kanto', color: '#dc0a2d' },
@@ -44,8 +71,15 @@ export class VistaMain implements OnInit, OnDestroy {
     { label: 'VII', name: 'Gen VII', start: 722, end: 809, region: 'Alola', color: '#e11d48' },
     { label: 'VIII', name: 'Gen VIII', start: 810, end: 905, region: 'Galar', color: '#059669' },
     { label: 'IX', name: 'Gen IX', start: 906, end: 1025, region: 'Paldea', color: '#dc2626' },
+    { label: 'ALL', name: 'Todos', start: 1, end: 1025, region: 'Nacional', color: '#ffd700' },
   ];
   selectedGenIndex = 0;
+
+  usuario: Usuario | null = null;
+
+  isMaestro(): boolean {
+    return this.usuario?.rol.nombre === 'Maestro';
+  }
 
   get currentGen(): Generation {
     return this.generations[this.selectedGenIndex];
@@ -78,9 +112,15 @@ export class VistaMain implements OnInit, OnDestroy {
     private router: Router,
     private pokemonService: PokemonService,
     private pokemonFavoritoService: PokemonFavoritoService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
+    this.authService.checkAuth().subscribe({
+      next: (response: any) => {
+        this.usuario = response;
+      },
+    });
     this.subscriptions.push(this.pokemonService.loading$.subscribe((v) => (this.isLoading = v)));
     this.subscriptions.push(
       this.pokemonService.progress$.subscribe((v) => (this.loadingProgress = v)),
@@ -116,14 +156,81 @@ export class VistaMain implements OnInit, OnDestroy {
     this.applyFilter();
   }
 
-  private applyFilter(): void {
+  setSearchMode(mode: 'name' | 'id' | 'type'): void {
+    this.searchMode = mode;
+    this.searchQuery = '';
+    this.selectedTypes = [];
+    this.applyFilter();
+  }
+
+  onlyFavs(): void {
+    this.viewFavoritesOnly = !this.viewFavoritesOnly;
+    if (this.viewFavoritesOnly) {
+      this.filteredPokemons = this.filteredPokemons.filter((p) => p.isFavorite);
+    } else {
+      this.applyFilter();
+    }
+  }
+
+  toggleType(tipo: string): void {
+    const idx = this.selectedTypes.indexOf(tipo);
+    if (idx !== -1) {
+      this.selectedTypes.splice(idx, 1);
+    } else {
+      if (this.selectedTypes.length < 2) {
+        this.selectedTypes.push(tipo);
+      }
+    }
+    this.applyFilter();
+  }
+
+  isTypeSelected(tipo: string): boolean {
+    return this.selectedTypes.includes(tipo);
+  }
+
+  isTypeDisabled(tipo: string): boolean {
+    return this.selectedTypes.length === 2 && !this.selectedTypes.includes(tipo);
+  }
+
+  getTypeOrder(tipo: string): number {
+    const idx = this.selectedTypes.indexOf(tipo);
+    return idx === -1 ? -1 : idx + 1;
+  }
+
+  applyFilter(): void {
     const gen = this.currentGen;
     let list = this.allPokemons.filter((p) => p.id >= gen.start && p.id <= gen.end);
 
-    const q = this.searchQuery.trim().toLowerCase();
-    if (q) {
-      list = list.filter((p) => p.nombre.toLowerCase().includes(q) || String(p.id).includes(q));
+    if (this.viewFavoritesOnly) {
+      list = list.filter((p) => p.isFavorite);
     }
+
+    if (this.searchMode === 'name') {
+      const searchText = this.searchQuery.trim().toLowerCase();
+      if (searchText) {
+        list = list.filter((p) => p.nombre.toLowerCase().includes(searchText));
+      }
+    } else if (this.searchMode === 'id') {
+      const searchText = this.searchQuery.trim();
+      if (searchText) {
+        list = list.filter((p) => String(p.id).includes(searchText));
+      }
+    } else if (this.searchMode === 'type') {
+      if (this.selectedTypes.length > 0) {
+        list = list.filter((p) => {
+          const tipos = this.obtenerTipos(p.tipo);
+          if (this.selectedTypes.length === 1) {
+            return tipos.some((t) => t.toLowerCase() === this.selectedTypes[0].toLowerCase());
+          } else {
+            return (
+              tipos[0]?.toLowerCase() === this.selectedTypes[0].toLowerCase() &&
+              tipos[1]?.toLowerCase() === this.selectedTypes[1].toLowerCase()
+            );
+          }
+        });
+      }
+    }
+
     this.filteredPokemons = list;
   }
 
@@ -246,8 +353,58 @@ export class VistaMain implements OnInit, OnDestroy {
       ],
     };
   }
+  irFichaEntrenador(idUsuario: Number) {
+    //sustituir con el del usuario real
+    idUsuario = 21;
+    this.router.navigate(['/PokeUsers/' + idUsuario]);
+  }
 
   irGestionUsuarios() {
     this.router.navigate(['/PokeUsers']);
+  }
+
+  irEstadisticas() {
+    this.router.navigate(['/PokeStats']);
+  }
+
+  logout() {
+    Swal.fire({
+      title: '¿Cerrar sesión?',
+      text: 'Tu aventura Pokémon será pausada',
+      icon: 'question',
+
+      showCancelButton: true,
+
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#2a75bb',
+
+      confirmButtonText: 'Sí, cerrar sesión',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.authService.logout().subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Sesión cerrada',
+              text: 'Hasta pronto entrenador',
+
+              confirmButtonColor: '#2a75bb',
+
+              timer: 2000,
+              showConfirmButton: false,
+            });
+
+            setTimeout(() => {
+              this.router.navigate(['/login']);
+            }, 2000);
+          },
+
+          error: () => {
+            this.router.navigate(['/login']);
+          },
+        });
+      }
+    });
   }
 }

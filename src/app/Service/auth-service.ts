@@ -30,7 +30,6 @@ export class AuthService {
   checkAuth() {
     return this.http.get(`${this.apiUrl}/me`, {
       withCredentials: true,
-      responseType: 'text',
     });
   }
 

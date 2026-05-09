@@ -7,10 +7,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   const router = inject(Router);
 
-  const isApiPropia = req.url.includes('localhost:8080');
+  const isApiPropia =
+    req.url.includes('localhost:8080');
+    //req.url.includes('127.0.0.1:8080');
 
   const cloned = req.clone({
-    withCredentials: isApiPropia 
+    withCredentials: isApiPropia
   });
 
   return next(cloned).pipe(
@@ -21,10 +23,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
         const currentUrl = router.url;
 
-        if ((err.status === 401 || err.status === 403) 
-            && currentUrl !== '/verify-pending'
-            && currentUrl !== '/login') {
-
+        if (
+          (err.status === 401 || err.status === 403) &&
+          currentUrl !== '/verify-pending' &&
+          currentUrl !== '/login' &&
+          !req.url.includes('/auth/logout')
+        ) {
           router.navigate(['/login']);
         }
       }

@@ -28,7 +28,8 @@ export class GestionUsuarios {
       next: (usuarios: Result<Usuario[]>) => {
         this.usuarios = usuarios.objects.flat();
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error al cargar los usuarios:', err);  
         Swal.fire({
           title: 'Error al cargar los usuarios',
           icon: 'error',
@@ -39,7 +40,7 @@ export class GestionUsuarios {
     });
   }
 
-  EliminarUsuario(user: Usuario): void {
+  public EliminarUsuario(user: Usuario): void {
     Swal.fire({
       title: 'Esta seguro de eliminar este usuario?',
       text: 'No podrás revertir esto',
@@ -96,7 +97,13 @@ export class GestionUsuarios {
 
     this.router.navigate([this.router.url]);
   }
+  verPerfil(idUsuario: Number): void{
+    this.router.navigate(['/PokeUsers/', idUsuario]);
+  }
   agregarUsuario(): void {
     this.router.navigate(['/PokeForm']);
+  }
+  volver(): void {
+    this.router.navigate(['/main']);
   }
 }

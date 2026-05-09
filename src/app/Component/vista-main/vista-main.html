@@ -24,27 +24,50 @@
   </div>
   <div class="user-access-panel">
     <div class="user-core-info">
-      <div class="user-identity">
+      <div *ngIf="usuario" class="user-identity">
         <div class="user-name-row">
-          <h2 class="user-display-name">ASH KETCHUM</h2>
+          <h2 class="user-display-name">
+            {{ usuario.nombre }}
+            {{ usuario.apellidoPaterno }}
+          </h2>
           <span class="verified-badge" title="Maestro Pokémon">
             <span class="check-icon">⭐</span> ENTRENADOR VERIFICADO
           </span>
         </div>
         <span class="user-role-text">
-          Rango Actual: <span class="role-highlight">MAESTRO POKÉMON</span>
+          Rango Actual: <span class="role-highlight"> {{ usuario.rol.nombre }} Pokemon </span>
         </span>
       </div>
 
       <div class="user-system-actions">
         <div class="action-grid">
-          <button class="sys-btn" title="Ver mis favoritos">⭐ MIS FAVORITOS</button>
-          <button class="sys-btn" title="Ver estadísticas de usuarios">📊 ESTADÍSTICAS</button>
-          <button (click)="irGestionUsuarios()" class="sys-btn" title="Gestionar Usuarios">
+          <button
+            *ngIf="!viewFavoritesOnly"
+            (click)="onlyFavs()"
+            class="sys-btn"
+            title="Ver mis favoritos"
+          >
+            ⭐ VER MIS FAVORITOS
+          </button>
+          <button
+            *ngIf="viewFavoritesOnly"
+            (click)="onlyFavs()"
+            class="sys-btn"
+            title="Ver mis favoritos"
+          >
+            ⭐ OCULTAR MIS FAVORITOS
+          </button>
+
+          <button *ngIf="isMaestro()" (click)="irEstadisticas()" class="sys-btn" title="Ver estadísticas de usuarios">
+            📊 ESTADÍSTICAS
+          </button>
+          <button *ngIf="isMaestro()" (click)="irGestionUsuarios()" class="sys-btn" title="Gestionar Usuarios">
             📋 GESTIÓN DE USUARIOS
           </button>
-          <button class="sys-btn" title="Editar Perfil">🆔 FICHA ENTRENADOR</button>
-          <button class="sys-btn logout-btn" title="Finalizar Sesión">
+          <button (click)="irFichaEntrenador(21)" class="sys-btn" title="Editar Perfil">
+            🆔 FICHA ENTRENADOR
+          </button>
+          <button class="sys-btn logout-btn" title="Finalizar Sesión" (click)="logout()">
             <span class="power-icon">⏻</span> CERRAR SESIÓN POKÉDEX
           </button>
         </div>
@@ -54,16 +77,79 @@
 
   <div class="search-container">
     <div class="search-label">BÚSQUEDA DE ESPECIES</div>
-    <div class="search-wrapper">
+
+    <!-- Mode selector -->
+    <div class="search-mode-selector">
+      <button
+        class="search-mode-btn"
+        [class.active]="searchMode === 'name'"
+        (click)="setSearchMode('name')"
+      >
+        🔤 NOMBRE
+      </button>
+      <button
+        class="search-mode-btn"
+        [class.active]="searchMode === 'id'"
+        (click)="setSearchMode('id')"
+      >
+        🔢 NÚMERO
+      </button>
+      <button
+        class="search-mode-btn"
+        [class.active]="searchMode === 'type'"
+        (click)="setSearchMode('type')"
+      >
+        🏷️ TIPO
+      </button>
+    </div>
+
+    <!-- Name / ID search bar -->
+    <div class="search-wrapper" *ngIf="searchMode === 'name' || searchMode === 'id'">
       <div class="search-decoration"></div>
       <input
         type="text"
         class="search-input"
-        placeholder="NOMBRE / NÚMERO..."
+        [placeholder]="searchMode === 'name' ? 'NOMBRE DEL POKÉMON...' : 'NÚMERO (#001, 25...)'"
         [(ngModel)]="searchQuery"
         (input)="onSearch()"
       />
       <button class="search-button">🔍</button>
+    </div>
+
+    <div class="type-search-panel" *ngIf="searchMode === 'type'">
+      <div class="type-search-hint">
+        <span *ngIf="selectedTypes.length === 0">Selecciona hasta 2 tipos (el orden importa)</span>
+        <span *ngIf="selectedTypes.length === 1"
+          >Tipo 1: <strong>{{ selectedTypes[0] | uppercase }}</strong> — puedes añadir un segundo
+          tipo</span
+        >
+        <span *ngIf="selectedTypes.length === 2">
+          Tipo 1: <strong>{{ selectedTypes[0] | uppercase }}</strong> &nbsp;·&nbsp; Tipo 2:
+          <strong>{{ selectedTypes[1] | uppercase }}</strong>
+        </span>
+      </div>
+
+      <div class="type-chips-grid">
+        <button
+          class="type-chip"
+          *ngFor="let tipo of allTypes"
+          [class.selected]="isTypeSelected(tipo)"
+          [class.disabled]="isTypeDisabled(tipo)"
+          [style.--chip-color]="getTypeColor(tipo)"
+          (click)="toggleType(tipo)"
+        >
+          <span class="chip-order" *ngIf="getTypeOrder(tipo) !== -1">{{ getTypeOrder(tipo) }}</span>
+          {{ tipo | uppercase }}
+        </button>
+      </div>
+
+      <button
+        class="clear-types-btn"
+        *ngIf="selectedTypes.length > 0"
+        (click)="selectedTypes = []; applyFilter()"
+      >
+        ✕ Limpiar tipos
+      </button>
     </div>
   </div>
 
@@ -90,7 +176,7 @@
         >GEN {{ currentGen.label }}</span
       >
       <span class="gen-region-label">Región {{ currentGen.region }}</span>
-      <span class="gen-range"
+      <span class="gen-range" *ngIf="currentGen.label !== 'ALL'"
         >#{{ currentGen.start | number: '3.0-0' }} – #{{ currentGen.end | number: '3.0-0' }}</span
       >
     </div>
@@ -174,6 +260,7 @@
               <div class="tabs-container">
                 <div class="tabs-header">
                   <button
+                    *ngIf="isMaestro()"
                     class="tab-btn"
                     [class.active]="pokemon.selectedTab === 0"
                     (click)="setSelectedTab(pokemon, 0, $event)"
@@ -181,6 +268,7 @@
                     Stats
                   </button>
                   <button
+                    *ngIf="isMaestro()"
                     class="tab-btn"
                     [class.active]="pokemon.selectedTab === 1"
                     (click)="setSelectedTab(pokemon, 1, $event)"
@@ -188,6 +276,7 @@
                     Movimientos
                   </button>
                   <button
+                    *ngIf="isMaestro()"
                     class="tab-btn"
                     [class.active]="pokemon.selectedTab === 2"
                     (click)="setSelectedTab(pokemon, 2, $event)"
@@ -205,7 +294,7 @@
 
                 <div class="tabs-content">
                   <!-- Stats -->
-                  <div class="tab-pane" *ngIf="pokemon.selectedTab === 0">
+                  <div class="tab-pane" *ngIf="pokemon.selectedTab === 0 && isMaestro()">
                     <div class="chart-container">
                       <canvas
                         baseChart
@@ -223,7 +312,7 @@
                   </div>
 
                   <!-- Movimientos -->
-                  <div class="tab-pane" *ngIf="pokemon.selectedTab === 1">
+                  <div class="tab-pane" *ngIf="pokemon.selectedTab === 1 && isMaestro()">
                     <div class="moves-container" *ngIf="pokemon.moves && pokemon.moves.length > 0">
                       <div class="moves-list">
                         <div class="move-item" *ngFor="let move of pokemon.moves; let i = index">
@@ -238,7 +327,7 @@
                   </div>
 
                   <!-- Habilidades -->
-                  <div class="tab-pane" *ngIf="pokemon.selectedTab === 2">
+                  <div class="tab-pane" *ngIf="pokemon.selectedTab === 2 && isMaestro()">
                     <div
                       class="abilities-container"
                       *ngIf="pokemon.abilities && pokemon.abilities.length > 0"

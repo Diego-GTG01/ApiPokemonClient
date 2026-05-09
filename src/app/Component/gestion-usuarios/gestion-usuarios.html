@@ -5,7 +5,10 @@
       <h1>Gestión de Entrenadores</h1>
     </div>
     <button (click)="agregarUsuario()" class="btn-add">Registrar Nuevo Entrenador</button>
+     <button (click)="volver()" class="btn-add">Volver</button>
   </header>
+
+  
 
   <div class="trainer-grid">
     <div *ngFor="let user of usuarios" class="trainer-card" [class.verified]="user.verified === 1">
@@ -33,13 +36,15 @@
           <div class="divider"></div>
           <p><span class="label">Email:</span> {{ user.email }}</p>
           <p><span class="label">Celular:</span> {{ user.celular }}</p>
+          <p><span class="label">Telefono:</span> {{ user.telefono }}</p>
         </div>
       </div>
 
       <div class="card-footer">
-        <button class="sys-btn">Ver Perfil</button>
+        <button (click)="verPerfil(user.idUsuario)" class="sys-btn">Ver Perfil</button>
         <button (click)="EliminarUsuario(user)" class="btn-delete" title="Liberar entrenador">🗑️</button>
       </div>
     </div>
   </div>
+
 </div>

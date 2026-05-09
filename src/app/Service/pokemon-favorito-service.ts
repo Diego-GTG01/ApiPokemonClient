@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Pokemon } from '../Interface/pokemonDTO';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { Result } from '../Interface/Result';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { PokemonApi } from '../Interface/pokemonApi';
@@ -11,14 +11,16 @@ import { PokemonApi } from '../Interface/pokemonApi';
 export class PokemonFavoritoService {
   private http = inject(HttpClient);
   private readonly apiUrl = 'http://localhost:8080/usuario/pokeFavs/';
+  //private readonly apiUrl = 'https://pokeapi.co/api/v2/pokemon/';
+
 
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
     }),
   };
-  getPokemonFavorite(idUsuario: Number): Observable <Result<any[]>> {
-    return this.http.get<Result<any[]>>(this.apiUrl+idUsuario);
+  getPokemonFavorite(idUsuario: Number): Observable<Result<any[]>> {
+    return this.http.get<Result<any[]>>(this.apiUrl + idUsuario);
   }
   addPokemonFavorite(idUsuario: Number, pokemon: PokemonApi): Observable<Result<any>> {
     this.httpOptions.headers.append(
@@ -36,4 +38,20 @@ export class PokemonFavoritoService {
       observe: 'response',
     });
   }
+  GetMostFavoritePokemon(): Observable<Result<any>> {
+    return this.http.get<Result<any>>(this.apiUrl + 'mostFavorite');
+  }
+  GetLeastFavoritePokemon(): Observable<Result<any>> {
+    return this.http.get<Result<any>>(this.apiUrl + 'leastFavorite');
+  }
+  GetAllFavoritePokemon(): Observable<Result<any[]>> {
+    return this.http.get<Result<any[]>>(this.apiUrl + 'allFavorites');
+  }
+  getTypesByPokemonId(id: number): Observable<string[]> {
+    return this.http
+      .get<any>(`${this.apiUrl}/${id}`)
+      .pipe(map((data) => data.types.map((t: any) => t.type.name)));
+  }
+
+  
 }

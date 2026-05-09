@@ -1,0 +1,184 @@
+<div class="pokedex-container">
+  <div class="pokedex-header">
+    <div class="pokedex-logo">
+      <div class="pokeball-icon"></div>
+      <h1>POKÉDEX STATS</h1>
+    </div>
+    <div class="pokedex-leds">
+      <div class="led red"></div>
+      <div class="led blue"></div>
+      <div class="led green"></div>
+    </div>
+  </div>
+
+  <div class="user-access-panel rank-maestro">
+    <div class="user-core-info">
+      <div class="user-identity">
+        <div class="user-name-row">
+          <h2 class="user-display-name">ASH KETCHUM</h2>
+          <span class="verified-badge" title="Maestro Pokémon">
+            <span class="check-icon">⭐</span> ENTRENADOR VERIFICADO
+          </span>
+        </div>
+        <span class="user-role-text">
+          Rango Actual: <span class="role-highlight">MAESTRO POKÉMON</span>
+        </span>
+      </div>
+      <div class="user-system-actions">
+        <div class="action-grid">
+          <button (click)="volver()" class="sys-btn" title="Ver mis favoritos"> <- Volver </button>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pokedex-main">
+    <div class="search-container">
+      <div
+        class="stats-content"
+        *ngIf="favoriteStats"
+        style="display: flex; gap: 20px; flex-wrap: wrap"
+      >
+        <div class="pokemon-card highlight" style="flex: 1; min-width: 300px">
+          <div class="card-inner">
+            <div class="card-header">
+              <span class="pokemon-id">RANK #1</span>
+              <span class="type-badge" style="background: #ffd700; color: #333">TOP FAVORITO</span>
+            </div>
+            <div class="pokemon-image-container">
+              <img
+                class="pokemon-image"
+                [src]="
+                  'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' +
+                  favoriteStats.mostFavorite.idPokemon +
+                  '.png'
+                "
+              />
+            </div>
+            <h3 class="pokemon-name">{{ favoriteStats.mostFavorite.nombre }}</h3>
+            <div class="stats-total">TOTAL VOTOS: {{ favoriteStats.mostFavorite.total }}</div>
+          </div>
+        </div>
+
+        <div class="pokemon-card lowlight" style="flex: 1; min-width: 300px">
+          <div class="card-inner">
+            <div class="card-header">
+              <span class="pokemon-id">NECESITA AMOR</span>
+              <span class="type-badge" style="background: #7f8c8d">MENOS VOTOS</span>
+            </div>
+            <div class="pokemon-image-container">
+              <img
+                class="pokemon-image"
+                [src]="
+                  'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' +
+                  favoriteStats.leastFavorite.idPokemon +
+                  '.png'
+                "
+              />
+            </div>
+            <h3 class="pokemon-name">{{ favoriteStats.leastFavorite.nombre }}</h3>
+            <div class="stats-bests">VOTOS ACTUALES: {{ favoriteStats.leastFavorite.total }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pokemon-card highlight" style="flex: 1; min-width: 300px">
+      <div class="card-inner" [style.border-color]="mostFavoriteType.color">
+        <div class="card-header">
+          <span class="pokemon-id">ELEMENTO DOMINANTE</span>
+          <span class="type-badge" [style.background]="mostFavoriteType.color">ESTADÍSTICA</span>
+        </div>
+
+        <div
+          class="pokemon-image-container"
+          style="display: flex; align-items: center; justify-content: center; height: 120px"
+        >
+          <div
+            class="type-icon-display"
+            [style.background]="mostFavoriteType.color"
+            style="
+              width: 80px;
+              height: 80px;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+              color: white;
+              font-weight: bold;
+              font-size: 0.8rem;
+            "
+          >
+            {{ mostFavoriteType.nombre }}
+          </div>
+        </div>
+
+        <h3 class="pokemon-name" [style.color]="mostFavoriteType.color">
+          TIPO {{ mostFavoriteType.nombre }}
+        </h3>
+        <div class="stats-total">PRESENTE EN {{ mostFavoriteType.cantidad }} FAVORITOS</div>
+      </div>
+    </div>
+
+    <div class="tabs-container">
+      <div class="tabs-header">
+        <div class="tab-btn active">TODOS LOS FAVORITOS</div>
+      </div>
+      <div class="tabs-content">
+        <div class="pokemon-grid">
+          <div
+            class="pokemon-card-container"
+            *ngFor="let fav of favoriteStats.allFavorites"
+            (click)="fav.isFlipped = !fav.isFlipped"
+            [class.flipped]="fav.isFlipped"
+          >
+            <div class="card-flipper">
+              <div class="front pokemon-card" [ngStyle]="getCardStyle(fav.tipo)">
+                <div class="card-inner">
+                  <div class="pokemon-id">#{{ fav.idPokemon | number: '3.0-0' }}</div>
+                  <div class="pokemon-image-container">
+                    <img
+                      class="pokemon-image"
+                      [src]="
+                        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' +
+                        fav.idPokemon +
+                        '.png'
+                      "
+                    />
+                  </div>
+                  <h3 class="pokemon-name">{{ fav.pokemon }}</h3>
+                  <div class="pokemon-types">
+                    <span
+                      class="type-badge"
+                      *ngFor="let tipo of obtenerTipos(fav.tipo)"
+                      [style.backgroundColor]="getTypeColor(tipo)"
+                    >
+                      {{ tipo }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="back">
+                <div class="pokemon-card-back" [ngStyle]="getCardStyle(fav.tipo)">
+                  <div class="section-title">ENTRENADORES</div>
+                  <div class="favorite-users">
+                    <div class="user-list">
+                      <span class="user-name" *ngFor="let user of fav.users">
+                        {{ user }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="empty-state" style="margin-top: auto">
+                    <p>Haz click para volver</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

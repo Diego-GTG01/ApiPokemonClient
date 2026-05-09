@@ -15,11 +15,14 @@ export class UsuarioService {
   getAllUsers(): Observable<Result<Usuario[]>> {
     return this.http.get<Result<Usuario[]>>(this.apiUrl);
   }
-  getById(idUsuario: Number): Observable<Result<Usuario>>{
-    return this.http.get<Result<Usuario>>(this.apiUrl+'/'+idUsuario);
+  getById(idUsuario: Number): Observable<Result<Usuario>> {
+    return this.http.get<Result<Usuario>>(this.apiUrl + '/' + idUsuario);
   }
   addUser(user: Usuario): Observable<Result<Usuario[]>> {
     return this.http.post<Result<Usuario[]>>(this.apiUrl + '/add', user);
+  }
+  updateUser(user: Usuario): Observable<Result<Usuario[]>> {
+    return this.http.put<Result<Usuario[]>>(this.apiUrl + '/update', user);
   }
   deleteUser(idUser: Number): Observable<HttpResponse<Result<any>>> {
     return this.http.delete<Result<any>>(this.apiUrl + '/delete?idUsuario=' + idUser, {

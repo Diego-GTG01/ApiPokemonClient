@@ -13,23 +13,32 @@ export class VerifyPendingComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(
+    private auth: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
+
     interval(3000)
       .pipe(
         takeUntil(this.destroy$),
+
         switchMap(() =>
           this.auth.checkAuth().pipe(
             catchError((err) => {
+              console.log(err);
               return of(null);
             })
           )
         )
       )
       .subscribe((res) => {
+
+        console.log(res);
+
         if (res) {
-          this.router.navigate(['/']);
+          this.router.navigate(['/main']);
         }
 
       });

@@ -1,101 +1,188 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UsuarioService } from '../../Service/usuario-service';
+import { RolService } from '../../Service/rol-service';
 import { Usuario } from '../../Interface/Usuario';
+import { Rol } from '../../Interface/Rol';
 import { Result } from '../../Interface/Result';
+
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-usuario-detalle',
-  standalone: true, // Asegúrate de que sea standalone si usas imports
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './usuario-detalle.html',
   styleUrl: './usuario-detalle.css',
 })
 export class UsuarioDetalle implements OnInit {
   id: number = 0;
-  usuario: Usuario = {} as Usuario;
+  usuario!: Usuario;
+  roles: Rol[] = [];
   usuarioForm!: FormGroup;
-  @ViewChild('formContainer') formContainer!: ElementRef;
-
-  roles: any[] = [];
+  mostrarModal = false;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
+    private fb: FormBuilder,
     private usuarioService: UsuarioService,
+    private rolService: RolService,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.id = Number(this.route.snapshot.paramMap.get('idUsuario'));
-    if (this.id) {
-      this.cargarUsuario();
-    }
+    this.cargarUsuario();
+    this.cargarRoles();
   }
 
-  cargarUsuario(): void {
-    this.usuarioService.getById(this.id).subscribe({
-      next: (result: Result<Usuario>) => {
-        if (result.correct) {
-          this.usuario = result.object;
-        } else {
-          this.notificarError();
-        }
-      },
-      error: () => this.notificarError(),
+  initForm(usuario: Usuario) {
+    this.usuarioForm = this.fb.group({
+      idUsuario: [usuario.idUsuario],
+
+      userName: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(20),
+          Validators.pattern('^[A-Za-z][A-Za-z0-9_]{7,29}$'),
+        ],
+      ],
+      password: [''],
+      nombre: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(50),
+          Validators.pattern('^[A-Za-zÁÉÍÓÚáéíóúÑñ]+$'),
+        ],
+      ],
+      apellidoPaterno: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(50),
+          Validators.pattern('^[A-Za-zÁÉÍÓÚáéíóúÑñ]+$'),
+        ],
+      ],
+      apellidoMaterno: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(50),
+          Validators.pattern('^[A-Za-zÁÉÍÓÚáéíóúÑñ]+$'),
+        ],
+      ],
+      telefono: ['', [Validators.required, Validators.pattern('^\\d{10}$')]],
+      celular: ['', [Validators.required, Validators.pattern('^\\d{10}$')]],
+      email: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'),
+        ],
+      ],
+      verified: [usuario.verified],
+      rol: [null, Validators.required],
     });
+  }
+
+  cargarUsuario() {
+    this.usuarioService.getById(this.id).subscribe({
+      next: (res: Result<Usuario>) => {
+        this.usuario = res.object;
+        console.log(this.usuario);
+        this.initForm(this.usuario);
+      },
+    });
+  }
+
+  cargarRoles() {
+    this.rolService.getAllRol().subscribe({
+      next: (res: Result<Rol[]>) => {
+        this.roles = res.objects.flat();
+      },
+    });
+  }
+
+  editarEntrenador(user: Usuario) {
+    this.usuarioForm.patchValue(user);
+    this.mostrarModal = true;
+  }
+
+  cerrarModal() {
+    this.mostrarModal = false;
+  }
+
+  guardarUsuario(e: Event) {
+    e.preventDefault();
+
+    const data: Usuario = this.usuarioForm.value;
+
+    Object.keys(this.usuarioForm.controls).forEach((key) => {
+      const controlErrors = this.usuarioForm.get(key)?.errors;
+      if (controlErrors != null) {
+        console.log('Key control: ' + key + ', err: ', controlErrors);
+      }
+    });
+    if (this.usuarioForm.invalid) {
+      this.usuarioForm.markAllAsTouched();
+      Swal.fire({
+        title: 'Formulario inválido',
+        text: 'Por favor, corrige los errores antes de guardar.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+      return;
+    } else {
+      this.usuarioService.updateUser(data).subscribe({
+        next: () => {
+          Swal.fire({
+            title: 'Actualizado correctamente',
+            icon: 'success',
+          });
+
+          this.mostrarModal = false;
+          this.cargarUsuario();
+        },
+        error: (err) => {
+          console.log(err);
+          Swal.fire({
+            title: 'Error al actualizar',
+            icon: 'error',
+          });
+        },
+      });
+    }
   }
 
   compareRoles(o1: any, o2: any): boolean {
     return o1 && o2 ? o1.idRol === o2.idRol : o1 === o2;
   }
 
-  private notificarError() {
+  volver() {
+    this.router.navigate(['/PokeUsers']);
+  }
+
+  EliminarUsuario(user: Usuario) {
     Swal.fire({
-      title: 'Error al realizar petición',
+      title: '¿Eliminar usuario?',
       icon: 'warning',
-      confirmButtonText: 'Ok',
+      showCancelButton: true,
+      confirmButtonText: 'Eliminar',
+    }).then((res) => {
+      if (res.isConfirmed) {
+        this.usuarioService.deleteUser(user.idUsuario).subscribe(() => {
+          Swal.fire('Eliminado', '', 'success');
+          this.router.navigate(['/PokeUsers']);
+        });
+      }
     });
   }
-
-  // Métodos de navegación
-  regresar() {
-    this.router.navigate(['/usuarios']);
-  }
-
-  editar() {
-    this.router.navigate(['/usuario-form', this.id]);
-  }
-
-  abrirModalEdicion() {
-   
-
-    Swal.fire({
-      title: 'ACTUALIZAR DATOS DE ENTRENADOR',
-      html: this.formContainer.nativeElement, // Insertamos el HTML del template
-      showConfirmButton: false, // Ocultamos botones de Swal para usar los del formulario
-      width: '800px',
-      background: '#f0f0f0',
-      customClass: {
-        popup: 'pokedex-modal-border',
-      },
-      didOpen: () => {
-        // Lógica opcional al abrir
-      },
-    });
-  }
-
-  guardarUsuario(event: Event) {
-    event.preventDefault();
-    if (this.usuarioForm.valid) {
-      const datosActualizados = this.usuarioForm.value;
-      // Llamar a tu servicio para actualizar
-      console.log('Enviando a la base de datos:', datosActualizados);
-      Swal.close(); // Cerramos el modal tras éxito
-    }
-  }
-
-  eliminar() {}
 }
