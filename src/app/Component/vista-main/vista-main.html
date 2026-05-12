@@ -110,7 +110,14 @@
         [(ngModel)]="searchQuery"
         (input)="onSearch()"
       />
-      <button class="search-button">🔍</button>
+      <button
+        class="global-search-btn"
+        (click)="triggerGlobalSearch()"
+        title="Buscar en todas las regiones"
+      >
+        🌐 GLOBAL
+      </button>
+      <button class="search-button" (click)="applyFilter()">🔍</button>
     </div>
 
     <div class="type-search-panel" *ngIf="searchMode === 'type'">
@@ -146,6 +153,9 @@
         (click)="selectedTypes = []; applyFilter()"
       >
         ✕ Limpiar tipos
+      </button>
+      <button class="global-search-btn" (click)="triggerGlobalSearch()">
+        🌐 BUSCAR EN TODAS LAS REGIONES
       </button>
     </div>
   </div>
@@ -207,7 +217,11 @@
         (click)="flipPokemon(pokemon)"
       >
         <div class="card-flipper">
-          <div class="pokemon-card front" [ngStyle]="getCardStyle(pokemon)">
+          <div
+            class="pokemon-card front"
+            [ngStyle]="getCardStyle(pokemon)"
+            *ngIf="!pokemon.isFlipped"
+          >
             <div class="card-inner">
               <div class="card-header">
                 <div class="pokemon-id">#{{ pokemon.id | number: '3.0-0' }}</div>
@@ -238,15 +252,24 @@
                 🔊
               </button>
               <div class="poke-container" *ngIf="pokemon.varieties?.length">
-                <p class="poke-label">Variedades</p>
+                <p class="poke-label">Variedades:</p>
                 <div class="poke-grid">
-                  <button class="poke-btn" (click)="cambiarVariedad(pokemon.id, pokemon, $event)">
-                    Default
+                  <!-- Botón de Forma Original -->
+                  <button
+                    class="poke-btn"
+                    [class.active]="
+                      pokemon.selectedVariety === pokemon.id
+                    "
+                    (click)="cambiarVariedad(pokemon.id, pokemon, $event)"
+                  >
+                    {{ pokemonOriginales.get(pokemon.id)?.nombre || 'Default' }}
                   </button>
 
+                  <!-- Botones de Variedades Extra -->
                   <button
                     class="poke-btn"
                     *ngFor="let variety of pokemon.varieties"
+                    [class.active]="pokemon.selectedVariety === variety.id"
                     (click)="cambiarVariedad(variety.id, pokemon, $event)"
                   >
                     {{ variety.name.replace('-', ' ') }}
@@ -254,7 +277,7 @@
                 </div>
               </div>
 
-              <h3 class="pokemon-name">{{ pokemon.nombre }}</h3>
+              <h3 class="pokemon-name">{{ pokemon.nombre.replace('-', ' ') }}</h3>
 
               <div class="pokemon-types">
                 <span
@@ -268,7 +291,11 @@
             </div>
           </div>
 
-          <div class="pokemon-card-back back" [ngStyle]="getCardStyle(pokemon)">
+          <div
+            class="pokemon-card-back back"
+            [ngStyle]="getCardStyle(pokemon)"
+            *ngIf="pokemon.isFlipped"
+          >
             <div class="card-inner back-inner">
               <div class="tabs-container">
                 <div class="tabs-header">
@@ -304,20 +331,28 @@
 
                 <div class="tabs-content">
                   <!-- Stats -->
-                  <div class="tab-pane" *ngIf="pokemon.selectedTab === 0">
-                    <div class="chart-container">
-                      <canvas
-                        baseChart
-                        [data]="getRadarData(pokemon)"
-                        [options]="radarChartOptions"
-                        [type]="radarChartType"
-                      ></canvas>
+                  <div class="tab-pane stats-pane" *ngIf="pokemon.selectedTab === 0">
+                    <div class="chart-wrapper">
+                      <div class="chart-container">
+                        <canvas
+                          baseChart
+                          [data]="getRadarData(pokemon)"
+                          [options]="radarChartOptions"
+                          [type]="radarChartType"
+                        ></canvas>
+                      </div>
                     </div>
-                    <div class="stats-total">
-                      <span>Total: {{ getTotalStats(pokemon) }}</span>
-                    </div>
-                    <div class="stats-bests">
-                      <span>Mejor: {{ getBestStat(pokemon) }}</span>
+
+                    <!-- Contenedor de métricas rápidas -->
+                    <div class="stats-summary">
+                      <div class="stat-card total">
+                        <span class="stat-label">BST (Total)</span>
+                        <span class="stat-value">{{ getTotalStats(pokemon) }}</span>
+                      </div>
+                      <div class="stat-card best">
+                        <span class="stat-label">Punto Fuerte</span>
+                        <span class="stat-value">{{ getBestStat(pokemon) }}</span>
+                      </div>
                     </div>
                   </div>
 

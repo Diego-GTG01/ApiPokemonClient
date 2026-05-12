@@ -16,8 +16,11 @@ export class VistaLogin {
 
   constructor(
     private auth: AuthService,
-    private router: Router,
-  ) {}
+    private router: Router, 
+  ) {
+    localStorage.clear();
+    
+  }
 
   login() {
     this.auth

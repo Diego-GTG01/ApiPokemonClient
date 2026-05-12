@@ -69,15 +69,6 @@ export class VistaMain implements OnInit, OnDestroy {
     { label: 'VII', name: 'Gen VII', start: 722, end: 809, region: 'Alola', color: '#e11d48' },
     { label: 'VIII', name: 'Gen VIII', start: 810, end: 905, region: 'Galar', color: '#059669' },
     { label: 'IX', name: 'Gen IX', start: 906, end: 1025, region: 'Paldea', color: '#dc2626' },
-
-    {
-      label: 'DIFF',
-      name: 'Otros',
-      start: 10001,
-      end: 10325,
-      region: 'Nacional',
-      color: '#ffd700',
-    },
     { label: 'ALL', name: 'Todos', start: 1, end: 1025, region: 'Nacional', color: '#ffd700' },
   ];
   selectedGenIndex = 0;
@@ -143,6 +134,8 @@ export class VistaMain implements OnInit, OnDestroy {
     this.searchQuery = '';
     this.allPokemons.forEach((p) => {
       p.isFlipped = false;
+      p.selectedTab = 0;
+      p.selectedVariety = p.id
     });
     this.applyFilter();
   }
@@ -192,41 +185,54 @@ export class VistaMain implements OnInit, OnDestroy {
     return idx === -1 ? -1 : idx + 1;
   }
 
+  isGlobalSearch: boolean = false;
+
   applyFilter(): void {
-    const gen = this.currentGen;
-    let list = this.allPokemons.filter((p) => p.id >= gen.start && p.id <= gen.end);
+    const gen = this.generations[this.selectedGenIndex]; 
+    const searchText = this.searchQuery.trim().toLowerCase();
+
+    let list = [...this.allPokemons.filter((p) => p.id < 1026)];
+
+    const hasSearchText = searchText !== '';
+    const hasTypeFilter = this.selectedTypes.length > 0;
+    const isSearching = hasSearchText || hasTypeFilter;
+
+    const isAllGen = gen.label === 'ALL';
+
+    if (!isAllGen) {
+      list = list.filter((p) => p.id >= gen.start && p.id <= gen.end);
+    }
 
     if (this.viewFavoritesOnly) {
       list = list.filter((p) => p.isFavorite);
     }
 
-    if (this.searchMode === 'name') {
-      const searchText = this.searchQuery.trim().toLowerCase();
-      if (searchText) {
-        list = list.filter((p) => p.nombre.toLowerCase().includes(searchText));
-      }
-    } else if (this.searchMode === 'id') {
-      const searchText = this.searchQuery.trim();
-      if (searchText) {
-        list = list.filter((p) => String(p.id).includes(searchText));
-      }
-    } else if (this.searchMode === 'type') {
-      if (this.selectedTypes.length > 0) {
-        list = list.filter((p) => {
-          const tipos = this.obtenerTipos(p.tipo);
-          if (this.selectedTypes.length === 1) {
-            return tipos.some((t) => t.toLowerCase() === this.selectedTypes[0].toLowerCase());
-          } else {
-            return (
-              tipos[0]?.toLowerCase() === this.selectedTypes[0].toLowerCase() &&
-              tipos[1]?.toLowerCase() === this.selectedTypes[1].toLowerCase()
-            );
-          }
-        });
-      }
+    if (this.searchMode === 'name' && hasSearchText) {
+      list = list.filter((p) => p.nombre.toLowerCase().includes(searchText));
+    } else if (this.searchMode === 'id' && hasSearchText) {
+      list = list.filter((p) => String(p.id).includes(searchText));
+    }
+
+    else if (this.searchMode === 'type' && hasTypeFilter) {
+      list = list.filter((p) => {
+        const tipos = this.obtenerTipos(p.tipo);
+        if (this.selectedTypes.length === 1) {
+          return tipos.some((t) => t.toLowerCase() === this.selectedTypes[0].toLowerCase());
+        } else {
+          return (
+            tipos[0]?.toLowerCase() === this.selectedTypes[0].toLowerCase() &&
+            tipos[1]?.toLowerCase() === this.selectedTypes[1].toLowerCase()
+          );
+        }
+      });
     }
 
     this.filteredPokemons = list;
+  }
+
+  triggerGlobalSearch(): void {
+    this.selectedGenIndex = 9; 
+    this.applyFilter();
   }
 
   get generationLoadedCount(): number {
@@ -308,26 +314,43 @@ export class VistaMain implements OnInit, OnDestroy {
       r: {
         suggestedMin: 0,
         suggestedMax: 120,
-        ticks: { display: false },
-        grid: { color: 'rgba(0,0,0,0.2)' },
-        angleLines: { color: 'rgba(0,0,0,0.2)' },
-        pointLabels: { color: '#000000', font: { size: 10 } },
+        ticks: { display: false, stepSize: 50 },
+        grid: {
+          color: 'rgba(0,0,0,0.5)', // Líneas circulares muy tenues
+        },
+        angleLines: { color: 'rgba(0,0,0,0.1)' }, // Líneas que salen del centro
+        pointLabels: {
+          color: '#475569',
+          font: {
+            size: 12,
+            family: "'Courier New', monospace",
+            weight: 'bold',
+          },
+          padding: 10,
+        },
       },
     },
-    plugins: { legend: { display: false } },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        titleFont: { size: 24 },
+        bodyFont: { size: 16 },
+        displayColors: false,
+      },
+    },
   };
-
   public radarChartType: ChartType = 'radar';
 
   getRadarData(pokemon: Pokemon): ChartData<'radar'> {
     return {
       labels: [
-        'HP: ' + pokemon.hp,
-        'ATK: ' + pokemon.attack,
-        'DEF: ' + pokemon.defense,
-        'SP.ATK: ' + pokemon.specialAttack,
-        'SP.DEF: ' + pokemon.specialDefense,
-        'SPD: ' + pokemon.speed,
+        'HP:' + pokemon.hp,
+        'ATK:' + pokemon.attack,
+        'DEF:' + pokemon.defense,
+        'S.ATK:' + pokemon.specialAttack,
+        'S.DEF:' + pokemon.specialDefense,
+        'SPD:' + pokemon.speed,
       ],
       datasets: [
         {
@@ -340,10 +363,15 @@ export class VistaMain implements OnInit, OnDestroy {
             pokemon.speed,
           ],
           label: pokemon.nombre,
-          borderColor: '#2e2ca0',
-          backgroundColor: 'rgba(27,41,124,0.4)',
+          borderColor: '#3b4cca',
+          backgroundColor: 'rgba(59, 76, 202, 0.2)',
           fill: true,
           pointBackgroundColor: '#fff',
+          pointBorderColor: '#3b4cca',
+          pointHoverBackgroundColor: '#3b4cca',
+          pointHoverBorderColor: '#fff',
+          pointRadius: 3,
+          borderWidth: 2,
         },
       ],
     };
@@ -351,7 +379,6 @@ export class VistaMain implements OnInit, OnDestroy {
   cambiarVariedad(idPokemon: number, pokemon: Pokemon, event: Event): void {
     event.stopPropagation();
     pokemon.selectedVariety = idPokemon;
-    console.log('Cambiando a variedad ID:', idPokemon, ' para Pokémon:', pokemon.nombre);
 
     if (!this.pokemonOriginales.has(pokemon.id)) {
       this.pokemonOriginales.set(pokemon.id, { ...pokemon });

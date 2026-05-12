@@ -56,14 +56,14 @@ export class PokemonService {
                   p.isFavorite = true;
                 }
               });
-              p.isFlipped = false;
-              p.selectedTab = 0;
               this.getVarieties(p.id).subscribe((varieties) => {
                 p.varieties = varieties;
               });
               this.getFlavorText(p.id).subscribe((flavorTexts) => {
                 p.description = flavorTexts[0];
               });
+              p.isFlipped = false;
+              p.selectedTab = 0;
             });
           });
 
@@ -133,14 +133,6 @@ export class PokemonService {
       this.getStoredFavorites().subscribe((favoriteIds) => {
         pokemons.forEach((p) => {
           p.isFavorite = favoriteIds.has(p.id);
-          p.isFlipped = false;
-          p.selectedTab = 0;
-          this.getVarieties(p.id).subscribe((varieties) => {
-            p.varieties = varieties;
-          });
-          this.getFlavorText(p.id).subscribe((flavorTexts) => {
-            p.description = flavorTexts[0];
-          });
         });
 
         this.pokemonsSubject.next(pokemons);
@@ -149,6 +141,16 @@ export class PokemonService {
 
         this.loadingSubject.next(false);
         this.progressSubject.next(100);
+      });
+      pokemons.forEach((p) => {
+        p.isFlipped = false;
+        p.selectedTab = 0;
+        this.getVarieties(p.id).subscribe((varieties) => {
+          p.varieties = varieties;
+        });
+        this.getFlavorText(p.id).subscribe((flavorTexts) => {
+          p.description = flavorTexts[0];
+        });
       });
 
       return;
@@ -302,6 +304,22 @@ export class PokemonService {
       map((res) => {
         return res.varieties
           .filter((v: any) => !v.is_default)
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('super'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('small'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('large'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('totem'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('busted'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('disgusted'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('-build'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('-mode'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('tempo'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('original-mega'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('cap'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('curly-mega'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('droopy-mega'))
+          
+          
+
           .map((v: any) => {
             const parts = v.pokemon.url.split('/').filter(Boolean);
 
