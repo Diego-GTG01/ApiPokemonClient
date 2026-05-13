@@ -36,8 +36,10 @@ export class VistaMain implements OnInit, OnDestroy {
   loadingProgress = 0;
   searchQuery = '';
   viewFavoritesOnly = false;
+  pokemonOriginales: Map<number, Pokemon> = new Map();
 
   searchMode: 'name' | 'id' | 'type' = 'name';
+  selectedAbility: any = null;
 
   readonly allTypes: string[] = [
     'normal',
@@ -148,6 +150,8 @@ export class VistaMain implements OnInit, OnDestroy {
     this.searchQuery = '';
     this.allPokemons.forEach((p) => {
       p.isFlipped = false;
+      p.selectedTab = 0;
+      p.selectedVariety = p.id;
     });
     this.applyFilter();
   }
@@ -197,41 +201,52 @@ export class VistaMain implements OnInit, OnDestroy {
     return idx === -1 ? -1 : idx + 1;
   }
 
+  isGlobalSearch: boolean = false;
+
   applyFilter(): void {
-    const gen = this.currentGen;
-    let list = this.allPokemons.filter((p) => p.id >= gen.start && p.id <= gen.end);
+    const gen = this.generations[this.selectedGenIndex];
+    const searchText = this.searchQuery.trim().toLowerCase();
+
+    let list = [...this.allPokemons.filter((p) => p.id < 1026)];
+
+    const hasSearchText = searchText !== '';
+    const hasTypeFilter = this.selectedTypes.length > 0;
+
+    const isAllGen = gen.label === 'ALL';
+
+    if (!isAllGen) {
+      list = list.filter((p) => p.id >= gen.start && p.id <= gen.end);
+    }
 
     if (this.viewFavoritesOnly) {
       list = list.filter((p) => p.isFavorite);
     }
 
-    if (this.searchMode === 'name') {
-      const searchText = this.searchQuery.trim().toLowerCase();
-      if (searchText) {
-        list = list.filter((p) => p.nombre.toLowerCase().includes(searchText));
-      }
-    } else if (this.searchMode === 'id') {
-      const searchText = this.searchQuery.trim();
-      if (searchText) {
-        list = list.filter((p) => String(p.id).includes(searchText));
-      }
-    } else if (this.searchMode === 'type') {
-      if (this.selectedTypes.length > 0) {
-        list = list.filter((p) => {
-          const tipos = this.obtenerTipos(p.tipo);
-          if (this.selectedTypes.length === 1) {
-            return tipos.some((t) => t.toLowerCase() === this.selectedTypes[0].toLowerCase());
-          } else {
-            return (
-              tipos[0]?.toLowerCase() === this.selectedTypes[0].toLowerCase() &&
-              tipos[1]?.toLowerCase() === this.selectedTypes[1].toLowerCase()
-            );
-          }
-        });
-      }
+    if (this.searchMode === 'name' && hasSearchText) {
+      list = list.filter((p) => p.nombre.toLowerCase().includes(searchText));
+    } else if (this.searchMode === 'id' && hasSearchText) {
+      list = list.filter((p) => String(p.id).includes(searchText));
+    } else if (this.searchMode === 'type' && hasTypeFilter) {
+      list = list.filter((p) => {
+        const tipos = this.obtenerTipos(p.tipo);
+
+        if (this.selectedTypes.length === 1) {
+          return tipos.some((t) => t.toLowerCase() === this.selectedTypes[0].toLowerCase());
+        } else {
+          return (
+            tipos[0]?.toLowerCase() === this.selectedTypes[0].toLowerCase() &&
+            tipos[1]?.toLowerCase() === this.selectedTypes[1].toLowerCase()
+          );
+        }
+      });
     }
 
     this.filteredPokemons = list;
+  }
+
+  triggerGlobalSearch(): void {
+    this.selectedGenIndex = 9;
+    this.applyFilter();
   }
 
   get generationLoadedCount(): number {
@@ -250,6 +265,9 @@ export class VistaMain implements OnInit, OnDestroy {
   }
 
   flipPokemon(selectedPokemon: Pokemon): void {
+    selectedPokemon.spriteSelected = selectedPokemon.imagen;
+    this.selectedAbility = null;
+
     this.filteredPokemons.forEach((p) => {
       p.isFlipped = p === selectedPokemon ? !p.isFlipped : false;
     });
@@ -266,6 +284,25 @@ export class VistaMain implements OnInit, OnDestroy {
       this.audio?.pause();
       this.audio = new Audio(pokemon.soundUrl);
       this.audio.play().catch((e) => console.error('Error reproduciendo sonido:', e));
+    }
+  }
+
+  changeImagen(pokemon: Pokemon, event: Event): void {
+    event.stopPropagation();
+    if (pokemon.imagenShiny) {
+      const temp = pokemon.imagen;
+      pokemon.imagen = pokemon.imagenShiny;
+      pokemon.imagenShiny = temp;
+    }
+  }
+
+  selectAbility(ability: any, event: Event) {
+    event.stopPropagation();
+    console.log(ability);
+    if (this.selectedAbility?.name === ability.name) {
+      this.selectedAbility = null;
+    } else {
+      this.selectedAbility = ability;
     }
   }
 
@@ -313,26 +350,43 @@ export class VistaMain implements OnInit, OnDestroy {
       r: {
         suggestedMin: 0,
         suggestedMax: 120,
-        ticks: { display: false },
-        grid: { color: 'rgba(0,0,0,0.2)' },
-        angleLines: { color: 'rgba(0,0,0,0.2)' },
-        pointLabels: { color: '#000000', font: { size: 10 } },
+        ticks: { display: false, stepSize: 50 },
+        grid: {
+          color: 'rgba(0,0,0,0.5)', // Líneas circulares muy tenues
+        },
+        angleLines: { color: 'rgba(0,0,0,0.1)' }, // Líneas que salen del centro
+        pointLabels: {
+          color: '#475569',
+          font: {
+            size: 12,
+            family: "'Courier New', monospace",
+            weight: 'bold',
+          },
+          padding: 10,
+        },
       },
     },
-    plugins: { legend: { display: false } },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        titleFont: { size: 24 },
+        bodyFont: { size: 16 },
+        displayColors: false,
+      },
+    },
   };
-
   public radarChartType: ChartType = 'radar';
 
   getRadarData(pokemon: Pokemon): ChartData<'radar'> {
     return {
       labels: [
-        'HP: ' + pokemon.hp,
-        'ATK: ' + pokemon.attack,
-        'DEF: ' + pokemon.defense,
-        'SP.ATK: ' + pokemon.specialAttack,
-        'SP.DEF: ' + pokemon.specialDefense,
-        'SPD: ' + pokemon.speed,
+        'HP:' + pokemon.hp,
+        'ATK:' + pokemon.attack,
+        'DEF:' + pokemon.defense,
+        'S.ATK:' + pokemon.specialAttack,
+        'S.DEF:' + pokemon.specialDefense,
+        'SPD:' + pokemon.speed,
       ],
       datasets: [
         {
@@ -345,18 +399,79 @@ export class VistaMain implements OnInit, OnDestroy {
             pokemon.speed,
           ],
           label: pokemon.nombre,
-          borderColor: '#2e2ca0',
-          backgroundColor: 'rgba(27,41,124,0.4)',
+          borderColor: '#3b4cca',
+          backgroundColor: 'rgba(59, 76, 202, 0.2)',
           fill: true,
           pointBackgroundColor: '#fff',
+          pointBorderColor: '#3b4cca',
+          pointHoverBackgroundColor: '#3b4cca',
+          pointHoverBorderColor: '#fff',
+          pointRadius: 3,
+          borderWidth: 2,
         },
       ],
     };
   }
-  irFichaEntrenador(idUsuario: Number) {
-    //sustituir con el del usuario real
-    idUsuario = 21;
-    this.router.navigate(['/PokeUsers/' + idUsuario]);
+
+  cambiarVariedad(idPokemon: number, pokemon: Pokemon, event: Event): void {
+    event.stopPropagation();
+    console.log(pokemon.sprites);
+
+    if (!this.pokemonOriginales.has(pokemon.id)) {
+      this.pokemonOriginales.set(pokemon.id, { ...pokemon });
+    }
+
+    if (idPokemon === pokemon.id) {
+      const original = this.pokemonOriginales.get(pokemon.id);
+      if (original) {
+        Object.assign(pokemon, original);
+      }
+    } else {
+      const nuevaVariedad = this.allPokemons.find((p) => p.id === idPokemon);
+      if (nuevaVariedad) {
+        Object.assign(pokemon, {
+          nombre: nuevaVariedad.nombre,
+          tipo: nuevaVariedad.tipo,
+          imagen: nuevaVariedad.imagen,
+          imagenShiny: nuevaVariedad.imagenShiny,
+          hp: nuevaVariedad.hp,
+          attack: nuevaVariedad.attack,
+          defense: nuevaVariedad.defense,
+          specialAttack: nuevaVariedad.specialAttack,
+          specialDefense: nuevaVariedad.specialDefense,
+          speed: nuevaVariedad.speed,
+          height: nuevaVariedad.height,
+          weight: nuevaVariedad.weight,
+          abilities: nuevaVariedad.abilities,
+          sprites: nuevaVariedad.sprites,
+        });
+      }
+    }
+
+    pokemon.selectedVariety = idPokemon;
+  }
+
+  getAvailableSprites(pokemon: Pokemon) {
+    if (!pokemon.sprites) return [];
+
+    return Object.entries(pokemon.sprites)
+
+      .filter(([key, value]) => value !== '')
+      .map(([key, value]) => ({ key, url: value.replace('_', ' ') }));
+  }
+
+  setSprite(pokemon: any, url: string, event: Event) {
+    event.stopPropagation();
+
+    pokemon.spriteSelected = url;
+  }
+
+  irFichaEntrenador(idUsuario: number | undefined) {
+    if (!idUsuario) {
+      return;
+    }
+
+    this.router.navigate(['/PokeUsers', idUsuario]);
   }
 
   irGestionUsuarios() {

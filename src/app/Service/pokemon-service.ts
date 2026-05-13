@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, forkJoin, map, Observable } from 'rxjs';
+import { BehaviorSubject, forkJoin, map, Observable, of } from 'rxjs';
 import { Pokemon } from '../Interface/pokemonDTO';
 import { PokemonApi } from '../Interface/pokemonApi';
 import { PokemonFavoritoService } from './pokemon-favorito-service';
@@ -18,6 +18,7 @@ export class PokemonService {
   private apiUrl = 'https://pokeapi.co/api/v2/pokemon';
   baseRuta: string =
     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/';
+
   private baseUrl = 'https://pokeapi.co/api/v2/pokemon-species';
   private pokemonsSubject = new BehaviorSubject<Pokemon[]>([]);
   private loadingSubject = new BehaviorSubject<boolean>(false);
@@ -27,7 +28,7 @@ export class PokemonService {
 
   private readonly STORAGE_KEY = 'pokemons_data';
   private readonly FAVORITES_KEY = 'pokemons_favorites';
-  private readonly TOTAL_POKEMONS = 1025;
+  private TOTAL_POKEMONS = 0;
 
   public loading$ = this.loadingSubject.asObservable();
   public progress$ = this.progressSubject.asObservable();
@@ -48,13 +49,33 @@ export class PokemonService {
     if (stored) {
       try {
         const pokemons: Pokemon[] = JSON.parse(stored);
-        if (pokemons.length === this.TOTAL_POKEMONS) {
+        if (pokemons.length > 0) {
           this.getStoredFavorites().subscribe((favoriteIds) => {
             pokemons.forEach((p) => {
               favoriteIds.forEach((pokeFav) => {
                 if (p.id === pokeFav) {
                   p.isFavorite = true;
                 }
+              });
+
+              if (p.id < 10000) {
+                this.getFlavorText(p.id).subscribe((flavorTexts) => {
+                  p.description = flavorTexts[0];
+                });
+                this.getVarieties(p.id).subscribe((varieties) => {
+                  p.varieties = varieties;
+                });
+              }
+
+              p.abilities?.forEach((ability) => {
+                this.getFlavorTextAbilities(ability.url).subscribe({
+                  next: (res) => {
+                    ability.description = res[0];
+                  },
+                  error: (err) => {
+                    console.warn(err);
+                  },
+                });
               });
               p.isFlipped = false;
               p.selectedTab = 0;
@@ -89,79 +110,118 @@ export class PokemonService {
 
   private loadAllPokemons(): void {
     if (this.fetchStarted) return;
+
     this.fetchStarted = true;
 
     this.loadingSubject.next(true);
     this.progressSubject.next(0);
 
-    const BATCH_SIZE = 50;
-    const batches: number[][] = [];
-    for (let i = 1; i <= this.TOTAL_POKEMONS; i += BATCH_SIZE) {
-      const batch: number[] = [];
-      for (let j = i; j < i + BATCH_SIZE && j <= this.TOTAL_POKEMONS; j++) {
-        batch.push(j);
-      }
-      batches.push(batch);
-    }
-    this.processBatches(batches, 0, new Map<number, Pokemon>());
-  }
+    this.http.get<any>('https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0').subscribe({
+      next: (response) => {
+        const results = response.results;
 
-  private processBatches(
-    batches: number[][],
+        this.TOTAL_POKEMONS = results.length;
+
+        const BATCH_SIZE = 50;
+        const batches: any[][] = [];
+
+        for (let i = 0; i < results.length; i += BATCH_SIZE) {
+          batches.push(results.slice(i, i + BATCH_SIZE));
+        }
+
+        this.processUrlBatches(batches, 0, new Map<number, Pokemon>());
+      },
+      error: (err) => {
+        console.error(err);
+        this.loadingSubject.next(false);
+      },
+    });
+  }
+  private processUrlBatches(
+    batches: any[][],
     batchIndex: number,
     pokemonsMap: Map<number, Pokemon>,
   ): void {
     if (batchIndex >= batches.length) {
       const pokemons = Array.from(pokemonsMap.values()).sort((a, b) => a.id - b.id);
+
       this.getStoredFavorites().subscribe((favoriteIds) => {
         pokemons.forEach((p) => {
-          favoriteIds.forEach((pokeFav) => {
-            if (p.id === pokeFav) {
-              p.isFavorite = true;
-            }
-          });
+          p.isFavorite = favoriteIds.has(p.id);
+        });
+
+        this.pokemonsSubject.next(pokemons);
+
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(pokemons));
+
+        this.loadingSubject.next(false);
+        this.progressSubject.next(100);
+      });
+      pokemons.forEach((p) => {
+        p.isFlipped = false;
+        p.selectedTab = 0;
+        this.getVarieties(p.id).subscribe((varieties) => {
+          p.varieties = varieties;
+        });
+        if (p.id < 10000) {
           this.getFlavorText(p.id).subscribe((flavorTexts) => {
             p.description = flavorTexts[0];
           });
-          p.isFlipped = false;
-          p.selectedTab = 0;
+          this.getVarieties(p.id).subscribe((varieties) => {
+            p.varieties = varieties;
+          });
+        }
+        p.abilities?.forEach((ability) => {
+          this.getFlavorTextAbilities(ability.url).subscribe({
+            next: (res) => {
+              ability.description = res[0];
+            },
+            error: (err) => {
+              console.warn(err);
+            },
+          });
         });
       });
 
-      this.pokemonsSubject.next(pokemons);
-      this.loadingSubject.next(false);
-      this.progressSubject.next(100);
-
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(pokemons));
       return;
     }
 
     const batch = batches[batchIndex];
-    const requests = batch.map((id) =>
-      this.http.get<any>(`${this.apiUrl}/${id}`).pipe(map((data) => this.mapToPokemon(data))),
+
+    const requests = batch.map((pokemonItem) =>
+      this.http.get<any>(pokemonItem.url).pipe(map((data) => this.mapToPokemon(data))),
     );
 
     forkJoin(requests).subscribe({
       next: (pokemons) => {
-        pokemons.forEach((p) => pokemonsMap.set(p.id, p));
+        pokemons.forEach((p) => {
+          pokemonsMap.set(p.id, p);
+        });
 
         const progress = Math.round((pokemonsMap.size / this.TOTAL_POKEMONS) * 100);
+
         this.progressSubject.next(progress);
 
         const partial = Array.from(pokemonsMap.values()).sort((a, b) => a.id - b.id);
+
         this.pokemonsSubject.next(partial);
 
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(partial));
 
         setTimeout(() => {
-          this.processBatches(batches, batchIndex + 1, pokemonsMap);
+          this.processUrlBatches(batches, batchIndex + 1, pokemonsMap);
         }, 200);
       },
       error: (err) => {
+        console.error(err);
+
         this.loadingSubject.next(false);
 
         const partial = Array.from(pokemonsMap.values()).sort((a, b) => a.id - b.id);
-        if (partial.length) this.pokemonsSubject.next(partial);
+
+        if (partial.length) {
+          this.pokemonsSubject.next(partial);
+        }
       },
     });
   }
@@ -178,6 +238,7 @@ export class PokemonService {
       nombre: data.name,
       tipo: data.types.map((t: any) => t.type.name).join(', '),
       imagen: `${this.baseRuta}${data.id}.png`,
+      imagenShiny: `${this.baseRuta}/shiny/${data.id}.png`,
       hp: this.getStat(data.stats, 'hp'),
       attack: this.getStat(data.stats, 'attack'),
       defense: this.getStat(data.stats, 'defense'),
@@ -188,8 +249,24 @@ export class PokemonService {
       isFavorite: false,
       soundUrl: data.cries?.latest || data.cries?.legacy || null,
       moves: data.moves.slice(0, 5).map((m: any) => m.move.name),
-      abilities: data.abilities.map((a: any) => a.ability.name),
+      abilities: data.abilities.map((a: any) => ({
+        name: a.ability.name,
+        url: a.ability.url,
+        description: '',
+      })),
       selectedTab: 0,
+      weight: data.weight / 10,
+      height: data.height / 10,
+      sprites: {
+        back_default: data.sprites?.back_default || '',
+        back_female: data.sprites?.back_female || '',
+        back_shiny_female: data.sprites?.back_shiny_female || '',
+        front_default: data.sprites?.front_default || '',
+        front_female: data.sprites?.front_female || '',
+        front_shiny: data.sprites?.front_shiny || '',
+        front_shiny_female: data.sprites?.front_shiny_female || '',
+      },
+      spriteSelected: `${this.baseRuta}${data.id}.png`,
     };
   }
 
@@ -257,8 +334,26 @@ export class PokemonService {
     this.fetchStarted = false;
     this.loadAllPokemons();
   }
-  getFlavorText(id: number | string): Observable<string[]> {
+
+  getFlavorText(id: number): Observable<string[]> {
     return this.http.get<any>(`${this.baseUrl}/${id}`).pipe(
+      map((res) => {
+        if (id < 10000) {
+          let entries = res.flavor_text_entries.filter(
+            (entry: any) => entry.language.name === 'es',
+          );
+          if (entries.length === 0) {
+            entries = res.flavor_text_entries.filter((entry: any) => entry.language.name === 'en');
+          }
+
+          return entries.map((entry: any) => entry.flavor_text);
+        }
+        return [];
+      }),
+    );
+  }
+  getFlavorTextAbilities(url: string): Observable<string[]> {
+    return this.http.get<any>(url).pipe(
       map((res) => {
         let entries = res.flavor_text_entries.filter((entry: any) => entry.language.name === 'es');
         if (entries.length === 0) {
@@ -266,6 +361,41 @@ export class PokemonService {
         }
 
         return entries.map((entry: any) => entry.flavor_text);
+      }),
+    );
+  }
+
+  getVarieties(id: number): Observable<{ id: number; name: string }[]> {
+    if (id > 1025) {
+      return of([]);
+    }
+
+    return this.http.get<any>(`${this.baseUrl}/${id}`).pipe(
+      map((res) => {
+        return res.varieties
+          .filter((v: any) => !v.is_default)
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('super'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('small'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('large'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('totem'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('busted'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('disgusted'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('-build'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('-mode'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('tempo'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('original-mega'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('cap'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('curly-mega'))
+          .filter((v: any) => !v.pokemon.name.toLowerCase().includes('droopy-mega'))
+
+          .map((v: any) => {
+            const parts = v.pokemon.url.split('/').filter(Boolean);
+
+            return {
+              id: Number(parts[parts.length - 1]),
+              name: v.pokemon.name,
+            };
+          });
       }),
     );
   }

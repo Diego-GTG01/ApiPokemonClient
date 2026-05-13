@@ -1,4 +1,4 @@
-<div class="pokedex-container">
+<div class="pokedex-container" *ngIf="usuario">
   <div class="pokedex-header">
     <div class="pokedex-logo">
       <div class="pokeball-icon"></div>
@@ -15,13 +15,16 @@
     <div class="user-core-info">
       <div class="user-identity">
         <div class="user-name-row">
-          <h2 class="user-display-name">ASH KETCHUM</h2>
+          <h2 class="user-display-name" >
+            {{ usuario.nombre }}
+            {{ usuario.apellidoPaterno }}
+          </h2>
           <span class="verified-badge" title="Maestro Pokémon">
             <span class="check-icon">⭐</span> ENTRENADOR VERIFICADO
           </span>
         </div>
         <span class="user-role-text">
-          Rango Actual: <span class="role-highlight">MAESTRO POKÉMON</span>
+          Rango Actual: <span class="role-highlight">{{usuario.rol.nombre}} POKÉMON</span>
         </span>
       </div>
       <div class="user-system-actions">

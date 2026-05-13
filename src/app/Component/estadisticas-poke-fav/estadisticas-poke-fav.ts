@@ -4,6 +4,8 @@ import { Pokemon } from '../../Interface/pokemonDTO';
 import { PokemonFavoritoService } from '../../Service/pokemon-favorito-service';
 import { forkJoin, map } from 'rxjs';
 import { Router } from '@angular/router';
+import { AuthService } from '../../Service/auth-service';
+import { Usuario } from '../../Interface/Usuario';
 
 @Component({
   selector: 'app-estadisticas-poke-fav',
@@ -13,7 +15,8 @@ import { Router } from '@angular/router';
 })
 export class EstadisticasPokeFav {
   constructor(private pokemonFavoritoService: PokemonFavoritoService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService,
   ) {
     this.pokemonFavoritoService.GetMostFavoritePokemon().subscribe({
       next: (res) => {
@@ -142,6 +145,17 @@ export class EstadisticasPokeFav {
       },
     ],
   };
+
+  usuario: Usuario | null = null;
+
+  ngOnInit(): void {
+    this.authService.checkAuth().subscribe({
+      next: (response: any) => {
+        this.usuario = response;
+      },
+    });
+  }
+
   get mostFavoriteType() {
     const typeCounts: { [key: string]: number } = {};
 

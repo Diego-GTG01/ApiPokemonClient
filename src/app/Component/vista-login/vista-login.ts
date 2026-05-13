@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../Service/auth-service';
 import { Router, RouterLink } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-vista-login',
@@ -16,8 +17,11 @@ export class VistaLogin {
 
   constructor(
     private auth: AuthService,
-    private router: Router,
-  ) {}
+    private router: Router, 
+  ) {
+    localStorage.clear();
+    
+  }
 
   login() {
     this.auth
@@ -33,7 +37,11 @@ export class VistaLogin {
           if (err.status === 403) {
             this.router.navigate(['/verify-pending']);
           } else {
-            alert('Credenciales incorrectas');
+            Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Credenciales incorrectas'
+                      });
           }
         },
       });

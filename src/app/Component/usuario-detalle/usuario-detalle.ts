@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UsuarioService } from '../../Service/usuario-service';
 import { RolService } from '../../Service/rol-service';
@@ -30,6 +30,7 @@ export class UsuarioDetalle implements OnInit {
     private fb: FormBuilder,
     private usuarioService: UsuarioService,
     private rolService: RolService,
+    private location: Location,
   ) {}
 
   ngOnInit(): void {
@@ -166,8 +167,12 @@ export class UsuarioDetalle implements OnInit {
     return o1 && o2 ? o1.idRol === o2.idRol : o1 === o2;
   }
 
-  volver() {
-    this.router.navigate(['/PokeUsers']);
+  volver(): void {
+    if (window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/main']);
+    }
   }
 
   EliminarUsuario(user: Usuario) {
