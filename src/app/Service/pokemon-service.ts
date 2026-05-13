@@ -18,6 +18,7 @@ export class PokemonService {
   private apiUrl = 'https://pokeapi.co/api/v2/pokemon';
   baseRuta: string =
     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/';
+
   private baseUrl = 'https://pokeapi.co/api/v2/pokemon-species';
   private pokemonsSubject = new BehaviorSubject<Pokemon[]>([]);
   private loadingSubject = new BehaviorSubject<boolean>(false);
@@ -56,11 +57,25 @@ export class PokemonService {
                   p.isFavorite = true;
                 }
               });
-              this.getVarieties(p.id).subscribe((varieties) => {
-                p.varieties = varieties;
-              });
-              this.getFlavorText(p.id).subscribe((flavorTexts) => {
-                p.description = flavorTexts[0];
+
+              if (p.id < 10000) {
+                this.getFlavorText(p.id).subscribe((flavorTexts) => {
+                  p.description = flavorTexts[0];
+                });
+                this.getVarieties(p.id).subscribe((varieties) => {
+                  p.varieties = varieties;
+                });
+              }
+
+              p.abilities?.forEach((ability) => {
+                this.getFlavorTextAbilities(ability.url).subscribe({
+                  next: (res) => {
+                    ability.description = res[0];
+                  },
+                  error: (err) => {
+                    console.warn(err);
+                  },
+                });
               });
               p.isFlipped = false;
               p.selectedTab = 0;
@@ -148,8 +163,23 @@ export class PokemonService {
         this.getVarieties(p.id).subscribe((varieties) => {
           p.varieties = varieties;
         });
-        this.getFlavorText(p.id).subscribe((flavorTexts) => {
-          p.description = flavorTexts[0];
+        if (p.id < 10000) {
+          this.getFlavorText(p.id).subscribe((flavorTexts) => {
+            p.description = flavorTexts[0];
+          });
+          this.getVarieties(p.id).subscribe((varieties) => {
+            p.varieties = varieties;
+          });
+        }
+        p.abilities?.forEach((ability) => {
+          this.getFlavorTextAbilities(ability.url).subscribe({
+            next: (res) => {
+              ability.description = res[0];
+            },
+            error: (err) => {
+              console.warn(err);
+            },
+          });
         });
       });
 
@@ -208,6 +238,7 @@ export class PokemonService {
       nombre: data.name,
       tipo: data.types.map((t: any) => t.type.name).join(', '),
       imagen: `${this.baseRuta}${data.id}.png`,
+      imagenShiny: `${this.baseRuta}/shiny/${data.id}.png`,
       hp: this.getStat(data.stats, 'hp'),
       attack: this.getStat(data.stats, 'attack'),
       defense: this.getStat(data.stats, 'defense'),
@@ -218,8 +249,24 @@ export class PokemonService {
       isFavorite: false,
       soundUrl: data.cries?.latest || data.cries?.legacy || null,
       moves: data.moves.slice(0, 5).map((m: any) => m.move.name),
-      abilities: data.abilities.map((a: any) => a.ability.name),
+      abilities: data.abilities.map((a: any) => ({
+        name: a.ability.name,
+        url: a.ability.url,
+        description: '',
+      })),
       selectedTab: 0,
+      weight: data.weight / 10,
+      height: data.height / 10,
+      sprites: {
+        back_default: data.sprites?.back_default || '',
+        back_female: data.sprites?.back_female || '',
+        back_shiny_female: data.sprites?.back_shiny_female || '',
+        front_default: data.sprites?.front_default || '',
+        front_female: data.sprites?.front_female || '',
+        front_shiny: data.sprites?.front_shiny || '',
+        front_shiny_female: data.sprites?.front_shiny_female || '',
+      },
+      spriteSelected: `${this.baseRuta}${data.id}.png`,
     };
   }
 
@@ -283,9 +330,23 @@ export class PokemonService {
   getFlavorText(id: number): Observable<string[]> {
     return this.http.get<any>(`${this.baseUrl}/${id}`).pipe(
       map((res) => {
-        if (id > 1025) {
-          return [];
+        if (id < 10000) {
+          let entries = res.flavor_text_entries.filter(
+            (entry: any) => entry.language.name === 'es',
+          );
+          if (entries.length === 0) {
+            entries = res.flavor_text_entries.filter((entry: any) => entry.language.name === 'en');
+          }
+
+          return entries.map((entry: any) => entry.flavor_text);
         }
+        return [];
+      }),
+    );
+  }
+  getFlavorTextAbilities(url: string): Observable<string[]> {
+    return this.http.get<any>(url).pipe(
+      map((res) => {
         let entries = res.flavor_text_entries.filter((entry: any) => entry.language.name === 'es');
         if (entries.length === 0) {
           entries = res.flavor_text_entries.filter((entry: any) => entry.language.name === 'en');
@@ -295,6 +356,7 @@ export class PokemonService {
       }),
     );
   }
+
   getVarieties(id: number): Observable<{ id: number; name: string }[]> {
     if (id > 1025) {
       return of([]);
@@ -317,8 +379,6 @@ export class PokemonService {
           .filter((v: any) => !v.pokemon.name.toLowerCase().includes('cap'))
           .filter((v: any) => !v.pokemon.name.toLowerCase().includes('curly-mega'))
           .filter((v: any) => !v.pokemon.name.toLowerCase().includes('droopy-mega'))
-          
-          
 
           .map((v: any) => {
             const parts = v.pokemon.url.split('/').filter(Boolean);

@@ -36,6 +36,7 @@ export class VistaMain implements OnInit, OnDestroy {
   pokemonOriginales: Map<number, Pokemon> = new Map();
 
   searchMode: 'name' | 'id' | 'type' = 'name';
+  selectedAbility: any = null;
 
   readonly allTypes: string[] = [
     'normal',
@@ -135,7 +136,7 @@ export class VistaMain implements OnInit, OnDestroy {
     this.allPokemons.forEach((p) => {
       p.isFlipped = false;
       p.selectedTab = 0;
-      p.selectedVariety = p.id
+      p.selectedVariety = p.id;
     });
     this.applyFilter();
   }
@@ -188,7 +189,7 @@ export class VistaMain implements OnInit, OnDestroy {
   isGlobalSearch: boolean = false;
 
   applyFilter(): void {
-    const gen = this.generations[this.selectedGenIndex]; 
+    const gen = this.generations[this.selectedGenIndex];
     const searchText = this.searchQuery.trim().toLowerCase();
 
     let list = [...this.allPokemons.filter((p) => p.id < 1026)];
@@ -211,9 +212,7 @@ export class VistaMain implements OnInit, OnDestroy {
       list = list.filter((p) => p.nombre.toLowerCase().includes(searchText));
     } else if (this.searchMode === 'id' && hasSearchText) {
       list = list.filter((p) => String(p.id).includes(searchText));
-    }
-
-    else if (this.searchMode === 'type' && hasTypeFilter) {
+    } else if (this.searchMode === 'type' && hasTypeFilter) {
       list = list.filter((p) => {
         const tipos = this.obtenerTipos(p.tipo);
         if (this.selectedTypes.length === 1) {
@@ -231,7 +230,7 @@ export class VistaMain implements OnInit, OnDestroy {
   }
 
   triggerGlobalSearch(): void {
-    this.selectedGenIndex = 9; 
+    this.selectedGenIndex = 9;
     this.applyFilter();
   }
 
@@ -251,6 +250,9 @@ export class VistaMain implements OnInit, OnDestroy {
   }
 
   flipPokemon(selectedPokemon: Pokemon): void {
+    selectedPokemon.spriteSelected = selectedPokemon.imagen;
+    this. selectedAbility= null;
+
     this.filteredPokemons.forEach((p) => {
       p.isFlipped = p === selectedPokemon ? !p.isFlipped : false;
     });
@@ -267,6 +269,26 @@ export class VistaMain implements OnInit, OnDestroy {
       this.audio?.pause();
       this.audio = new Audio(pokemon.soundUrl);
       this.audio.play().catch((e) => console.error('Error reproduciendo sonido:', e));
+    }
+  }
+  changeImagen(pokemon: Pokemon, event: Event): void {
+    event.stopPropagation();
+    if (pokemon.imagenShiny) {
+      const temp = pokemon.imagen;
+      pokemon.imagen = pokemon.imagenShiny;
+      pokemon.imagenShiny = temp;
+    }
+  }
+
+  
+
+  selectAbility(ability: any, event: Event) {
+    event.stopPropagation();
+    console.log(ability)
+    if (this.selectedAbility?.name === ability.name) {
+      this.selectedAbility = null;
+    } else {
+      this.selectedAbility = ability;
     }
   }
 
@@ -378,7 +400,7 @@ export class VistaMain implements OnInit, OnDestroy {
   }
   cambiarVariedad(idPokemon: number, pokemon: Pokemon, event: Event): void {
     event.stopPropagation();
-    pokemon.selectedVariety = idPokemon;
+    console.log(pokemon.sprites);
 
     if (!this.pokemonOriginales.has(pokemon.id)) {
       this.pokemonOriginales.set(pokemon.id, { ...pokemon });
@@ -386,29 +408,47 @@ export class VistaMain implements OnInit, OnDestroy {
 
     if (idPokemon === pokemon.id) {
       const original = this.pokemonOriginales.get(pokemon.id);
-
       if (original) {
         Object.assign(pokemon, original);
       }
-
-      return;
+    } else {
+      const nuevaVariedad = this.allPokemons.find((p) => p.id === idPokemon);
+      if (nuevaVariedad) {
+        Object.assign(pokemon, {
+          nombre: nuevaVariedad.nombre,
+          tipo: nuevaVariedad.tipo,
+          imagen: nuevaVariedad.imagen,
+          imagenShiny: nuevaVariedad.imagenShiny,
+          hp: nuevaVariedad.hp,
+          attack: nuevaVariedad.attack,
+          defense: nuevaVariedad.defense,
+          specialAttack: nuevaVariedad.specialAttack,
+          specialDefense: nuevaVariedad.specialDefense,
+          speed: nuevaVariedad.speed,
+          height: nuevaVariedad.height,
+          weight: nuevaVariedad.weight,
+          abilities: nuevaVariedad.abilities,
+          sprites: nuevaVariedad.sprites,
+        });
+      }
     }
 
-    const nuevaVariedad = this.allPokemons.find((p) => p.id === idPokemon);
+    pokemon.selectedVariety = idPokemon;
+  }
 
-    if (nuevaVariedad) {
-      Object.assign(pokemon, {
-        nombre: nuevaVariedad.nombre,
-        tipo: nuevaVariedad.tipo,
-        imagen: nuevaVariedad.imagen,
-        hp: nuevaVariedad.hp,
-        attack: nuevaVariedad.attack,
-        defense: nuevaVariedad.defense,
-        specialAttack: nuevaVariedad.specialAttack,
-        specialDefense: nuevaVariedad.specialDefense,
-        speed: nuevaVariedad.speed,
-      });
-    }
+  getAvailableSprites(pokemon: Pokemon) {
+    if (!pokemon.sprites) return [];
+
+    return Object.entries(pokemon.sprites)
+
+      .filter(([key, value]) => value !== '')
+      .map(([key, value]) => ({ key, url: value.replace('_', ' ') }));
+  }
+
+  setSprite(pokemon: any, url: string, event: Event) {
+    event.stopPropagation();
+
+    pokemon.spriteSelected = url;
   }
   irFichaEntrenador(idUsuario: Number) {
     //sustituir con el del usuario real

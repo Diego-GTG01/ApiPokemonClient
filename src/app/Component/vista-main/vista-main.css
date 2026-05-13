@@ -232,7 +232,7 @@
 
 .pokemon-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, minmax(280px, 1fr));
   gap: 28px;
   padding: 10px;
 }
@@ -313,7 +313,7 @@
 .stats-pane {
   display: flex;
   flex-direction: column;
-  
+
   padding: 5px;
 }
 
@@ -322,16 +322,26 @@
   width: 100%;
   background: radial-gradient(circle, #ffffff 0%, #f9fafb 100%);
   border-radius: 20px;
+  margin-bottom: 30px;
+
   border: 1px solid #f1f5f9;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
+.button-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
 .chart-container {
   flex: 1;
-  position: relative; 
+  position: relative;
   width: 100%;
   min-height: 280px;
- 
+
   padding: -20px;
   box-sizing: border-box;
   margin-bottom: -10px;
@@ -339,9 +349,8 @@
 
 .chart-container canvas {
   filter: drop-shadow(0 4px 12px rgba(59, 76, 202, 0.1));
-  padding: 5px; 
+  padding: 5px;
 }
-
 
 .stats-summary {
   display: grid;
@@ -463,7 +472,7 @@
   border-radius: 24px;
   padding-top: 25px;
   margin: 15px;
-  height: calc(100% - 20px);
+  height: calc(100% - 30px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -886,7 +895,9 @@
   border-radius: 50%;
   background: linear-gradient(to bottom, #dc0a2d 50%, #fff 50%);
   position: relative;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 0 30px rgba(0, 0, 0, 0.5),
+    inset 0 0 20px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   animation: spin 1.5s linear infinite;
 }
@@ -894,11 +905,11 @@
 .pokeball-loader::before {
   content: '';
   position: absolute;
-  
-  width: 100%; 
-  height: 8px; 
+
+  width: 100%;
+  height: 8px;
   background: #222;
-  
+
   /* Centrado perfecto */
   top: 50%;
   left: 50%;
@@ -1067,12 +1078,7 @@
     line-height: 1.5;
     padding: 10px;
   }
-  .move-number {
-    width: 20px;
-    height: 20px;
-    font-size: 10px;
-    background: #3b4cca;
-  }
+
   .tab-pane .chart-container {
     height: 100%;
     margin-bottom: 15px;
@@ -1867,8 +1873,8 @@ body {
 
 .poke-grid {
   display: flex;
-  flex-wrap: wrap; /* Fuerza una sola fila */
-  overflow-x: auto; /* Activa el scroll horizontal */
+  flex-wrap: wrap;
+  overflow-x: auto;
   justify-content: center;
   gap: 8px;
   width: 100%;
@@ -1921,7 +1927,6 @@ body {
   box-shadow: 0 4px 8px rgba(255, 28, 28, 0.2);
 }
 
-
 .global-search-btn {
   background: #3b4cca;
   color: white;
@@ -1933,7 +1938,7 @@ body {
   font-weight: bold;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   white-space: nowrap;
 }
 
@@ -1982,4 +1987,99 @@ body {
   border-color: #2e2ca0;
   box-shadow: 0 3px 8px rgba(59, 76, 202, 0.3);
   transform: translateY(-1px);
+}
+.physical-info {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.05); /* Un fondo sutil */
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.info-item .label {
+  font-size: 0.8rem;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.info-item .value {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.info-divider {
+  width: 1px;
+  height: 30px;
+  background-color: #ccc;
+}
+
+.pokemon-description {
+  line-height: 1.5;
+  color: #444;
+  font-style: italic;
+}
+.sprites-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.sprite-btn {
+  padding: 4px 8px;
+  font-size: 10px;
+  text-transform: uppercase;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sprite-btn:hover {
+  background: #f0f0f0;
+}
+
+.sprite-btn.active {
+  background: #3b4cca; /* Azul Pokémon */
+  color: white;
+  border-color: #3b4cca;
+}
+
+.ability-card {
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.ability-card:hover {
+  background-color: #f0f0f0;
+}
+
+.ability-card.active {
+  border: 2px solid #3b4cca; /* Color destacable */
+  background-color: #eef2ff;
+}
+
+.ability-description-box {
+  margin-top: 15px;
+  padding: 15px;  
+  background: #f9f9f9;
+  border-radius: 8px;
+  border-left: 4px solid #3b4cca;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
 }

@@ -243,23 +243,30 @@
                   loading="lazy"
                 />
               </div>
+              <div class="button-grid">
+                <button
+                  class="sound-button"
+                  (click)="playSound(pokemon, $event)"
+                  title="Reproducir sonido"
+                >
+                  🔊
+                </button>
+                <button
+                  class="sound-button"
+                  (click)="changeImagen(pokemon, $event)"
+                  title="Ver Shiny"
+                >
+                  ✨
+                </button>
+              </div>
 
-              <button
-                class="sound-button"
-                (click)="playSound(pokemon, $event)"
-                title="Reproducir sonido"
-              >
-                🔊
-              </button>
               <div class="poke-container" *ngIf="pokemon.varieties?.length">
                 <p class="poke-label">Variedades:</p>
                 <div class="poke-grid">
                   <!-- Botón de Forma Original -->
                   <button
                     class="poke-btn"
-                    [class.active]="
-                      pokemon.selectedVariety === pokemon.id
-                    "
+                    [class.active]="pokemon.selectedVariety === pokemon.id"
                     (click)="cambiarVariedad(pokemon.id, pokemon, $event)"
                   >
                     {{ pokemonOriginales.get(pokemon.id)?.nombre || 'Default' }}
@@ -327,6 +334,13 @@
                   >
                     Info
                   </button>
+                  <button
+                    class="tab-btn"
+                    [class.active]="pokemon.selectedTab === 4"
+                    (click)="setSelectedTab(pokemon, 4, $event)"
+                  >
+                    Sprites
+                  </button>
                 </div>
 
                 <div class="tabs-content">
@@ -378,9 +392,9 @@
                       *ngIf="pokemon.abilities && pokemon.abilities.length > 0"
                     >
                       <div class="abilities-list">
-                        <div class="ability-card" *ngFor="let ability of pokemon.abilities">
+                        <div class="ability-card" (click)="selectAbility(ability, $event)" *ngFor="let ability of pokemon.abilities">
                           <div class="ability-icon">✨</div>
-                          <div class="ability-name">{{ ability }}</div>
+                          <div class="ability-name" >{{ ability.name }}</div>
                         </div>
                       </div>
                     </div>
@@ -390,15 +404,62 @@
                     >
                       <p>No hay habilidades disponibles</p>
                     </div>
+                    <div class="ability-description-box" *ngIf="selectedAbility">
+                      <h4>Descripción de {{ selectedAbility.name }}:</h4>
+                      <p>
+                        {{
+                          selectedAbility.description ||
+                            'No hay descripción disponible para esta habilidad.'
+                        }}
+                      </p>
+                    </div>
                   </div>
 
                   <!-- Info / Descripción -->
                   <div class="tab-pane" *ngIf="pokemon.selectedTab === 3">
+                    <div class="physical-info">
+                      <div class="info-item">
+                        <span class="label">Peso:</span>
+                        <span class="value">{{ pokemon.weight }} kg</span>
+                      </div>
+                      <div class="info-divider"></div>
+                      <div class="info-item">
+                        <span class="label">Altura:</span>
+                        <span class="value">{{ pokemon.height }} m</span>
+                      </div>
+                    </div>
+
                     <div class="description-container" *ngIf="pokemon.description">
                       <p class="pokemon-description">{{ pokemon.description }}</p>
                     </div>
+
                     <div class="empty-state" *ngIf="!pokemon.description">
                       <p>No hay descripción disponible</p>
+                    </div>
+                  </div>
+
+                  <!-- Sprites -->
+                  <div class="tab-pane" *ngIf="pokemon.sprites && pokemon.selectedTab === 4">
+                    <div class="pokemon-display">
+                      <div class="pokemon-image-container">
+                        <img
+                          class="pokemon-image"
+                          [src]="pokemon.spriteSelected"
+                          [alt]="pokemon.nombre"
+                        />
+                      </div>
+
+                      <div class="sprites-grid">
+                        <button
+                          *ngFor="let sprite of getAvailableSprites(pokemon)"
+                          class="poke-btn"
+                          [class.active]="pokemon.spriteSelected === sprite.url"
+                          (click)="setSprite(pokemon, sprite.url, $event)"
+                          [title]="sprite.key"
+                        >
+                          {{ sprite.key.replaceAll('_', ' ') }}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
