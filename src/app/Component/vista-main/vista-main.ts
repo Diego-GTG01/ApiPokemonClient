@@ -241,8 +241,10 @@ export class VistaMain implements OnInit, OnDestroy {
           return tipos.some((t) => t.toLowerCase() === this.selectedTypes[0].toLowerCase());
         } else {
           return (
-            tipos[0]?.toLowerCase() === this.selectedTypes[0].toLowerCase() &&
-            tipos[1]?.toLowerCase() === this.selectedTypes[1].toLowerCase()
+            (tipos[0]?.toLowerCase() === this.selectedTypes[0].toLowerCase() &&
+              tipos[1]?.toLowerCase() === this.selectedTypes[1].toLowerCase()) ||
+            (tipos[1]?.toLowerCase() === this.selectedTypes[0].toLowerCase() &&
+              tipos[0]?.toLowerCase() === this.selectedTypes[1].toLowerCase())
           );
         }
       });
