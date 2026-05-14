@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class UsuarioService {
-  apiUrl = 'http://localhost:8080/usuario';
+  apiUrl = 'http://192.167.0.171:8080/usuario';
 
   constructor(private http: HttpClient) {}
   getAllUsers(): Observable<Result<Usuario[]>> {

@@ -6,7 +6,7 @@ import { Auth } from '../Interface/auth';
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/auth';
+  private apiUrl = 'http://192.167.0.171:8080/auth';
 
   constructor(private http: HttpClient) {}
 

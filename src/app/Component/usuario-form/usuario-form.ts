@@ -98,9 +98,10 @@ export class UsuarioForm implements OnInit {
     this.rolService.getAllRol().subscribe({
       next: (result: Result<Rol[]>) => {
         this.roles = result.objects.flat();
-        console.log('roles cargados');
       },
-      error: (err) => {},
+      error: (err) => {
+        console.warn("error cargando Roles")
+      },
     });
   }
 
@@ -110,13 +111,10 @@ export class UsuarioForm implements OnInit {
 
   guardarUsuario(event: Event): void {
     event.preventDefault();
-    console.log('Formulario enviado');
     this.usuarioForm.markAllAsTouched();
     if (this.usuarioForm.valid) {
-      console.log('Datos del Entrenador:', this.usuarioForm.value);
       this.usuarioService.addUser(this.usuarioForm.value).subscribe({
         next: (result: Result<Usuario[]>) => {
-          console.log(result);
           if (result.correct) {
             this.usuarioForm.reset();
             Swal.fire({

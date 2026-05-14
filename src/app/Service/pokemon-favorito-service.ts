@@ -10,8 +10,8 @@ import { PokemonApi } from '../Interface/pokemonApi';
 })
 export class PokemonFavoritoService {
   private http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8080/usuario/pokeFavs/';
-  //private readonly apiUrl = 'https://pokeapi.co/api/v2/pokemon/';
+  private readonly apiUrl = 'http://192.167.0.171:8080/usuario/pokeFavs/';
+  private readonly pokeapi = 'https://pokeapi.co/api/v2/pokemon/';
 
 
   httpOptions = {
@@ -49,7 +49,7 @@ export class PokemonFavoritoService {
   }
   getTypesByPokemonId(id: number): Observable<string[]> {
     return this.http
-      .get<any>(`${this.apiUrl}/${id}`)
+      .get<any>(`${this.pokeapi}${id}`)
       .pipe(map((data) => data.types.map((t: any) => t.type.name)));
   }
 

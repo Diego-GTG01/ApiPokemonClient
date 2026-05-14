@@ -48,6 +48,7 @@ export class EstadisticasPokeFav {
     });
     this.pokemonFavoritoService.GetAllFavoritePokemon().subscribe({
       next: (res) => {
+        console.log(res)
 
         const requests = res.objects.map((obj: any) => {
 

@@ -118,11 +118,17 @@ export class VistaMain implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.authService.checkAuth().subscribe({
-      next: (response: any) => {
-        this.usuario = response;
-      },
-    });
+    this.subscriptions.push(
+      this.authService.checkAuth().subscribe({
+        next: (response: any) => {
+          this.usuario = response;
+          if (this.usuario) {
+            this.pokemonService.setId(this.usuario.idUsuario);
+          }
+
+        },
+      }),
+    );
     this.subscriptions.push(this.pokemonService.loading$.subscribe((v) => (this.isLoading = v)));
     this.subscriptions.push(
       this.pokemonService.progress$.subscribe((v) => (this.loadingProgress = v)),
@@ -143,6 +149,7 @@ export class VistaMain implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach((s) => s.unsubscribe());
+    
   }
 
   selectGeneration(index: number): void {
@@ -208,11 +215,13 @@ export class VistaMain implements OnInit, OnDestroy {
     const searchText = this.searchQuery.trim().toLowerCase();
 
     let list = [...this.allPokemons.filter((p) => p.id < 1026)];
+    
 
     const hasSearchText = searchText !== '';
     const hasTypeFilter = this.selectedTypes.length > 0;
 
     const isAllGen = gen.label === 'ALL';
+    
 
     if (!isAllGen) {
       list = list.filter((p) => p.id >= gen.start && p.id <= gen.end);
@@ -261,7 +270,9 @@ export class VistaMain implements OnInit, OnDestroy {
 
   favorite(pokemon: Pokemon, event: Event): void {
     event.stopPropagation();
-    this.pokemonService.toggleFavorite(pokemon);
+    if (this.usuario) {
+      this.pokemonService.toggleFavorite(pokemon, this.usuario.idUsuario);
+    }
   }
 
   flipPokemon(selectedPokemon: Pokemon): void {
@@ -298,7 +309,6 @@ export class VistaMain implements OnInit, OnDestroy {
 
   selectAbility(ability: any, event: Event) {
     event.stopPropagation();
-    console.log(ability);
     if (this.selectedAbility?.name === ability.name) {
       this.selectedAbility = null;
     } else {
@@ -415,7 +425,6 @@ export class VistaMain implements OnInit, OnDestroy {
 
   cambiarVariedad(idPokemon: number, pokemon: Pokemon, event: Event): void {
     event.stopPropagation();
-    console.log(pokemon.sprites);
 
     if (!this.pokemonOriginales.has(pokemon.id)) {
       this.pokemonOriginales.set(pokemon.id, { ...pokemon });

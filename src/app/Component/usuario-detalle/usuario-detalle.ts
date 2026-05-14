@@ -98,7 +98,6 @@ export class UsuarioDetalle implements OnInit {
     this.usuarioService.getById(this.id).subscribe({
       next: (res: Result<Usuario>) => {
         this.usuario = res.object;
-        console.log(this.usuario);
         this.initForm(this.usuario);
       },
     });
@@ -129,7 +128,6 @@ export class UsuarioDetalle implements OnInit {
     Object.keys(this.usuarioForm.controls).forEach((key) => {
       const controlErrors = this.usuarioForm.get(key)?.errors;
       if (controlErrors != null) {
-        console.log('Key control: ' + key + ', err: ', controlErrors);
       }
     });
     if (this.usuarioForm.invalid) {
@@ -153,7 +151,7 @@ export class UsuarioDetalle implements OnInit {
           this.cargarUsuario();
         },
         error: (err) => {
-          console.log(err);
+          console.warn(err);
           Swal.fire({
             title: 'Error al actualizar',
             icon: 'error',

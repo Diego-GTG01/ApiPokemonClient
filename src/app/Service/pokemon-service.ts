@@ -5,6 +5,7 @@ import { Pokemon } from '../Interface/pokemonDTO';
 import { PokemonApi } from '../Interface/pokemonApi';
 import { PokemonFavoritoService } from './pokemon-favorito-service';
 import { Result } from '../Interface/Result';
+import { AuthService } from './auth-service';
 
 export interface FavoritePayload {
   pokemonId: number;
@@ -35,24 +36,39 @@ export class PokemonService {
   public pokemons$ = this.pokemonsSubject.asObservable();
 
   favoriteIds: Set<number>[] = [];
+  idUsuario: number = 0;
 
   constructor(
     private http: HttpClient,
     private pokemonFavoritoService: PokemonFavoritoService,
+    private authService: AuthService,
   ) {
+    
     this.start();
+  }
+  public setId(idUser: number) {
+    this.idUsuario = idUser;
   }
 
   private start(): void {
     const stored = localStorage.getItem(this.STORAGE_KEY);
+    this.authService.checkAuth().subscribe({
+        next: (response: any) => {
+          
+          this.setId(response.idUsuario)
+          
+        },
+      });
+
 
     if (stored) {
       try {
         const pokemons: Pokemon[] = JSON.parse(stored);
         if (pokemons.length > 0) {
-          this.getStoredFavorites().subscribe((favoriteIds) => {
+          this.getStoredFavorites(this.idUsuario).subscribe((favoriteIds) => {
             pokemons.forEach((p) => {
               favoriteIds.forEach((pokeFav) => {
+
                 if (p.id === pokeFav) {
                   p.isFavorite = true;
                 }
@@ -145,7 +161,7 @@ export class PokemonService {
     if (batchIndex >= batches.length) {
       const pokemons = Array.from(pokemonsMap.values()).sort((a, b) => a.id - b.id);
 
-      this.getStoredFavorites().subscribe((favoriteIds) => {
+      this.getStoredFavorites(this.idUsuario).subscribe((favoriteIds) => {
         pokemons.forEach((p) => {
           p.isFavorite = favoriteIds.has(p.id);
         });
@@ -249,6 +265,7 @@ export class PokemonService {
       isFavorite: false,
       soundUrl: data.cries?.latest || data.cries?.legacy || null,
       moves: data.moves.slice(0, 5).map((m: any) => m.move.name),
+
       abilities: data.abilities.map((a: any) => ({
         name: a.ability.name,
         url: a.ability.url,
@@ -274,8 +291,8 @@ export class PokemonService {
     return stats.find((s) => s.stat.name === statName)?.base_stat || 0;
   }
 
-  private getStoredFavorites(): Observable<Set<number>> {
-    return this.pokemonFavoritoService.getPokemonFavorite(21).pipe(
+  private getStoredFavorites(idUsuario: number): Observable<Set<number>> {
+    return this.pokemonFavoritoService.getPokemonFavorite(idUsuario).pipe(
       map((res: Result<any>) => {
         const favSet = new Set<number>();
 
@@ -301,11 +318,11 @@ export class PokemonService {
     localStorage.setItem(this.FAVORITES_KEY, JSON.stringify(Array.from(favs)));
   }
 
-  toggleFavorite(pokemon: Pokemon): void {
-    this.getStoredFavorites().subscribe((favoriteIds) => {
+  toggleFavorite(pokemon: Pokemon, idUsuario: number): void {
+    this.getStoredFavorites(idUsuario).subscribe((favoriteIds) => {
       if (!pokemon.isFavorite) {
         this.pokemonFavoritoService
-          .addPokemonFavorite(21, this.mapToDTO(pokemon))
+          .addPokemonFavorite(idUsuario, this.mapToDTO(pokemon))
           .subscribe((resultado) => {
             if (resultado.correct) {
               pokemon.isFavorite = !pokemon.isFavorite;
@@ -314,7 +331,7 @@ export class PokemonService {
         favoriteIds.add(pokemon.id);
       } else {
         this.pokemonFavoritoService
-          .deletePokemonFavorite(21, this.mapToDTO(pokemon))
+          .deletePokemonFavorite(idUsuario, this.mapToDTO(pokemon))
           .subscribe((response) => {
             if (response.status == 204) {
               pokemon.isFavorite = !pokemon.isFavorite;
