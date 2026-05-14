@@ -58,18 +58,30 @@
             ⭐ OCULTAR MIS FAVORITOS
           </button>
 
-          <button *ngIf="isMaestro()" (click)="irEstadisticas()" class="sys-btn" title="Ver estadísticas de usuarios">
+          <button
+            *ngIf="isMaestro()"
+            (click)="irEstadisticas()"
+            class="sys-btn"
+            title="Ver estadísticas de usuarios"
+          >
             📊 ESTADÍSTICAS
           </button>
-          <button *ngIf="isMaestro()" (click)="irGestionUsuarios()" class="sys-btn" title="Gestionar Usuarios">
-
+          <button
+            *ngIf="isMaestro()"
+            (click)="irGestionUsuarios()"
+            class="sys-btn"
+            title="Gestionar Usuarios"
+          >
             📋 GESTIÓN DE USUARIOS
           </button>
-          <button (click)="irFichaEntrenador(usuario?.idUsuario)" class="sys-btn" title="Editar Perfil">
+          <button
+            (click)="irFichaEntrenador(usuario?.idUsuario)"
+            class="sys-btn"
+            title="Editar Perfil"
+          >
             🆔 FICHA ENTRENADOR
           </button>
           <button class="sys-btn logout-btn" title="Finalizar Sesión" (click)="logout()">
-
             <span class="power-icon">⏻</span> CERRAR SESIÓN POKÉDEX
           </button>
         </div>
@@ -398,9 +410,13 @@
                       *ngIf="pokemon.abilities && pokemon.abilities.length > 0"
                     >
                       <div class="abilities-list">
-                        <div class="ability-card" (click)="selectAbility(ability, $event)" *ngFor="let ability of pokemon.abilities">
+                        <div
+                          class="ability-card"
+                          (click)="selectAbility(ability, $event)"
+                          *ngFor="let ability of pokemon.abilities"
+                        >
                           <div class="ability-icon">✨</div>
-                          <div class="ability-name" >{{ ability.name }}</div>
+                          <div class="ability-name">{{ ability.name }}</div>
                         </div>
                       </div>
                     </div>
@@ -465,6 +481,38 @@
                         >
                           {{ sprite.key.replaceAll('_', ' ') }}
                         </button>
+                      </div>
+                    </div>
+
+                    <!-- EVOLUTION CHAIN -->
+                    <div class="evolution-chain" *ngIf="pokemon.chainEvolution?.evolutions?.length">
+                      <h3>Línea evolutiva</h3>
+
+                      <div class="evolution-list">
+                        <ng-container
+                          *ngFor="
+                            let evolutionId of pokemon.chainEvolution.evolutions;
+                            let last = last
+                          "
+                        >
+                          <div class="evolution-card" [class.current]="evolutionId === pokemon.id">
+                            <ng-container *ngIf="getPokemonById(evolutionId) as evoPokemon">
+                              <img
+                                [src]="evoPokemon.imagen"
+                                [alt]="evoPokemon.nombre"
+                                class="evolution-image"
+                              />
+
+                              <span class="evolution-name">
+                                {{ evoPokemon.nombre }}
+                              </span>
+
+                              <small>#{{ evoPokemon.id }}</small>
+                            </ng-container>
+                          </div>
+
+                          <div class="evolution-arrow" *ngIf="!last">→</div>
+                        </ng-container>
                       </div>
                     </div>
                   </div>

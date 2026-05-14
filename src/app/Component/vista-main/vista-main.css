@@ -2083,3 +2083,54 @@ body {
   from { opacity: 0; transform: translateY(-5px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+.evolution-chain {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.evolution-list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.evolution-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f3f3f3;
+  min-width: 100px;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.evolution-card.current {
+  background: #ffcb05;
+  transform: scale(1.1);
+  opacity: 1;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
+  border: 2px solid #2a75bb;
+}
+
+.evolution-image {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+}
+
+.evolution-name {
+  font-weight: 600;
+  text-transform: capitalize;
+  margin-top: 6px;
+}
+
+.evolution-arrow {
+  font-size: 24px;
+  font-weight: bold;
+  color: #666;
+}

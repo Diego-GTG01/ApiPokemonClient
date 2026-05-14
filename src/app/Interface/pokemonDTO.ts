@@ -35,4 +35,8 @@ export interface Pokemon {
     front_shiny_female: string;
   };
   spriteSelected: string;
+  chainEvolution: {
+    url: string,
+    evolutions: number[]
+  }
 }

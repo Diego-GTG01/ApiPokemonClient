@@ -6,6 +6,7 @@ import { PokemonApi } from '../Interface/pokemonApi';
 import { PokemonFavoritoService } from './pokemon-favorito-service';
 import { Result } from '../Interface/Result';
 import { AuthService } from './auth-service';
+import { resetConsumerBeforeComputation } from '@angular/core/primitives/signals';
 
 export interface FavoritePayload {
   pokemonId: number;
@@ -43,7 +44,6 @@ export class PokemonService {
     private pokemonFavoritoService: PokemonFavoritoService,
     private authService: AuthService,
   ) {
-    
     this.start();
   }
   public setId(idUser: number) {
@@ -53,13 +53,10 @@ export class PokemonService {
   private start(): void {
     const stored = localStorage.getItem(this.STORAGE_KEY);
     this.authService.checkAuth().subscribe({
-        next: (response: any) => {
-          
-          this.setId(response.idUsuario)
-          
-        },
-      });
-
+      next: (response: any) => {
+        this.setId(response.idUsuario);
+      },
+    });
 
     if (stored) {
       try {
@@ -68,7 +65,6 @@ export class PokemonService {
           this.getStoredFavorites(this.idUsuario).subscribe((favoriteIds) => {
             pokemons.forEach((p) => {
               favoriteIds.forEach((pokeFav) => {
-
                 if (p.id === pokeFav) {
                   p.isFavorite = true;
                 }
@@ -81,8 +77,18 @@ export class PokemonService {
                 this.getVarieties(p.id).subscribe((varieties) => {
                   p.varieties = varieties;
                 });
+                this.getChainEvolution(p.id).subscribe({
+                  next: (result) => {
+                    p.chainEvolution.url = result;
+                    
+                  },
+                  error: () => (p.chainEvolution.url = ''),
+                });
+              } else {
+                p.description = 'Descripción no disponible para formas especiales.';
+                p.varieties = [];
+                p.chainEvolution.url = '';
               }
-
               p.abilities?.forEach((ability) => {
                 this.getFlavorTextAbilities(ability.url).subscribe({
                   next: (res) => {
@@ -176,9 +182,7 @@ export class PokemonService {
       pokemons.forEach((p) => {
         p.isFlipped = false;
         p.selectedTab = 0;
-        this.getVarieties(p.id).subscribe((varieties) => {
-          p.varieties = varieties;
-        });
+
         if (p.id < 10000) {
           this.getFlavorText(p.id).subscribe((flavorTexts) => {
             p.description = flavorTexts[0];
@@ -186,6 +190,17 @@ export class PokemonService {
           this.getVarieties(p.id).subscribe((varieties) => {
             p.varieties = varieties;
           });
+          this.getChainEvolution(p.id).subscribe({
+            next: (result) => {
+              p.chainEvolution.url = result;
+              if (result) this.getEvolutionIds(p.chainEvolution.url, p);
+            },
+            error: () => (p.chainEvolution.url = ''),
+          });
+        } else {
+          p.description = 'Descripción no disponible para formas especiales.';
+          p.varieties = [];
+          p.chainEvolution.url = '';
         }
         p.abilities?.forEach((ability) => {
           this.getFlavorTextAbilities(ability.url).subscribe({
@@ -264,7 +279,7 @@ export class PokemonService {
       isFlipped: false,
       isFavorite: false,
       soundUrl: data.cries?.latest || data.cries?.legacy || null,
-      moves: data.moves.slice(0, 5).map((m: any) => m.move.name),
+      moves: data.moves.map((m: any) => m.move.name),
 
       abilities: data.abilities.map((a: any) => ({
         name: a.ability.name,
@@ -284,6 +299,10 @@ export class PokemonService {
         front_shiny_female: data.sprites?.front_shiny_female || '',
       },
       spriteSelected: `${this.baseRuta}${data.id}.png`,
+      chainEvolution: {
+        url: '',
+        evolutions: [],
+      },
     };
   }
 
@@ -353,22 +372,21 @@ export class PokemonService {
   }
 
   getFlavorText(id: number): Observable<string[]> {
+    if (id >= 10000) {
+      return of([]);
+    }
+
     return this.http.get<any>(`${this.baseUrl}/${id}`).pipe(
       map((res) => {
-        if (id < 10000) {
-          let entries = res.flavor_text_entries.filter(
-            (entry: any) => entry.language.name === 'es',
-          );
-          if (entries.length === 0) {
-            entries = res.flavor_text_entries.filter((entry: any) => entry.language.name === 'en');
-          }
-
-          return entries.map((entry: any) => entry.flavor_text);
+        let entries = res.flavor_text_entries.filter((entry: any) => entry.language.name === 'es');
+        if (entries.length === 0) {
+          entries = res.flavor_text_entries.filter((entry: any) => entry.language.name === 'en');
         }
-        return [];
+        return entries.map((entry: any) => entry.flavor_text);
       }),
     );
   }
+
   getFlavorTextAbilities(url: string): Observable<string[]> {
     return this.http.get<any>(url).pipe(
       map((res) => {
@@ -415,6 +433,43 @@ export class PokemonService {
           });
       }),
     );
+  }
+  getChainEvolution(idPokemon: number): Observable<string> {
+    if (idPokemon >= 10000) {
+      return of('');
+    }
+
+    return this.http.get<any>(this.baseUrl + '/' + idPokemon).pipe(
+      map((res) => {
+        return res.evolution_chain.url;
+      }),
+    );
+  }
+
+  getEvolution(url: string): Observable<any> {
+    return this.http.get(url);
+  }
+
+  extractIds(chain: any, ids: number[] = []): number[] {
+    const id = chain.species.url.split('/').filter(Boolean).pop();
+    if (id) ids.push(Number(id));
+
+    if (chain.evolves_to && chain.evolves_to.length > 0) {
+      chain.evolves_to.forEach((evolution: any) => {
+        this.extractIds(evolution, ids);
+      });
+    }
+
+    return ids;
+  }
+
+  getEvolutionIds(url: string, pokemon: Pokemon) {
+    this.getEvolution(url)
+      .pipe(map((res) => this.extractIds(res.chain)))
+      .subscribe((ids) => {
+        pokemon.chainEvolution.evolutions=ids;
+        
+      });
   }
 
   isDataComplete(): boolean {

@@ -31,6 +31,7 @@ export interface Generation {
 })
 export class VistaMain implements OnInit, OnDestroy {
   allPokemons: Pokemon[] = [];
+  Pokemons: Pokemon[] = [];
   filteredPokemons: Pokemon[] = [];
   isLoading = false;
   loadingProgress = 0;
@@ -125,7 +126,6 @@ export class VistaMain implements OnInit, OnDestroy {
           if (this.usuario) {
             this.pokemonService.setId(this.usuario.idUsuario);
           }
-
         },
       }),
     );
@@ -137,6 +137,7 @@ export class VistaMain implements OnInit, OnDestroy {
       this.pokemonService.getAllPokemons().subscribe({
         next: (pokemons) => {
           this.allPokemons = pokemons;
+          this.Pokemons = pokemons;
           this.applyFilter();
         },
         error: (err) => {
@@ -149,7 +150,6 @@ export class VistaMain implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach((s) => s.unsubscribe());
-    
   }
 
   selectGeneration(index: number): void {
@@ -215,13 +215,11 @@ export class VistaMain implements OnInit, OnDestroy {
     const searchText = this.searchQuery.trim().toLowerCase();
 
     let list = [...this.allPokemons.filter((p) => p.id < 1026)];
-    
 
     const hasSearchText = searchText !== '';
     const hasTypeFilter = this.selectedTypes.length > 0;
 
     const isAllGen = gen.label === 'ALL';
-    
 
     if (!isAllGen) {
       list = list.filter((p) => p.id >= gen.start && p.id <= gen.end);
@@ -278,10 +276,12 @@ export class VistaMain implements OnInit, OnDestroy {
   flipPokemon(selectedPokemon: Pokemon): void {
     selectedPokemon.spriteSelected = selectedPokemon.imagen;
     this.selectedAbility = null;
+    console.log(selectedPokemon);
 
     this.filteredPokemons.forEach((p) => {
       p.isFlipped = p === selectedPokemon ? !p.isFlipped : false;
     });
+    this.pokemonService.getEvolutionIds(selectedPokemon.chainEvolution.url, selectedPokemon);
   }
 
   setSelectedTab(pokemon: Pokemon, tabIndex: number, event: Event): void {
@@ -458,6 +458,13 @@ export class VistaMain implements OnInit, OnDestroy {
     }
 
     pokemon.selectedVariety = idPokemon;
+  }
+
+  getPokemonById(id: number) {
+    if (this.pokemonOriginales.has(id)) {
+      return this.pokemonOriginales.get(id);
+    }
+    return this.Pokemons.find((p: any) => p.id === id);
   }
 
   getAvailableSprites(pokemon: Pokemon) {

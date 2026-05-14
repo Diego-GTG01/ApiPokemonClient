@@ -10,7 +10,7 @@ import { HttpClient } from '@angular/common/http';
 export class RolService {
   constructor(private http: HttpClient) {}
 
-  apiUrl = 'http://192.167.0.171:8080/usuario/rol';
+  apiUrl = 'http://192.167.0.61:8080/usuario/rol';
 
   getAllRol(): Observable<Result<Rol[]>> {
     return this.http.get<Result<Rol[]>>(this.apiUrl);
