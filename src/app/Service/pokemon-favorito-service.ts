@@ -8,9 +8,10 @@ import { PokemonApi } from '../Interface/pokemonApi';
 @Injectable({
   providedIn: 'root',
 })
+
 export class PokemonFavoritoService {
   private http = inject(HttpClient);
-  private readonly apiUrl = 'http://192.167.0.171:8080/usuario/pokeFavs/';
+  private readonly apiUrl = 'http://localhost:8080/usuario/pokeFavs/';
   private readonly pokeapi = 'https://pokeapi.co/api/v2/pokemon/';
 
 
@@ -52,6 +53,4 @@ export class PokemonFavoritoService {
       .get<any>(`${this.pokeapi}${id}`)
       .pipe(map((data) => data.types.map((t: any) => t.type.name)));
   }
-
-  
 }
