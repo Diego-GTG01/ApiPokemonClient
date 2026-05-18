@@ -462,6 +462,11 @@ export class VistaMain implements OnInit, OnDestroy {
     pokemon.selectedVariety = idPokemon;
   }
 
+  selectMove(event: Event, move: any){
+    event.stopPropagation();
+    
+  }
+
   getPokemonById(id: number) {
     if (this.pokemonOriginales.has(id)) {
       return this.pokemonOriginales.get(id);

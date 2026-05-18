@@ -1,82 +1,235 @@
 <div class="container">
-  <h2>Gestión de Peticiones</h2>
+  <!-- Barra superior estilo Pokédex -->
+  <div class="poke-top">
+    <div class="poke-main-light"></div>
 
-  <div class="tabs-container">
-    <button [class.active]="selecTab === 0" (click)="selecTab = 0">
-      Recibidas ({{ peticionesRecibidas.length }})
-    </button>
-    <button [class.active]="selecTab === 1" (click)="selecTab = 1">
-      Aceptadas ({{ peticionesAceptadas.length }})
-    </button>
-    <button [class.active]="selecTab === 2" (click)="selecTab = 2">
-      Rechazadas ({{ peticionesRechazadas.length }})
-    </button>
+    <div class="poke-small-lights">
+      <div class="poke-light red"></div>
+      <div class="poke-light yellow"></div>
+      <div class="poke-light green"></div>
+    </div>
   </div>
 
-  <div class="tab-content">
-    @if (selecTab === 0) {
-      <div class="list-container">
-        @for (peticion of peticionesRecibidas; track peticion.idPeticion) {
-          <div class="card">
-            <div class="card-header">
-              <strong>Folio: #{{ peticion.idPeticion }}</strong>
-              <span class="date">{{ peticion.fechaHora | date: 'short' }}</span>
-            </div>
-            <div class="card-body">
-              <p><strong>Usuario:</strong> {{ peticion.usuario?.userName }}</p>
-              <p><strong>Correo:</strong> {{ peticion.usuario?.email }}</p>
-              <p><strong>Descripción:</strong> {{ peticion.descripcion || 'Sin descripción' }}</p>
-            </div>
+  <!-- Header -->
+  <div class="pokedex-header">
+    <div class="title-section">
+      <div class="pokeball-icon"></div>
+    </div>
 
-            <div class="card-actions">
-              <button class="btn btn-accept" (click)="aceptarPeticion(peticion)">Aceptar</button>
-              <button class="btn btn-reject" (click)="rechazarPeticion(peticion)">Declinar</button>
-            </div>
+    <!-- Tabs -->
+    <div class="tabs-container">
+      <button [class.active]="selecTab === 0" (click)="selecTab = 0">
+        <span class="tab-icon"></span>
+
+        <div class="tab-info">
+          <span class="tab-title">Recibidas</span>
+          <span class="tab-count">
+            {{ peticionesRecibidas.length }}
+          </span>
+        </div>
+      </button>
+
+      <button [class.active]="selecTab === 1" (click)="selecTab = 1">
+        <span class="tab-icon"></span>
+
+        <div class="tab-info">
+          <span class="tab-title">Aceptadas</span>
+          <span class="tab-count">
+            {{ peticionesAceptadas.length }}
+          </span>
+        </div>
+      </button>
+
+      <button [class.active]="selecTab === 2" (click)="selecTab = 2">
+        <span class="tab-icon"></span>
+
+        <div class="tab-info">
+          <span class="tab-title">Rechazadas</span>
+          <span class="tab-count">
+            {{ peticionesRechazadas.length }}
+          </span>
+        </div>
+      </button>
+    </div>
+
+    <!-- Contenido -->
+    <div class="pokedex-main">
+      <div class="tab-content">
+        <!-- RECIBIDAS -->
+        @if (selecTab === 0) {
+          <div class="list-container">
+            @for (peticion of peticionesRecibidas; track peticion.idPeticion) {
+              <div class="card">
+                <!-- Top -->
+                <div class="card-top-line"></div>
+
+                <!-- Header -->
+                <div class="card-header">
+                  <div class="folio-section">
+                    <div class="mini-pokeball"></div>
+
+                    <div>
+                      <span class="folio-label"> FOLIO </span>
+                      <strong>#{{ peticion.idPeticion }}</strong>
+                    </div>
+                  </div>
+
+                  <span class="date">
+                    {{ peticion.fechaHora | date: 'short' }}
+                  </span>
+                </div>
+
+                <!-- Body -->
+                <div class="card-body">
+                  <div class="info-grid">
+                    <div class="info-item">
+                      <span class="info-label">USUARIO</span>
+                      <p>{{ peticion.usuario.userName }}</p>
+                    </div>
+
+                    <div class="info-item">
+                      <span class="info-label">CORREO</span>
+                      <p>{{ peticion.usuario.email }}</p>
+                    </div>
+                  </div>
+
+                  <div class="description-box">
+                    <span class="description-label"> DESCRIPCIÓN </span>
+
+                    <p>
+                      {{ peticion.descripcion || 'Sin descripción' }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="card-actions">
+                  <button class="btn btn-accept" (click)="aceptarPeticion(peticion)">
+                    ⚡ Aceptar
+                  </button>
+
+                  <button class="btn btn-reject" (click)="rechazarPeticion(peticion)">
+                    ✖ Declinar
+                  </button>
+                </div>
+              </div>
+            } @empty {
+              <div class="empty-state">
+                <div class="empty-pokeball"></div>
+
+                <p>No hay peticiones recibidas.</p>
+              </div>
+            }
           </div>
-        } @empty {
-          <p class="empty-msg">No hay peticiones recibidas.</p>
+        }
+
+        <!-- ACEPTADAS -->
+        @if (selecTab === 1) {
+          <div class="list-container">
+            @for (peticion of peticionesAceptadas; track peticion.idPeticion) {
+              <div class="card border-accepted">
+                <div class="card-header">
+                  <div class="folio-section">
+                    <div class="mini-pokeball accepted"></div>
+
+                    <div>
+                      <span class="folio-label"> FOLIO </span>
+                      <strong>#{{ peticion.idPeticion }}</strong>
+                    </div>
+                  </div>
+
+                  <span class="date">
+                    {{ peticion.fechaHora | date: 'short' }}
+                  </span>
+                  <div class="accepted-indicator">✔ APROBADA</div>
+                </div>
+
+                <div class="card-body">
+                  <div class="info-grid">
+                    <div class="info-item">
+                      <span class="info-label">USUARIO</span>
+                      <p>{{ peticion.usuario.userName }}</p>
+                    </div>
+
+                    <div class="info-item">
+                      <span class="info-label">CORREO</span>
+                      <p>{{ peticion.usuario.email }}</p>
+                    </div>
+                  </div>
+
+                  <div class="description-box">
+                    <span class="description-label"> DESCRIPCIÓN </span>
+
+                    <p>
+                      {{ peticion.descripcion || 'Sin descripción' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            } @empty {
+              <div class="empty-state">
+                <div class="empty-pokeball"></div>
+
+                <p>No hay peticiones aceptadas.</p>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- RECHAZADAS -->
+        @if (selecTab === 2) {
+          <div class="list-container">
+            @for (peticion of peticionesRechazadas; track peticion.idPeticion) {
+              <div class="card border-rejected">
+                <div class="card-header">
+                  <div class="folio-section">
+                    <div class="mini-pokeball rejected"></div>
+
+                    <div>
+                      <span class="folio-label"> FOLIO </span>
+                      <strong>#{{ peticion.idPeticion }}</strong>
+                    </div>
+                  </div>
+
+                  <span class="date">
+                    {{ peticion.fechaHora | date: 'short' }}
+                  </span>
+
+                  <div class="rejected-indicator">✖ RECHAZADA</div>
+                </div>
+
+                <div class="card-body">
+                  <div class="info-grid">
+                    <div class="info-item">
+                      <span class="info-label">USUARIO</span>
+                      <p>{{ peticion.usuario.userName }}</p>
+                    </div>
+
+                    <div class="info-item">
+                      <span class="info-label">CORREO</span>
+                      <p>{{ peticion.usuario.email }}</p>
+                    </div>
+                  </div>
+
+                  <div class="description-box">
+                    <span class="description-label"> DESCRIPCIÓN </span>
+
+                    <p>
+                      {{ peticion.descripcion || 'Sin descripción' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            } @empty {
+              <div class="empty-state">
+                <div class="empty-pokeball"></div>
+
+                <p>No hay peticiones rechazadas.</p>
+              </div>
+            }
+          </div>
         }
       </div>
-    }
-
-    @if (selecTab === 1) {
-      <div class="list-container">
-        @for (peticion of peticionesAceptadas; track peticion.idPeticion) {
-          <div class="card border-accepted">
-            <div class="card-header">
-              <strong>Folio: #{{ peticion.idPeticion }}</strong>
-              <span class="date">{{ peticion.fechaHora | date: 'short' }}</span>
-            </div>
-            <div class="card-body">
-              <p><strong>Usuario:</strong> {{ peticion.usuario?.userName }}</p>
-              <p><strong>Correo:</strong> {{ peticion.usuario?.email }}</p>
-              <p><strong>Descripción:</strong> {{ peticion.descripcion || 'Sin descripción' }}</p>
-            </div>
-          </div>
-        } @empty {
-          <p class="empty-msg">No hay peticiones aceptadas.</p>
-        }
-      </div>
-    }
-
-    @if (selecTab === 2) {
-      <div class="list-container">
-        @for (peticion of peticionesRechazadas; track peticion.idPeticion) {
-          <div class="card border-rejected">
-            <div class="card-header">
-              <strong>Folio: #{{ peticion.idPeticion }}</strong>
-              <span class="date">{{ peticion.fechaHora | date: 'short' }}</span>
-            </div>
-            <div class="card-body">
-              <p><strong>Usuario:</strong> {{ peticion.usuario.userName }}</p>
-              <p><strong>Correo:</strong> {{ peticion.usuario.email }}</p>
-              <p><strong>Descripción:</strong> {{ peticion.descripcion || 'Sin descripción' }}</p>
-            </div>
-          </div>
-        } @empty {
-          <p class="empty-msg">No hay peticiones rechazadas.</p>
-        }
-      </div>
-    }
+    </div>
   </div>
 </div>

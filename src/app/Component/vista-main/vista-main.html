@@ -332,7 +332,7 @@
               <div class="tabs-container">
                 <div class="tabs-header">
                   <button
-                    *ngIf="isMaestro()"
+                    
                     class="tab-btn"
                     [class.active]="pokemon.selectedTab === 0"
                     (click)="setSelectedTab(pokemon, 0, $event)"
@@ -340,7 +340,6 @@
                     Stats
                   </button>
                   <button
-                    *ngIf="isMaestro()"
                     class="tab-btn"
                     [class.active]="pokemon.selectedTab === 1"
                     (click)="setSelectedTab(pokemon, 1, $event)"
@@ -348,7 +347,6 @@
                     Movimientos
                   </button>
                   <button
-                    *ngIf="isMaestro()"
                     class="tab-btn"
                     [class.active]="pokemon.selectedTab === 2"
                     (click)="setSelectedTab(pokemon, 2, $event)"
@@ -373,7 +371,7 @@
 
                 <div class="tabs-content">
                   <!-- Stats -->
-                  <div class="tab-pane" *ngIf="pokemon.selectedTab === 0 && isMaestro()">
+                  <div class="tab-pane" *ngIf="pokemon.selectedTab === 0">
                     <div class="chart-container">
                       <canvas
                         baseChart
@@ -397,10 +395,10 @@
                   </div>
 
                   <!-- Movimientos -->
-                  <div class="tab-pane" *ngIf="pokemon.selectedTab === 1 && isMaestro()">
+                  <div class="tab-pane" *ngIf="pokemon.selectedTab === 1">
                     <div class="moves-container" *ngIf="pokemon.moves && pokemon.moves.length > 0">
                       <div class="moves-list">
-                        <div class="move-item" *ngFor="let move of pokemon.moves; let i = index">
+                        <div class="move-item" (click)="selectMove($event, move)" *ngFor="let move of pokemon.moves; let i = index">
                           <span class="move-number">{{ i + 1 }}</span>
                           <span class="move-name">{{ move }}</span>
                         </div>
@@ -412,7 +410,7 @@
                   </div>
 
                   <!-- Habilidades -->
-                  <div class="tab-pane" *ngIf="pokemon.selectedTab === 2 && isMaestro()">
+                  <div class="tab-pane" *ngIf="pokemon.selectedTab === 2">
                     <div
                       class="abilities-container"
                       *ngIf="pokemon.abilities && pokemon.abilities.length > 0"
