@@ -11,6 +11,7 @@ import { PokemonFavoritoService } from '../../Service/pokemon-favorito-service';
 import { Usuario } from '../../Interface/Usuario';
 import { AuthService } from '../../Service/auth-service';
 import Swal from 'sweetalert2';
+import { NotExpr } from '@angular/compiler';
 
 Chart.register(...registerables);
 
@@ -41,6 +42,7 @@ export class VistaMain implements OnInit, OnDestroy {
 
   searchMode: 'name' | 'id' | 'type' = 'name';
   selectedAbility: any = null;
+  selectedMove: any = null;
 
   readonly allTypes: string[] = [
     'normal',
@@ -278,6 +280,7 @@ export class VistaMain implements OnInit, OnDestroy {
   flipPokemon(selectedPokemon: Pokemon): void {
     selectedPokemon.spriteSelected = selectedPokemon.imagen;
     this.selectedAbility = null;
+    this.selectedMove = null;
     console.log(selectedPokemon);
 
     this.filteredPokemons.forEach((p) => {
@@ -462,9 +465,38 @@ export class VistaMain implements OnInit, OnDestroy {
     pokemon.selectedVariety = idPokemon;
   }
 
-  selectMove(event: Event, move: any){
+  selectMove(event: Event, move: any) {
     event.stopPropagation();
-    
+
+    this.pokemonService.getMoves(move.url).subscribe({
+      next: (result) => {
+        if (result) {
+          move.name = result.name;
+          move.accuracy = result.accuracy;
+          move.damageClass = result.damage_class.name;
+          move.power = result.power;
+          move.pp = result.pp;
+          move.priority = result.priority;
+          move.type = result.type.name;
+          let entries = result.flavor_text_entries.filter(
+            (entry: any) => entry.language.name === 'es',
+          );
+          if (entries.length === 0) {
+            entries = result.flavor_text_entries.filter(
+              (entry: any) => entry.language.name === 'en',
+            );
+          }
+          move.description = entries.map((entry: any) => entry.flavor_text)[0];
+          console.log(move);
+        }
+        if (this.selectedMove?.name === move.name) {
+          this.selectedMove = null;
+        } else {
+          this.selectedMove = move;
+        }
+      },
+      error: (err) => {},
+    });
   }
 
   getPokemonById(id: number) {
@@ -504,8 +536,8 @@ export class VistaMain implements OnInit, OnDestroy {
     this.router.navigate(['/PokeStats']);
   }
 
-  idGestionPeticiones(){
-    this.router.navigate(['/Peticiones'])
+  idGestionPeticiones() {
+    this.router.navigate(['/Peticiones']);
   }
 
   logout() {

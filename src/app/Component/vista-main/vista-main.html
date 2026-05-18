@@ -332,7 +332,6 @@
               <div class="tabs-container">
                 <div class="tabs-header">
                   <button
-                    
                     class="tab-btn"
                     [class.active]="pokemon.selectedTab === 0"
                     (click)="setSelectedTab(pokemon, 0, $event)"
@@ -384,7 +383,7 @@
                     <!-- Contenedor de métricas rápidas -->
                     <div class="stats-summary">
                       <div class="stat-card total">
-                        <span class="stat-label">BST (Total)</span>
+                        <span class="stat-label"> Total</span>
                         <span class="stat-value">{{ getTotalStats(pokemon) }}</span>
                       </div>
                       <div class="stat-card best">
@@ -396,11 +395,60 @@
 
                   <!-- Movimientos -->
                   <div class="tab-pane" *ngIf="pokemon.selectedTab === 1">
+                    <div class="moves-layout">
+                      
+                    </div>
                     <div class="moves-container" *ngIf="pokemon.moves && pokemon.moves.length > 0">
                       <div class="moves-list">
-                        <div class="move-item" (click)="selectMove($event, move)" *ngFor="let move of pokemon.moves; let i = index">
+                        <div
+                          class="move-item"
+                          (click)="selectMove($event, move)"
+                          *ngFor="let move of pokemon.moves; let i = index"
+                        >
                           <span class="move-number">{{ i + 1 }}</span>
-                          <span class="move-name">{{ move }}</span>
+                          <span class="move-name">{{ move.name }}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="move-detail-panel" *ngIf="selectedMove">
+                      <div class="detail-header">
+                        <h3>{{ selectedMove.name | titlecase }}</h3>
+                        <span class="badge-type" [attr.data-type]="selectedMove.type" [style.backgroundColor]="getTypeColor(selectedMove.type)">
+                          {{ selectedMove.type | titlecase }}
+                        </span>
+                      </div>
+
+                      <div class="detail-body">
+                        <!-- Descripción -->
+                        <p class="move-description">
+                          {{ selectedMove.description || 'Sin descripción disponible.' }}
+                        </p>
+
+                        <div class="move-stats-grid">
+                          <div class="stat-box">
+                            <span class="stat-label">Potencia:</span>
+                            <span class="stat-value">{{ selectedMove.power ?? '---' }}</span>
+                          </div>
+                          <div class="stat-box">
+                            <span class="stat-label">Precisión:</span>
+                            <span class="stat-value">{{
+                              selectedMove.accuracy ? selectedMove.accuracy + '%' : '---'
+                            }}</span>
+                          </div>
+                          <div class="stat-box">
+                            <span class="stat-label">PP:</span>
+                            <span class="stat-value">{{ selectedMove.pp ?? '---' }}</span>
+                          </div>
+                          <div class="stat-box">
+                            <span class="stat-label">Prioridad:</span>
+                            <span class="stat-value">{{ selectedMove.priority }}</span>
+                          </div>
+                          <div class="stat-box">
+                            <span class="stat-label">Clase:</span>
+                            <span class="stat-value">{{
+                              selectedMove.damageClass | titlecase
+                            }}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -478,6 +526,15 @@
                       </div>
 
                       <div class="sprites-grid">
+                        <button
+                          
+                          class="poke-btn"
+                          [class.active]="pokemon.spriteSelected === pokemon.imagen"
+                          (click)="setSprite(pokemon, pokemon.imagen, $event)"
+                          title="Default"
+                        >
+                          Default
+                        </button>
                         <button
                           *ngFor="let sprite of getAvailableSprites(pokemon)"
                           class="poke-btn"

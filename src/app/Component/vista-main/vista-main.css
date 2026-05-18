@@ -340,7 +340,7 @@
   flex: 1;
   position: relative;
   width: 100%;
-  min-height: 280px;
+  min-height: 100%;
 
   padding: -20px;
   box-sizing: border-box;
@@ -470,9 +470,10 @@
   position: relative;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(245, 245, 245, 0.58));
   border-radius: 24px;
-  padding-top: 25px;
+  
   margin: 15px;
   height: calc(100% - 30px);
+  width: calc(100% - 30px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -485,6 +486,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
+  margin-top: 30px;
 }
 
 .pokemon-id {
@@ -688,7 +690,7 @@
 
 .tabs-content {
   min-height: 300px;
-  max-height: 380px;
+  max-height: 100%;
   overflow-y: auto;
 }
 
@@ -706,6 +708,7 @@
 
 .tab-pane {
   animation: fadeIn 0.3s ease;
+
 }
 
 @keyframes fadeIn {
@@ -719,11 +722,25 @@
   }
 }
 
-.moves-container {
+.moves-layout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
   width: 100%;
+  margin-top: 15px;
 }
+
+.moves-container {
+  flex: 1; 
+  max-height: 200px;
+  overflow-y: auto; 
+  padding-right: 8px;
+}
+
 .moves-list {
   display: flex;
+  min-height: 40%;
+  max-height:50%;
   flex-direction: column;
   gap: 8px;
 }
@@ -738,11 +755,18 @@
   border-radius: 8px;
   transition: all 0.2s ease;
   color: #1e293b !important;
+  cursor: pointer;
 }
 
 .move-item:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: #e2e8f0 !important; /* Ajustado porque el blanco transparente no se notaba en fondo gris */
   transform: translateX(5px);
+}
+
+/* Clase para resaltar el movimiento seleccionado en la lista */
+.move-item.active {
+  background: #cbd5e1 !important;
+  border-color: #94a3b8;
 }
 
 .move-number {
@@ -763,10 +787,98 @@
   font-weight: bold;
   text-transform: capitalize;
   letter-spacing: 0.5px;
-  color: rgba(0, 0, 0);
+  color: rgb(0, 0, 0);
   font-family: 'Courier New', monospace;
 }
 
+/* --- NUEVO PANEL DE DETALLES (SIEMPRE VISIBLE) --- */
+.move-detail-panel {
+  flex: 1; /* Toma la otra mitad del espacio */
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  position: sticky; /* Se queda estático en pantalla si bajas */
+  top: 10px;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.detail-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #1e293b;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+}
+
+/* Badge del tipo de pokémon */
+.badge-type {
+  background: #334155;
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.move-description {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+/* Cuadrícula de estadísticas */
+.move-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.stat-box {
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 13px;
+  color: #0f172a;
+  font-weight: bold;
+}
+
+/* --- RESPONSIVE: Si la pantalla es pequeña se pone uno abajo del otro --- */
+@media (max-width: 768px) {
+  .moves-layout {
+    flex-direction: column;
+  }
+  .move-detail-panel {
+    position: relative;
+    width: 100%;
+    top: 0;
+  }
+} 
 .abilities-container {
   width: 100%;
 }
@@ -1081,12 +1193,14 @@
 
   .tab-pane .chart-container {
     height: 100%;
+    width:  100%;
     margin-bottom: 15px;
   }
 }
 
 .tab-pane .chart-container {
   height: 100%;
+  width: 100%;
 }
 
 .generation-nav {

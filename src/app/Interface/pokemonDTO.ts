@@ -13,7 +13,17 @@ export interface Pokemon {
   isFlipped: boolean;
   isFavorite: boolean;
   soundUrl?: string;
-  moves?: string[];
+  moves?: {
+    name: string,
+    url: string,
+    descripcion: string,
+    accuracy: number,
+    damageClass: string,
+    power: number,
+    pp: number,
+    priority: number,
+    type: string
+  }[];
   abilities?: {
     name: string;
     url: string;

@@ -6,7 +6,7 @@ import { PokemonApi } from '../Interface/pokemonApi';
 import { PokemonFavoritoService } from './pokemon-favorito-service';
 import { Result } from '../Interface/Result';
 import { AuthService } from './auth-service';
-import { resetConsumerBeforeComputation } from '@angular/core/primitives/signals';
+import localforage from 'localforage';
 
 export interface FavoritePayload {
   pokemonId: number;
@@ -51,24 +51,25 @@ export class PokemonService {
   }
 
   private start(): void {
-    const stored = localStorage.getItem(this.STORAGE_KEY);
     this.authService.checkAuth().subscribe({
       next: (response: any) => {
         this.setId(response.idUsuario);
       },
     });
 
-    if (stored) {
-      try {
-        const pokemons: Pokemon[] = JSON.parse(stored);
-        if (pokemons.length > 0) {
+    localforage
+      .getItem<Pokemon[]>(this.STORAGE_KEY)
+      .then((pokemons) => {
+        if (pokemons && pokemons.length > 0) {
           this.getStoredFavorites(this.idUsuario).subscribe((favoriteIds) => {
             pokemons.forEach((p) => {
-              favoriteIds.forEach((pokeFav) => {
-                if (p.id === pokeFav) {
-                  p.isFavorite = true;
-                }
-              });
+              if (favoriteIds && typeof favoriteIds.has === 'function') {
+                p.isFavorite = favoriteIds.has(p.id);
+              } else {
+                favoriteIds.forEach((pokeFav: any) => {
+                  if (p.id === pokeFav) p.isFavorite = true;
+                });
+              }
 
               if (p.id < 10000) {
                 this.getFlavorText(p.id).subscribe((flavorTexts) => {
@@ -80,7 +81,6 @@ export class PokemonService {
                 this.getChainEvolution(p.id).subscribe({
                   next: (result) => {
                     p.chainEvolution.url = result;
-                    
                   },
                   error: () => (p.chainEvolution.url = ''),
                 });
@@ -89,6 +89,7 @@ export class PokemonService {
                 p.varieties = [];
                 p.chainEvolution.url = '';
               }
+
               p.abilities?.forEach((ability) => {
                 this.getFlavorTextAbilities(ability.url).subscribe({
                   next: (res) => {
@@ -99,6 +100,7 @@ export class PokemonService {
                   },
                 });
               });
+
               p.isFlipped = false;
               p.selectedTab = 0;
             });
@@ -106,14 +108,17 @@ export class PokemonService {
 
           this.pokemonsSubject.next(pokemons);
           this.progressSubject.next(100);
-          return;
+        } else {
+          this.loadAllPokemons();
         }
-      } catch (_) {
-        console.warn('[PokemonService] Error parseando localStorage, se ignorará');
-      }
-    }
-
-    this.loadAllPokemons();
+      })
+      .catch((error) => {
+        console.warn(
+          '[PokemonService] Error leyendo localforage, se procederá a descargar de la API',
+          error,
+        );
+        this.loadAllPokemons();
+      });
   }
 
   clearCache(): void {
@@ -174,11 +179,17 @@ export class PokemonService {
 
         this.pokemonsSubject.next(pokemons);
 
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(pokemons));
+        // --- CAMBIO AQUÍ: Guardado final asíncrono sin JSON.stringify ---
+        localforage
+          .setItem(this.STORAGE_KEY, pokemons)
+          .catch((err) =>
+            console.error('[PokemonService] Error al guardar datos finales en IndexedDB', err),
+          );
 
         this.loadingSubject.next(false);
         this.progressSubject.next(100);
       });
+
       pokemons.forEach((p) => {
         p.isFlipped = false;
         p.selectedTab = 0;
@@ -237,7 +248,12 @@ export class PokemonService {
 
         this.pokemonsSubject.next(partial);
 
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(partial));
+        // --- CAMBIO AQUÍ: Guardado parcial asíncrono sin JSON.stringify ---
+        localforage
+          .setItem(this.STORAGE_KEY, partial)
+          .catch((err) =>
+            console.error('[PokemonService] Error al guardar carga parcial en IndexedDB', err),
+          );
 
         setTimeout(() => {
           this.processUrlBatches(batches, batchIndex + 1, pokemonsMap);
@@ -279,12 +295,21 @@ export class PokemonService {
       isFlipped: false,
       isFavorite: false,
       soundUrl: data.cries?.latest || data.cries?.legacy || null,
-      moves: data.moves.map((m: any) => m.move.name),
+      moves: data.moves.map((m: any) => ({
+        name: m.move.name,
+        url: m.move.url,
+        description: '',
+        accuracy: 0,
+        damageClass: '',
+        power: 0,
+        pp: 0,
+        priority: 0,
+        type: '',
+      })),
 
       abilities: data.abilities.map((a: any) => ({
         name: a.ability.name,
         url: a.ability.url,
-        description: '',
       })),
       selectedTab: 0,
       weight: data.weight / 10,
@@ -467,9 +492,21 @@ export class PokemonService {
     this.getEvolution(url)
       .pipe(map((res) => this.extractIds(res.chain)))
       .subscribe((ids) => {
-        pokemon.chainEvolution.evolutions=ids;
-        
+        pokemon.chainEvolution.evolutions = ids;
       });
+  }
+
+  getMoves(url: string): Observable<any> {
+    return this.http.get<any>(url);
+  }
+  getCompleteMoves(url: string, move: any){
+    this.getMoves(url).pipe().subscribe({
+      next: (result)=>{
+
+      },
+      error: (err)=>{}
+
+    })
   }
 
   isDataComplete(): boolean {
