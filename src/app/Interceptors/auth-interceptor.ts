@@ -7,7 +7,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
 
   const isApiPropia =
-    req.url.includes('192.167.0.61:8080');
+    req.url.includes('http://localhost:8080');
     
     //req.url.includes('127.0.0.1:8080');
 

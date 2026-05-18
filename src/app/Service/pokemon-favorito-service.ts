@@ -10,7 +10,7 @@ import { PokemonApi } from '../Interface/pokemonApi';
 })
 export class PokemonFavoritoService {
   private http = inject(HttpClient);
-  private readonly apiUrl = 'http://192.167.0.61:8080/usuario/pokeFavs/';
+  private readonly apiUrl = 'http://localhost:8080/usuario/pokeFavs/';
   private readonly pokeapi = 'https://pokeapi.co/api/v2/pokemon/';
 
 
