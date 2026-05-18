@@ -81,6 +81,14 @@
           >
             🆔 FICHA ENTRENADOR
           </button>
+          <button
+            *ngIf="isMaestro()"
+            (click)="idGestionPeticiones()"
+            class="sys-btn"
+            title="Gestión de Peticiones"
+          >
+            Gestión de Peticiones
+          </button>
           <button class="sys-btn logout-btn" title="Finalizar Sesión" (click)="logout()">
             <span class="power-icon">⏻</span> CERRAR SESIÓN POKÉDEX
           </button>

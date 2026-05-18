@@ -480,7 +480,6 @@ export class VistaMain implements OnInit, OnDestroy {
 
   setSprite(pokemon: any, url: string, event: Event) {
     event.stopPropagation();
-
     pokemon.spriteSelected = url;
   }
 
@@ -500,17 +499,18 @@ export class VistaMain implements OnInit, OnDestroy {
     this.router.navigate(['/PokeStats']);
   }
 
+  idGestionPeticiones(){
+    this.router.navigate(['/Peticiones'])
+  }
+
   logout() {
     Swal.fire({
       title: '¿Cerrar sesión?',
       text: 'Tu aventura Pokémon será pausada',
       icon: 'question',
-
       showCancelButton: true,
-
       confirmButtonColor: '#d33',
       cancelButtonColor: '#2a75bb',
-
       confirmButtonText: 'Sí, cerrar sesión',
       cancelButtonText: 'Cancelar',
     }).then((result) => {

@@ -62,177 +62,193 @@
               Nivel de Acceso: {{ usuario.rol.nombre }}
             </span>
 
-          <div class="info-group">
-            <span class="label">Telefono</span>
-            <span class="data-value">{{ usuario.telefono }}</span>
-
-          </div>
-        </div>
-      </div>
-
-      <div class="card-footer">
-        <button class="sys-btn" (click)="editarEntrenador(usuario)">MODIFICAR REGISTRO</button>
-        <button class="btn-delete" (click)="EliminarUsuario(usuario)">ELIMINAR</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL -->
-  <div class="detail-wrapper">
-    <div class="modal-backdrop" *ngIf="mostrarModal">
-      <form [formGroup]="usuarioForm" (ngSubmit)="guardarUsuario($event)" class="pokedex-card-form">
-        <div class="card-header">
-          <span class="id-badge">EDITAR ENTRENADOR</span>
-        </div>
-
-        <div class="form-body column-layout">
-          <!-- FILA 1 -->
-
-          <div class="form-row">
-            <h3 class="section-title">Credenciales de Acceso</h3>
-            <div class="input-group">
-              <label>Username</label>
-              <input type="text" formControlName="userName" class="poke-input" />
-              <div
-                *ngIf="usuarioForm.get('userName')?.invalid && usuarioForm.get('userName')?.touched"
-                class="error-message"
-              >
-                <small *ngIf="usuarioForm.get('userName')?.errors?.['required']"
-                  >El nombre de usuario es obligatorio.</small
-                >
-                <small *ngIf="usuarioForm.get('userName')?.errors?.['minlength']"
-                  >Mínimo 3 caracteres.</small
-                >
-                <small *ngIf="usuarioForm.get('userName')?.errors?.['pattern']"
-                  >Debe incluir mayúscula, minúscula, número y símbolo.</small
-                >
-              </div>
-            </div>
-
-            <div class="input-group">
-              <label>Email</label>
-              <input type="text" formControlName="email" class="poke-input" />
-              <div
-                *ngIf="usuarioForm.get('email')?.invalid && usuarioForm.get('email')?.touched"
-                class="error-message"
-              >
-                <small *ngIf="usuarioForm.get('email')?.errors?.['required']"
-                  >El email es obligatorio.</small
-                >
-                <small *ngIf="usuarioForm.get('email')?.errors?.['pattern']"
-                  >Debe ser un email válido.</small
-                >
-              </div>
-            </div>
-            <div class="input-group">
-              <label>Rol</label>
-              <select formControlName="rol" [compareWith]="compareRoles" class="poke-input">
-                <option *ngFor="let r of roles" [ngValue]="r">{{ r.nombre }}</option>
-              </select>
-              <div
-                *ngIf="usuarioForm.get('rol')?.invalid && usuarioForm.get('rol')?.touched"
-                class="error-message"
-              >
-                <small *ngIf="usuarioForm.get('rol')?.errors?.['required']"
-                  >El rol es obligatorio.</small
-                >
-              </div>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-
-          <!-- FILA 2 -->
-          <div class="form-row">
-            <h3 class="section-title">Información Personal</h3>
-            <div class="input-group">
-              <label>Nombre</label>
-              <input type="text" formControlName="nombre" class="poke-input" />
-              <div
-                *ngIf="usuarioForm.get('nombre')?.invalid && usuarioForm.get('nombre')?.touched"
-                class="error-message"
-              >
-                <small *ngIf="usuarioForm.get('nombre')?.errors?.['required']"
-                  >El nombre es obligatorio.</small
-                >
-                <small *ngIf="usuarioForm.get('nombre')?.errors?.['minlength']"
-                  >Mínimo 2 caracteres.</small
-                >
-                <small *ngIf="usuarioForm.get('nombre')?.errors?.['pattern']"
-                  >Debe contener solo letras.</small
-                >
-              </div>
-            </div>
-
-            <div class="input-group">
-              <label>Apellido Paterno</label>
-              <input type="text" formControlName="apellidoPaterno" class="poke-input" />
-              <div
-                *ngIf="
-                  usuarioForm.get('apellidoPaterno')?.invalid &&
-                  usuarioForm.get('apellidoPaterno')?.touched
-                "
-                class="error-message"
-              >
-                <small *ngIf="usuarioForm.get('apellidoPaterno')?.errors?.['required']"
-                  >El apellido paterno es obligatorio.</small
-                >
-                <small *ngIf="usuarioForm.get('apellidoPaterno')?.errors?.['minlength']"
-                  >Mínimo 2 caracteres.</small
-                >
-                <small *ngIf="usuarioForm.get('apellidoPaterno')?.errors?.['pattern']"
-                  >Debe contener solo letras.</small
-                >
-              </div>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="input-group">
-              <h2 class=""></h2>
-
-              <label>Apellido Materno</label>
-              <input type="text" formControlName="apellidoMaterno" class="poke-input" />
-            </div>
-
-            <div class="input-group">
-              <label>Celular</label>
-              <input type="text" formControlName="celular" class="poke-input" />
-              <div
-                *ngIf="usuarioForm.get('celular')?.invalid && usuarioForm.get('celular')?.touched"
-                class="error-message"
-              >
-                <small *ngIf="usuarioForm.get('celular')?.errors?.['required']"
-                  >El celular es obligatorio.</small
-                >
-                <small *ngIf="usuarioForm.get('celular')?.errors?.['pattern']"
-                  >Debe ser un número de celular válido.</small
-                >
-              </div>
-            </div>
-            <div class="input-group">
-              <label>Telefono</label>
-              <input type="text" formControlName="telefono" class="poke-input" />
-              <div
-                *ngIf="usuarioForm.get('telefono')?.invalid && usuarioForm.get('telefono')?.touched"
-                class="error-message"
-              >
-                <small *ngIf="usuarioForm.get('telefono')?.errors?.['required']"
-                  >El teléfono es obligatorio.</small
-                >
-                <small *ngIf="usuarioForm.get('telefono')?.errors?.['pattern']"
-                  >Debe ser un número de teléfono válido.</small
-                >
-              </div>
+            <div class="info-group">
+              <span class="label">Telefono</span>
+              <span class="data-value">{{ usuario.telefono }}</span>
             </div>
           </div>
         </div>
 
         <div class="card-footer">
-          <button type="submit" class="sys-btn">ACTUALIZAR</button>
-          <button type="button" class="btn-delete" (click)="cerrarModal()">CANCELAR</button>
+          <button
+            *ngIf="!isMaestro()"
+            [disabled]="!habilitarPeticion"
+            (click)="SentPeticion()"
+            class="btn-add"
+          >
+            Solicitar ascenso de rango
+          </button>
+          <button class="sys-btn" (click)="editarEntrenador(usuario)">MODIFICAR REGISTRO</button>
+          <button class="btn-delete" (click)="EliminarUsuario(usuario)">ELIMINAR</button>
         </div>
-      </form>
+      </div>
+    </div>
+
+    <!-- MODAL -->
+    <div class="detail-wrapper">
+      <div class="modal-backdrop" *ngIf="mostrarModal">
+        <form
+          [formGroup]="usuarioForm"
+          (ngSubmit)="guardarUsuario($event)"
+          class="pokedex-card-form"
+        >
+          <div class="card-header">
+            <span class="id-badge">EDITAR ENTRENADOR</span>
+          </div>
+
+          <div class="form-body column-layout">
+            <!-- FILA 1 -->
+
+            <div class="form-row">
+              <h3 class="section-title">Credenciales de Acceso</h3>
+              <div class="input-group">
+                <label>Username</label>
+                <input type="text" formControlName="userName" class="poke-input" />
+                <div
+                  *ngIf="
+                    usuarioForm.get('userName')?.invalid && usuarioForm.get('userName')?.touched
+                  "
+                  class="error-message"
+                >
+                  <small *ngIf="usuarioForm.get('userName')?.errors?.['required']"
+                    >El nombre de usuario es obligatorio.</small
+                  >
+                  <small *ngIf="usuarioForm.get('userName')?.errors?.['minlength']"
+                    >Mínimo 3 caracteres.</small
+                  >
+                  <small *ngIf="usuarioForm.get('userName')?.errors?.['pattern']"
+                    >Debe incluir mayúscula, minúscula, número y símbolo.</small
+                  >
+                </div>
+              </div>
+
+              <div class="input-group">
+                <label>Email</label>
+                <input type="text" formControlName="email" class="poke-input" />
+                <div
+                  *ngIf="usuarioForm.get('email')?.invalid && usuarioForm.get('email')?.touched"
+                  class="error-message"
+                >
+                  <small *ngIf="usuarioForm.get('email')?.errors?.['required']"
+                    >El email es obligatorio.</small
+                  >
+                  <small *ngIf="usuarioForm.get('email')?.errors?.['pattern']"
+                    >Debe ser un email válido.</small
+                  >
+                </div>
+              </div>
+              <div class="input-group">
+                <label>Rol</label>
+                <select formControlName="rol" [compareWith]="compareRoles" class="poke-input">
+                  <option *ngFor="let r of roles" [ngValue]="r">{{ r.nombre }}</option>
+                </select>
+                <div
+                  *ngIf="usuarioForm.get('rol')?.invalid && usuarioForm.get('rol')?.touched"
+                  class="error-message"
+                >
+                  <small *ngIf="usuarioForm.get('rol')?.errors?.['required']"
+                    >El rol es obligatorio.</small
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- FILA 2 -->
+            <div class="form-row">
+              <h3 class="section-title">Información Personal</h3>
+              <div class="input-group">
+                <label>Nombre</label>
+                <input type="text" formControlName="nombre" class="poke-input" />
+                <div
+                  *ngIf="usuarioForm.get('nombre')?.invalid && usuarioForm.get('nombre')?.touched"
+                  class="error-message"
+                >
+                  <small *ngIf="usuarioForm.get('nombre')?.errors?.['required']"
+                    >El nombre es obligatorio.</small
+                  >
+                  <small *ngIf="usuarioForm.get('nombre')?.errors?.['minlength']"
+                    >Mínimo 2 caracteres.</small
+                  >
+                  <small *ngIf="usuarioForm.get('nombre')?.errors?.['pattern']"
+                    >Debe contener solo letras.</small
+                  >
+                </div>
+              </div>
+
+              <div class="input-group">
+                <label>Apellido Paterno</label>
+                <input type="text" formControlName="apellidoPaterno" class="poke-input" />
+                <div
+                  *ngIf="
+                    usuarioForm.get('apellidoPaterno')?.invalid &&
+                    usuarioForm.get('apellidoPaterno')?.touched
+                  "
+                  class="error-message"
+                >
+                  <small *ngIf="usuarioForm.get('apellidoPaterno')?.errors?.['required']"
+                    >El apellido paterno es obligatorio.</small
+                  >
+                  <small *ngIf="usuarioForm.get('apellidoPaterno')?.errors?.['minlength']"
+                    >Mínimo 2 caracteres.</small
+                  >
+                  <small *ngIf="usuarioForm.get('apellidoPaterno')?.errors?.['pattern']"
+                    >Debe contener solo letras.</small
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="input-group">
+                <h2 class=""></h2>
+
+                <label>Apellido Materno</label>
+                <input type="text" formControlName="apellidoMaterno" class="poke-input" />
+              </div>
+
+              <div class="input-group">
+                <label>Celular</label>
+                <input type="text" formControlName="celular" class="poke-input" />
+                <div
+                  *ngIf="usuarioForm.get('celular')?.invalid && usuarioForm.get('celular')?.touched"
+                  class="error-message"
+                >
+                  <small *ngIf="usuarioForm.get('celular')?.errors?.['required']"
+                    >El celular es obligatorio.</small
+                  >
+                  <small *ngIf="usuarioForm.get('celular')?.errors?.['pattern']"
+                    >Debe ser un número de celular válido.</small
+                  >
+                </div>
+              </div>
+              <div class="input-group">
+                <label>Telefono</label>
+                <input type="text" formControlName="telefono" class="poke-input" />
+                <div
+                  *ngIf="
+                    usuarioForm.get('telefono')?.invalid && usuarioForm.get('telefono')?.touched
+                  "
+                  class="error-message"
+                >
+                  <small *ngIf="usuarioForm.get('telefono')?.errors?.['required']"
+                    >El teléfono es obligatorio.</small
+                  >
+                  <small *ngIf="usuarioForm.get('telefono')?.errors?.['pattern']"
+                    >Debe ser un número de teléfono válido.</small
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <button type="submit" class="sys-btn">ACTUALIZAR</button>
+            <button type="button" class="btn-delete" (click)="cerrarModal()">CANCELAR</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </div>

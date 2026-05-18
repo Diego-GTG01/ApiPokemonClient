@@ -1,0 +1,140 @@
+.container {
+  max-width: 800px;
+  margin: 20px auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+h2 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+/* Contenedor de Tabs */
+.tabs-container {
+  display: flex;
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 20px;
+}
+
+.tabs-container button {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  background: none;
+  font-size: 16px;
+  font-weight: 600;
+  color: #7f8c8d;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-bottom: 3px solid transparent;
+}
+
+.tabs-container button:hover {
+  color: #2c3e50;
+  background-color: #f8f9fa;
+}
+
+/* Estado activo del Tab */
+.tabs-container button.active {
+  color: #3498db;
+  border-bottom: 3px solid #3498db;
+}
+
+/* Contenedor de lista y Tarjetas */
+.list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-left: 5px solid #3498db; /* Azul por defecto */
+  border-radius: 6px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Variaciones de color por estado */
+.card.border-accepted {
+  border-left-color: #2ecc71; /* Verde */
+}
+
+.card.border-rejected {
+  border-left-color: #e74c3c; /* Rojo */
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #f1f1f1;
+  padding-bottom: 5px;
+  font-size: 14px;
+}
+
+.date {
+  color: #95a5a6;
+}
+
+.card-body p {
+  margin: 6px 0;
+  font-size: 15px;
+}
+
+.card-body strong {
+  color: #555;
+}
+
+.empty-msg {
+  text-align: center;
+  color: #95a5a6;
+  font-style: italic;
+  margin-top: 30px;
+}
+
+/* Contenedor de botones alineados a la derecha */
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+  border-top: 1px solid #f1f1f1;
+  padding-top: 12px;
+}
+
+/* Estilos base de los botones */
+.btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-accept {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.btn-accept:hover {
+  background-color: #27ae60;
+}
+
+.btn-reject {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.btn-reject:hover {
+  background-color: #c0392b;
+}

@@ -147,6 +147,18 @@
   cursor: pointer;
   text-transform: uppercase;
 }
+/* Efecto hover opcional: brilla un poco al pasar el mouse si está activo */
+.btn-add:hover:not(:disabled) {
+  background: #ffe169;
+}
+
+.btn-add:disabled {
+  background: #cccccc;        /* Gris claro para el fondo */
+  color: #777777;             /* Gris oscuro para el texto */
+  border-color: #999999;      /* Gris medio para el borde */
+  cursor: not-allowed;        /* Cambia el cursor a un símbolo de "prohibido" */
+  opacity: 0.7;               /* Lo hace ver ligeramente transparente */
+}
 
 .card-footer {
   padding: 10px;

@@ -9,6 +9,7 @@ import { UsuarioDetalle } from './Component/usuario-detalle/usuario-detalle';
 import { ForgotPassword } from './Component/forgot-password/forgot-password';
 import { ResetPassword } from './Component/reset-password/reset-password';
 import { EstadisticasPokeFav } from './Component/estadisticas-poke-fav/estadisticas-poke-fav';
+import { GestionPeticiones } from './Component/gestion-peticiones/gestion-peticiones';
 
 
 export const routes: Routes = [
@@ -51,5 +52,8 @@ export const routes: Routes = [
   },
   {
     path: "PokeStats", component: EstadisticasPokeFav
+  },
+  {
+    path: "Peticiones", component: GestionPeticiones
   }
 ];
