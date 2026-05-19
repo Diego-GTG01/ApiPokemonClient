@@ -1,17 +1,284 @@
-<div class="login-page">
-  <div class="pokeball-container">
-    <div class="login-form">
-      <div class="login-title">Pokémon Login</div>
+<div class="login-layout">
+  <!-- IZQUIERDA LOGIN -->
+  <div class="login-page">
+    <div class="pokeball-container">
+      <div class="login-form">
+        <div class="login-title">Pokémon Login</div>
 
-      <input class="login-input" type="text" [(ngModel)]="username" placeholder="Correo" />
+        <input class="login-input" type="text" [(ngModel)]="username" placeholder="Correo" />
 
-      <input class="login-input" type="password" [(ngModel)]="password" placeholder="Contraseña" />
+        <input
+          class="login-input"
+          type="password"
+          [(ngModel)]="password"
+          placeholder="Contraseña"
+        />
 
-      <button class="login-button" (click)="login()">Entrar</button>
+        <button class="login-button" (click)="login()">Entrar</button>
 
-      <div class="forgot-password">
-        <a routerLink="/forgot-password"> ¿Olvidaste tu contraseña? </a>
+        <div class="forgot-password">
+          <a routerLink="/forgot-password"> ¿Olvidaste tu contraseña? </a>
+        </div>
       </div>
+    </div>
+  </div>
+
+  <!-- DERECHA REGISTRO -->
+  <div class="register-panel">
+    <div class="register-card">
+      <h2 class="register-title">Crear Cuenta</h2>
+
+      <p class="register-subtitle">Regístrate como entrenador Pokémon</p>
+
+      <form [formGroup]="registerForm" class="register-grid">
+        <!-- NOMBRE -->
+        <div class="input-group">
+          <input
+            type="text"
+            placeholder="Nombre"
+            class="register-input"
+            formControlName="nombre"
+            (keypress)="onlyLetters($event)"
+            [class.password-error]="
+              registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched && registerForm.get('nombre')?.dirty
+            "
+          />
+
+          <small
+            class="password-text-error"
+            *ngIf="registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched && registerForm.get('nombre')?.dirty"
+          >
+            <span *ngIf="registerForm.get('nombre')?.errors?.['required']">
+              El nombre es obligatorio
+            </span>
+
+            <span *ngIf="registerForm.get('nombre')?.errors?.['minlength']">
+              Mínimo 2 caracteres
+            </span>
+
+            <span *ngIf="registerForm.get('nombre')?.errors?.['pattern']">
+              Solo se permiten letras
+            </span>
+          </small>
+        </div>
+
+        <!-- APELLIDO PATERNO -->
+        <div class="input-group">
+          <input
+            type="text"
+            placeholder="Apellido paterno"
+            class="register-input"
+            formControlName="apellidoPaterno"
+            (keypress)="onlyLetters($event)"
+            [class.password-error]="
+              registerForm.get('apellidoPaterno')?.invalid &&
+              registerForm.get('apellidoPaterno')?.touched &&
+              registerForm.get('apellidoPaterno')?.dirty
+            "
+          />
+
+          <small
+            class="password-text-error"
+            *ngIf="
+              registerForm.get('apellidoPaterno')?.invalid &&
+              registerForm.get('apellidoPaterno')?.touched &&
+              registerForm.get('apellidoPaterno')?.dirty
+            "
+          >
+            <span *ngIf="registerForm.get('apellidoPaterno')?.errors?.['required']">
+              El apellido paterno es obligatorio
+            </span>
+
+            <span *ngIf="registerForm.get('apellidoPaterno')?.errors?.['pattern']">
+              Solo letras
+            </span>
+          </small>
+        </div>
+
+        <!-- APELLIDO MATERNO -->
+        <div class="input-group">
+          <input
+            type="text"
+            placeholder="Apellido materno"
+            class="register-input"
+            formControlName="apellidoMaterno"
+            (keypress)="onlyLetters($event)"
+            [class.password-error]="
+              registerForm.get('apellidoMaterno')?.invalid &&
+              registerForm.get('apellidoMaterno')?.touched &&
+              registerForm.get('apellidoMaterno')?.dirty
+            "
+          />
+
+          <small
+            class="password-text-error"
+            *ngIf="
+              registerForm.get('apellidoMaterno')?.invalid &&
+              registerForm.get('apellidoMaterno')?.touched &&
+              registerForm.get('apellidoMaterno')?.dirty
+            "
+          >
+            Solo letras
+          </small>
+        </div>
+
+        <!-- USERNAME -->
+        <div class="input-group">
+          <input
+            type="text"
+            placeholder="Username"
+            class="register-input"
+            formControlName="userName"
+            [class.password-error]="
+              registerForm.get('userName')?.invalid && registerForm.get('userName')?.touched && registerForm.get('userName')?.dirty
+            "
+          />
+
+          <small
+            class="password-text-error"
+            *ngIf="registerForm.get('userName')?.invalid && registerForm.get('userName')?.touched && registerForm.get('userName')?.dirty"
+          >
+            Username inválido
+          </small>
+        </div>
+
+        <!-- EMAIL -->
+        <div class="input-group full-width">
+          <input
+            type="email"
+            placeholder="Correo electrónico"
+            class="register-input"
+            formControlName="email"
+            [class.password-error]="
+              registerForm.get('email')?.invalid && registerForm.get('email')?.touched && registerForm.get('email')?.dirty
+            "
+          />
+
+          <small
+            class="password-text-error"
+            *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched && registerForm.get('email')?.dirty"
+          >
+            Correo inválido
+          </small>
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="input-group">
+          <input
+            type="password"
+            placeholder="Contraseña"
+            class="register-input"
+            formControlName="password"
+            [class.password-error]="
+              registerForm.get('password')?.invalid && registerForm.get('password')?.touched && registerForm.get('password')?.dirty
+            "
+          />
+
+          <small
+            class="password-text-error"
+            *ngIf="
+              registerForm.get('password')?.errors?.['required'] &&
+              registerForm.get('password')?.touched && registerForm.get('password')?.dirty
+            "
+          >
+            La contraseña es obligatoria
+          </small>
+
+          <small
+            class="password-text-error"
+            *ngIf="
+              registerForm.get('password')?.errors?.['minlength'] &&
+              registerForm.get('password')?.touched && registerForm.get('password')?.dirty
+            "
+          >
+            Mínimo 8 caracteres
+          </small>
+
+          <small
+            class="password-text-error"
+            *ngIf="
+              registerForm.get('password')?.errors?.['pattern'] &&
+              registerForm.get('password')?.touched && registerForm.get('password')?.dirty
+            "
+          >
+            Debe incluir: mayúscula, minúscula, número y símbolo
+          </small>
+        </div>
+
+        <!-- CONFIRM PASSWORD -->
+        <div class="input-group">
+          <input
+            type="password"
+            placeholder="Confirmar contraseña"
+            class="register-input"
+            formControlName="confirmPassword"
+            [class.password-error]="
+              registerForm.get('confirmPassword')?.touched && !passwordsMatch() && registerForm.get('confirmPassword')?.dirty
+            "
+          />
+
+          <small
+            class="password-text-error"
+            *ngIf="registerForm.get('confirmPassword')?.touched && !passwordsMatch() && registerForm.get('confirmPassword')?.dirty"
+          >
+            Las contraseñas no coinciden
+          </small>
+        </div>
+
+        <!-- CELULAR -->
+        <div class="input-group">
+          <input
+            type="text"
+            placeholder="Celular"
+            class="register-input"
+            formControlName="celular"
+            maxlength="16"
+            (keypress)="allowPhoneInput($event)"
+            [class.password-error]="
+              registerForm.get('celular')?.invalid && registerForm.get('celular')?.touched && registerForm.get('celular')?.dirty
+            "
+          />
+
+          <small
+            class="password-text-error"
+            *ngIf="registerForm.get('celular')?.invalid && registerForm.get('celular')?.touched && registerForm.get('celular')?.dirty"
+          >
+            Formato de número inválido
+          </small>
+        </div>
+
+        <!-- TELEFONO -->
+        <div class="input-group">
+          <input
+            type="text"
+            placeholder="Teléfono"
+            class="register-input"
+            formControlName="telefono"
+            maxlength="16"
+            (keypress)="allowPhoneInput($event)"
+            [class.password-error]="
+              registerForm.get('telefono')?.invalid && registerForm.get('telefono')?.touched && registerForm.get('telefono')?.dirty
+            "
+          />
+
+          <small
+            class="password-text-error"
+            *ngIf="registerForm.get('telefono')?.invalid && registerForm.get('telefono')?.touched && registerForm.get('telefono')?.dirty" 
+          >
+            Formato de número inválido
+          </small>
+        </div>
+
+        <!-- BOTON -->
+        <button
+          type="button"
+          class="register-button"
+          [disabled]="registerForm.invalid || !passwordsMatch()"
+          (click)="registrarUsuario()"
+        >
+          Crear Cuenta
+        </button>
+      </form>
     </div>
   </div>
 </div>

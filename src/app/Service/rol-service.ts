@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { Result } from '../Interface/Result';
 import { Rol } from '../Interface/Rol';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -10,9 +11,9 @@ import { HttpClient } from '@angular/common/http';
 export class RolService {
   constructor(private http: HttpClient) {}
 
-  apiUrl = 'http://192.167.0.61:8080/usuario/rol';
+  private apiUrl = environment.apiUrl;
 
   getAllRol(): Observable<Result<Rol[]>> {
-    return this.http.get<Result<Rol[]>>(this.apiUrl);
+    return this.http.get<Result<Rol[]>>(`${this.apiUrl}/usuario/rol`);
   }
 }

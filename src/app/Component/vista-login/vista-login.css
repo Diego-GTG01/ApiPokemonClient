@@ -1,48 +1,17 @@
 .login-page {
-  width: 100%;
-  height: 100vh;
+  width: 50%;
 
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
 
-  padding-left: 8%;
-
-  overflow: hidden;
   position: relative;
-
-  font-family: 'Segoe UI', sans-serif;
-
-  background:
-    linear-gradient(
-      90deg,
-      rgba(0, 0, 0, 0.78) 0%,
-      rgba(0, 0, 0, 0.58) 35%,
-      rgba(0, 0, 0, 0.25) 100%
-    ),
-    url('../../assets/img/login.jpg');
-
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-.login-page::before {
-  content: '';
-
-  position: absolute;
-  inset: 0;
-
-  backdrop-filter: blur(2px);
-
-  background: radial-gradient(circle at center, transparent 20%, rgba(0, 0, 0, 0.35) 100%);
-
-  z-index: 0;
+  z-index: 2;
 }
 
 .pokeball-container {
-  width: 420px;
-  height: 420px;
+  width: 360px;
+  height: 360px;
 
   border-radius: 50%;
 
@@ -58,8 +27,6 @@
 
   z-index: 2;
 
-  backdrop-filter: blur(10px);
-
   box-shadow:
     0 0 30px rgba(0, 0, 0, 0.7),
     0 0 80px rgba(255, 0, 0, 0.25);
@@ -67,9 +34,7 @@
   transition: all 0.35s ease;
 }
 
-.pokeball-container:hover {
-  transform: scale(1.02);
-}
+
 
 /* Línea */
 .pokeball-container::before {
@@ -186,4 +151,195 @@
   font-size: 13px;
   margin-top: 10px;
   color: white;
+}
+
+/* LAYOUT GENERAL */
+.login-layout {
+  width: 100%;
+  min-height: 100vh;
+
+  display: flex;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.72) 0%,
+      rgba(0, 0, 0, 0.55) 35%,
+      rgba(0, 0, 0, 0.35) 100%
+    ),
+    url('../../assets/img/login.jpg');
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  overflow: hidden;
+}
+
+/* PANEL DERECHO */
+.register-panel {
+  width: 45%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 40px;
+
+  position: relative;
+  z-index: 2;
+}
+
+/* CARD */
+.register-card {
+  width: 100%;
+  max-width: 480px;
+
+  padding: 32px;
+
+  border-radius: 24px;
+
+  background: rgba(15, 15, 15, 0.52);
+
+  backdrop-filter: blur(18px);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.45);
+
+  color: white;
+}
+
+.register-grid {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 12px;
+}
+
+/* TITULO */
+.register-title {
+  font-size: 28px;
+  font-weight: 800;
+
+  margin-bottom: 10px;
+
+  color: #ffcc00;
+}
+
+/* SUBTITULO */
+.register-subtitle {
+  margin-bottom: 20px;
+
+  color: rgba(255, 255, 255, 0.7);
+
+  font-size: 13px;
+}
+
+/* INPUTS */
+.register-input {
+  width: 100%;
+
+  padding: 11px 2px;
+
+  border-radius: 14px;
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  background: rgba(255, 255, 255, 0.12);
+
+  color: white;
+
+  font-size: 13px;
+
+  outline: none;
+
+  transition: 0.3s ease;
+}
+
+.register-input[type="email"] {
+  grid-column: span 2;
+}
+
+.register-input::placeholder {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.register-input:focus {
+  border-color: #ffcc00;
+
+  box-shadow: 0 0 15px rgba(255, 204, 0, 0.35);
+}
+
+/* BOTON */
+.register-button {
+  grid-column: span 2;
+
+  width: 100%;
+
+  padding: 13px;
+
+  margin-top: 18px;
+
+  border: none;
+
+  border-radius: 14px;
+
+  background: linear-gradient(135deg, #ffcc00, #ff9900);
+
+  color: black;
+
+  font-weight: bold;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+}
+
+.register-button:hover {
+  transform: translateY(-2px) scale(1.01);
+
+  box-shadow: 0 10px 20px rgba(255, 204, 0, 0.35);
+}
+
+.password-error {
+  border: 1px solid #ff4d4d !important;
+
+  box-shadow:
+    0 0 10px rgba(255,77,77,0.4);
+}
+
+.password-text-error {
+  color: #ff6b6b;
+
+  font-size: 11px;
+
+  margin-top: -5px;
+
+  display: block;
+
+  padding-left: 5px;
+}
+
+.register-button:disabled {
+
+  opacity: 0.5;
+
+  cursor: not-allowed;
+
+  transform: none !important;
+
+  box-shadow: none !important;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.full-width {
+  grid-column: span 2;
 }
