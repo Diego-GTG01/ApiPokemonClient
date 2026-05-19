@@ -7,7 +7,6 @@ import { RolService } from '../../Service/rol-service';
 import { Usuario } from '../../Interface/Usuario';
 import { Rol } from '../../Interface/Rol';
 import { Result } from '../../Interface/Result';
-
 import Swal from 'sweetalert2';
 
 @Component({
